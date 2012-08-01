@@ -1,0 +1,34 @@
+import numpy as np
+from enaml.stdlib.table_model import TableModel
+from enaml.core.item_model import ModelIndex
+from traits.api import HasTraits, Int, List
+
+x = np.random.random((100,100))
+
+enamldef MyModelIndex(ModelIndex):
+    pass
+
+
+class SimpleSelectionModel(HasTraits):
+    selected_column = List(Int)
+    def _selected_column_changed(self, new):
+        return new
+
+enamldef Main(MainWindow):
+    attr simple_selection_model = SimpleSelectionModel()
+    Container:
+        TableView:
+            id: tbl_view
+            item_model = TableModel(x, editable=True)
+            RowSelectionModel:
+                selected_rows := simple_selection_model.selected_column
+            
+        Form:
+            Label:
+                text = 'Row Selected'
+            Field:
+                value << None
+            Label:
+                text = 'Column Selected'
+            Field:
+                value << simple_selection_model.selected_column
