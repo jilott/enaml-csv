@@ -1,0 +1,63 @@
+# One of the possible layouts for the editor
+
+import numpy as np
+from enaml.stdlib.table_model import TableModel
+from traits.api import HasTraits
+from chaco.api import Plot, ArrayPlotData
+
+x = np.random.random((512,512))
+
+table = TableModel(x, editable=True)
+
+class MyPlots(HasTraits):
+    def __init__(self):
+        self.plotdata = ArrayPlotData(imagedata=x)
+        plot = Plot(self.plotdata)
+        plot.img_plot('imagedata')
+        self.plot = plot
+
+enamldef ControlPanel(Container):
+    pass    
+
+enamldef Main(MainWindow):
+    attr mpl = MyPlots()
+    Container:
+        constraints = [
+            vbox(
+                hbox(tv,tab_parent),
+                control_panel
+            )
+        ]
+        TableView:
+            id: tv
+            constraints = [
+                height == 512,
+                width == 512
+            ]
+            item_model = table
+        
+        TabGroup:
+            id: tab_parent
+            Tab:
+                id: data_viz
+                title = 'Data Visualization'
+                TabGroup:
+                    Tab:
+                        id: x_vs_y
+                        title = 'X vs Y'
+                        EnableCanvas:
+                            id: chaco_plot
+                            constraints = [
+                                height == 512,
+                                width == 512
+                            ]
+                            component = mpl.plot
+                    Tab:
+                        id: image_plot
+                        title = 'Image Plot'
+            Tab:
+                id: data_analysis
+                title = 'Data Analysis'
+                
+        ControlPanel:
+            id: control_panel
