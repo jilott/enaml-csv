@@ -1,9 +1,11 @@
 # One of the possible layouts for the editor
 
+import os
 import numpy as np
 from enaml.stdlib.table_model import TableModel
 from traits.api import HasTraits
 from chaco.api import Plot, ArrayPlotData
+
 
 x = np.random.random((512,512))
 
@@ -16,8 +18,33 @@ class MyPlots(HasTraits):
         plot.img_plot('imagedata')
         self.plot = plot
 
+enamldef Loader(Container):
+    
+    constraints = [
+        hbox(lbl, fld, load_button)
+    ]
+    Label:
+        id: lbl
+        text = 'Filename'
+    Field:
+        id: fld
+        
+    PushButton:
+        id: load_button
+        text = 'Load'
+        clicked::
+            dlg = FileDialog(
+                title = 'Load file',
+                filters = ['CSV files (*.csv)'],
+                directory = os.path.dirname(__file__)
+            )
+            dlg.show()
+            if dlg.result == 'accepted':
+                fld.value = dlg.path
+
 enamldef ControlPanel(Container):
-    pass    
+    Loader:
+        id: loader
 
 enamldef Main(MainWindow):
     attr mpl = MyPlots()
