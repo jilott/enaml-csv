@@ -1,22 +1,6 @@
 # One of the possible layouts for the editor
 
 import os
-import numpy as np
-from enaml.stdlib.table_model import TableModel
-from traits.api import HasTraits, File
-from chaco.api import Plot, ArrayPlotData
-
-
-x = np.random.random((512,512))
-
-table = TableModel(x, editable=True)
-
-class MyPlots(HasTraits):
-    def __init__(self):
-        self.plotdata = ArrayPlotData(imagedata=x)
-        plot = Plot(self.plotdata)
-        plot.img_plot('imagedata')
-        self.plot = plot
 
 enamldef Loader(Container):
     
@@ -48,8 +32,9 @@ enamldef ControlPanel(Container):
         id: loader
 
 enamldef Main(MainWindow):
-    attr mpl = MyPlots()
+    
     attr model
+    
     Container:
         constraints = [
             vbox(
@@ -74,16 +59,49 @@ enamldef Main(MainWindow):
                     Tab:
                         id: x_vs_y
                         title = 'X vs Y'
+                        Container:
+                            constraints = [
+                                hbox(x_vs_y_plot, x_vs_y_control)
+                            ]
+                            EnableCanvas:
+                                id: x_vs_y_plot
+                                constraints = [height==512, width==512]
+                                component << model.x_vs_y_plot
+                            Container:
+                                id: x_vs_y_control
+                                Form:
+                                    Label:
+                                        text = 'X'
+                                    Field:
+                                        id: x_index
+                                        value << model.xvsy_indices[0]
+                                    Label:
+                                        text = 'Y'
+                                    Field:
+                                        id: y_index
+                                        value << model.xvsy_indices[1]
+                                PushButton:
+                                    id: x_vs_y_plotbutton
+                                    text = 'Plot'
+                                    clicked ::
+                                        model.xvsy_plotdata.set_data(
+                                            'x',model.table[:,int(x_index.value)]
+                                        )
+                                        model.xvsy_plotdata.set_data(
+                                            'y',model.table[:,int(y_index.value)]
+                                        )
+                                        
+                        
+                    Tab:
+                        id: image_plot
+                        title = 'Image Plot'
                         EnableCanvas:
-                            id: chaco_plot
+                            id: image_plot
                             constraints = [
                                 height == 512,
                                 width == 512
                             ]
-                            component = mpl.plot
-                    Tab:
-                        id: image_plot
-                        title = 'Image Plot'
+                            component << model.image_plot
             Tab:
                 id: data_analysis
                 title = 'Data Analysis'
