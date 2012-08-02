@@ -93,15 +93,48 @@ enamldef Main(MainWindow):
                                         
                         
                     Tab:
-                        id: image_plot
                         title = 'Image Plot'
-                        EnableCanvas:
-                            id: image_plot
+                        Container:
                             constraints = [
-                                height == 512,
-                                width == 512
+                                hbox(image_plot, image_plot_control)
                             ]
-                            component << model.image_plot
+                            EnableCanvas:
+                                id: image_plot
+                                constraints = [
+                                    height == 512,
+                                    width == 512
+                                ]
+                                component << model.image_plot
+                            Container:
+                                id: image_plot_control
+                                Form:
+                                    Label:
+                                        text = 'Top Left'
+                                    Field:
+                                        id: image_top_left
+                                        value << '0,0'
+                                    Label:
+                                        text = 'Bottom right'
+                                    Field:
+                                        id: image_bottom_right
+                                        value << str(model.table.shape[0])+ \
+                                                 ','+str(model.table.shape[1])
+                                PushButton:
+                                    text = 'Draw Plot'
+                                    clicked ::
+                                        tp_left_inds = [
+                                            int(image_top_left.value.split(',')[0]),
+                                            int(image_top_left.value.split(',')[1])
+                                        ]
+                                        btm_right_inds = [
+                                            int(image_bottom_right.value.split(',')[0]),
+                                            int(image_bottom_right.value.split(',')[1])
+                                        ]
+                                        model.img_plotdata.set_data('imagedata',
+                                                                model.table[
+                                            tp_left_inds[0]:btm_right_inds[0],
+                                            tp_left_inds[1]:btm_right_inds[1]
+                                            ])
             Tab:
                 id: data_analysis
                 title = 'Data Analysis'
