@@ -1,0 +1,92 @@
+# One of the possible layouts for the editor
+
+import os
+import numpy as np
+from enaml.stdlib.table_model import TableModel
+from traits.api import HasTraits, File
+from chaco.api import Plot, ArrayPlotData
+
+
+x = np.random.random((512,512))
+
+table = TableModel(x, editable=True)
+
+class MyPlots(HasTraits):
+    def __init__(self):
+        self.plotdata = ArrayPlotData(imagedata=x)
+        plot = Plot(self.plotdata)
+        plot.img_plot('imagedata')
+        self.plot = plot
+
+enamldef Loader(Container):
+    
+    constraints = [
+        hbox(lbl, fld, load_button),
+        width == 500
+        ]
+    Label:
+        id: lbl
+        text = 'Filename'
+    Field:
+        id: fld
+        value << model.filename
+    PushButton:
+        id: load_button
+        text = 'Load'
+        clicked::
+            dlg = FileDialog(
+                title = 'Load file',
+                filters = ['CSV files (*.csv)'],
+                directory = os.path.dirname(__file__)
+            )
+            dlg.show()
+            if dlg.result == 'accepted':
+                model.filename = dlg.path
+
+enamldef ControlPanel(Container):
+    Loader:
+        id: loader
+
+enamldef Main(MainWindow):
+    attr mpl = MyPlots()
+    attr model
+    Container:
+        constraints = [
+            vbox(
+                hbox(tv,tab_parent),
+                control_panel
+            )
+        ]
+        TableView:
+            id: tv
+            constraints = [
+                height == 512,
+                width == 512
+            ]
+            item_model << model.table_model
+        
+        TabGroup:
+            id: tab_parent
+            Tab:
+                id: data_viz
+                title = 'Data Visualization'
+                TabGroup:
+                    Tab:
+                        id: x_vs_y
+                        title = 'X vs Y'
+                        EnableCanvas:
+                            id: chaco_plot
+                            constraints = [
+                                height == 512,
+                                width == 512
+                            ]
+                            component = mpl.plot
+                    Tab:
+                        id: image_plot
+                        title = 'Image Plot'
+            Tab:
+                id: data_analysis
+                title = 'Data Analysis'
+                
+        ControlPanel:
+            id: control_panel
