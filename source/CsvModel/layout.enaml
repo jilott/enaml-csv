@@ -1,6 +1,7 @@
 # One of the possible layouts for the editor
 
 import os
+from enaml.stdlib.radio_group import RadioGroup
 
 enamldef Loader(Container):
     
@@ -71,7 +72,169 @@ enamldef PCAPlotContainer(Container):
                     pc_red = model.pca.fit_transform(x)
                     model.pca_plotdata.set_data('x',pc_red[:,0])
                     model.pca_plotdata.set_data('y',pc_red[:,1])
-                    
+
+enamldef Miscellaneous(Container):
+    Container:
+        constraints = [
+            vbox(hbox(ops_rows, ops_columns), ops_blocks)
+        ]
+        GroupBox:
+            
+            id: ops_rows
+#            constraints = [width==400]
+            title = 'Operations on Row(s)'
+            title_align = 'left'
+            Form:
+                Field:
+                    id: misc_row_no
+                    value << '0'
+                PushButton:
+                    id: pb_row
+                    text = 'Calculate'
+                    clicked ::
+                        pass
+                Label:
+                    text = 'Mean'
+                Label:
+                    id: row_mean_result
+                    text << str(model.table[:,int(misc_row_no.value)].mean())
+                Label:
+                    text = 'Variance'
+                Label:
+                    id: row_var_result
+                    text << str(model.table[:,int(misc_row_no.value)].var())
+                Label:
+                    text = 'SD'
+                Label:
+                    id: row_sd_result
+                    text << str(model.table[:,int(misc_row_no.value)].std())
+        GroupBox:
+            id: ops_columns
+#            constraints = [width==ops_rows.width]
+            title = 'Operations on Column(s)'
+            title_align = 'left'
+            Form:
+                Field:
+                    id: misc_col_no
+                    value << '0'
+                PushButton:
+                    id: pb_row
+                    text = 'Calculate'
+                    clicked ::
+                        pass
+                Label:
+                    text = 'Mean'
+                Label:
+                    text << str(model.table[int(misc_col_no.value),:].mean())
+                Label:
+                    text = 'Variance'
+                Label:
+                    text << str(model.table[int(misc_col_no.value),:].var())
+                Label:
+                    text = 'SD'
+                Label:
+                    text << str(model.table[int(misc_col_no.value),:].std())
+        GroupBox:
+            id: ops_blocks
+            
+            title = 'Operations on blocks of cells'
+            title_align = 'left'
+            Container:
+                constraints = [
+                    vbox(hbox(misc_block_indices, pb_misc_block),
+                         misc_block_results)
+                ]
+                Form:
+                    id: misc_block_indices
+                    Label:
+                        text = 'Top Left'
+                    Field:
+                        id: misc_block_topleft
+                        value << '0,0'
+                    Label:
+                        text = 'Bottom Right'
+                    Field:
+                        id: misc_block_botright
+                        value << '0,0'
+                PushButton:
+                    id: pb_misc_block
+                    text = 'Calculate'
+                    clicked ::
+                        tp_left_inds = [
+                            int(misc_block_topleft.value.split(',')[0]),
+                            int(misc_block_topleft.value.split(',')[1])
+                        ]
+                        btm_right_inds = [
+                            int(misc_block_botright.value.split(',')[0]),
+                            int(misc_block_botright.value.split(',')[1])
+                                        ]
+                        
+                        model.block_mean = model.table[
+                            tp_left_inds[0]:btm_right_inds[0],
+                            tp_left_inds[1]:btm_right_inds[1],
+                        ].mean()
+                        
+                        model.block_var = model.table[
+                            tp_left_inds[0]:btm_right_inds[0],
+                            tp_left_inds[1]:btm_right_inds[1],
+                        ].var()
+
+                        model.block_std = model.table[
+                            tp_left_inds[0]:btm_right_inds[0],
+                            tp_left_inds[1]:btm_right_inds[1],
+                        ].std()
+
+                Form:
+                    id: misc_block_results
+                    Label:
+                        text = 'Mean'
+                    Label:
+                        id: misc_block_mean
+                        text << str(model.block_mean)
+                    Label:
+                        text = 'Variance'
+                    Label:
+                        id: misc_block_var
+                        text << str(model.block_var)
+                    Label:
+                        text = 'SD'
+                    Label:
+                        id: misc_block_std
+                        text << str(model.block_std)
+
+enamldef HistogramContainer(Container):
+    Container:
+        constraints = [
+            hbox(histogram_plot,hist_control)
+        ]
+        
+        EnableCanvas:
+            id: histogram_plot
+            constraints = [
+                width == 512,
+                height == 512
+            ]
+            
+            component << model.hist_plot
+        Container:
+            id: hist_control
+            Slider:
+                id: hist_nbins_slider
+                minimum = 10
+                maximum = 1000
+                value >> int(model.hist_nbins)
+            RadioGroup:
+                id: hist_radio
+                RadioButton:
+                    text = 'Row'
+                RadioButton:
+                    text = 'Column'
+            Form:
+                Label:
+                    text = 'Index'
+                Field:
+                    id: hist_index
+                    value >> int(model.hist_row_index)
 
 enamldef Main(MainWindow):
     
@@ -182,9 +345,57 @@ enamldef Main(MainWindow):
                         title = 'PC Plot'
                         PCAPlotContainer:
                             id: pca_plot_container
+                    Tab:
+                        title = 'Histogram'
+                        HistogramContainer:
+                            id: hist_container
             Tab:
                 id: data_analysis
                 title = 'Data Analysis'
+                TabGroup:
+                    Tab:
+                        title = 'Misc'
+                        Miscellaneous:
+                            id: misc_ops
+            #        Tab:
+            #            title = 'Clustering'
+            #            KMeansContainer:
+            #                id: kmeans_container
+            #        Tab:
+            #            SpectrogramContainer:
+            #                id: spectrum_container
+            Tab:
+                id: other_ops_tab
+                title = 'Other'
+                Container:
+                    GroupBox:
+                        id: sorting_ops
+                        title = 'Sort Rows / Columns'
+                        Container:
+                            constraints = [
+                                hbox(vbox(row_col_sort_select,asc_desc_sort),
+                                          sort_button)
+                            ]
+                            RadioGroup:
+                                id: row_col_sort_select
+                                RadioButton:
+                                    text = 'Row'
+                                RadioButton:
+                                    text = 'Column'
+                            RadioGroup:
+                                id: asc_desc_sort
+                                RadioButton:
+                                    text = 'Ascending'
+                                RadioButton:
+                                    text = 'Descending'
+                            PushButton:
+                                id: sort_button
+                                text = 'Sort'
+                                clicked ::
+                                    pass
+                            #TableView:
+                            #    id: sorted_tv
+                    
                 
         ControlPanel:
             id: control_panel
