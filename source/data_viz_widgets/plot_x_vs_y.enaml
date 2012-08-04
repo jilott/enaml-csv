@@ -1,56 +1,120 @@
-# An example of a widget for plotting individual rows against one another
+# An example of a widget for plotting individual columns against one another
 # that can be used in the csv editor.
 
+import os
 import numpy as np
-from enaml.stdlib.table_model import TableModel
+from traits.api import HasTraits, Array, Str
 from chaco.api import Plot, ArrayPlotData
-from traits.api import HasTraits, Tuple
+from enaml.validation import AbstractValidator
+from enaml.stdlib.radio_group import RadioGroup
 
-table = np.random.random((100,100))
-table_model = TableModel(table, editable=True)
+filename = os.path.join('..','..','datasets','sample.csv')
+table = np.genfromtxt(filename, delimiter=',', skip_header=1)
 
-class XYPlots(HasTraits):
-    indices = (0,1)
-    data = table
+
+class XvsYModel(HasTraits):
+    
+    data = Array
+    xind = Str(0)
+    yind = Str(1)
+    xvsy_plot = Plot
+    xvsy_plotdata = ArrayPlotData
+    
     def __init__(self):
-        #self.indices = (0,1)
-        self.plotdata = ArrayPlotData(x=self.data[:,self.indices[0]],
-                                      y=self.data[:,self.indices[1]])
-        plot = Plot(self.plotdata)
-        plot.plot(("x","y"), type='scatter', color='auto')
-        self.plot = plot
+        
+        self.data = table
+        self.xvsy_plotdata = ArrayPlotData(x=self.data[:,int(self.xind)],
+                                           y=self.data[:,int(self.yind)])
+        plot = Plot(self.xvsy_plotdata)
+        plot.plot(("x","y"),type='scatter',color='auto')
+        self.xvsy_plot = plot
+    
+    def _xind_changed(self,new):
+        self.xvsy_plotdata.set_data('x',self.data[:,str(new)])
+    
+    def _yind_changed(self, new):
+        self.xvsy_plotdata.set_data('y',self.data[:,str(new)])
 
-xy_plt = XYPlots()
+
+enamldef PlotListContainer(Container):
+    Container:
+        
+        constraints = [
+            hbox(plot_name, plot_type, plot_type_select,
+                 plot_visible_toggle, plot_edit_button)
+        ]
+        
+        Label:
+            id: plot_name
+            text = 'Plot Name'
+        Label:
+            id: plot_type
+            text = 'Type'
+        RadioGroup:
+            id: plot_type_select
+            RadioButton:
+                id: plot_type_cont_select
+                text = 'Continuous'
+            RadioButton:
+                id: plot_type_disc_select
+                text = 'Discrete'
+        CheckBox:
+            id: plot_visible_toggle
+            text = 'Visibile'
+            checked  = True
+        PushButton:
+            id: plot_edit_button
+            text = 'Edit Plot'
+            clicked ::
+                pass
 
 enamldef Main(MainWindow):
-#    attr xy_plt
+    attr xvsyplot = XvsYModel()
     Container:
+        
         constraints = [
-            hbox(chaco_plot, control_panel)
+            hbox(
+            vbox(plot_area, hbox(legend_toggle, grid_toggle,indices_form)),
+            vbox(add_plot_dialog, plot_list_scroll)
+            )
         ]
+        
         EnableCanvas:
-            id: chaco_plot
-            constraints = [
-                height==600,
-                width==600
-            ]
-            
-            component << xy_plt.plot
-        Container:
-            id: control_panel
-            Form:
-                Label:
-                    text = 'X'
-                Field:
-                    id: x_ind
-                    value << xy_plt.indices[0]
-                Label:
-                    text = 'Y'
-                Field:
-                    id: y_ind
-                    value << xy_plt.indices[1]
-            PushButton:
-                text = 'Draw Plot'
-                clicked::
-                    xy_plt.plotdata.set_data('x',xy_plt.data[:,int(x_ind.value)])
-                    xy_plt.plotdata.set_data('y',xy_plt.data[:,int(y_ind.value)])
+            id: plot_area
+            constraints = [height==512, width==512]
+            component << xvsyplot.xvsy_plot
+        
+        CheckBox:
+            id: legend_toggle
+            text = 'Show Legend'
+            checked = True
+        
+        CheckBox:
+            id: grid_toggle
+            text = 'Grid On/Off'
+            checked = True
+        
+        PushButton:
+            id: add_plot_dialog
+            text = 'Add Plot'
+            clicked ::
+                pass
+        
+        ScrollArea:
+            id: plot_list_scroll
+            PlotListContainer:
+                id: plot_list_container
+                
+        
+        Form:
+            id: indices_form
+            Label:
+                text = 'X'
+            Field:
+        #        validator = int
+                value >> xvsyplot.xind
+            Label:
+                text = 'Y'
+            Field:
+        #        validator = int
+                value >> xvsyplot.yind
