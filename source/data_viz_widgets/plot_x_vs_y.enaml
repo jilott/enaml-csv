@@ -5,6 +5,7 @@ import os
 import numpy as np
 from traits.api import HasTraits, Array, Str
 from chaco.api import Plot, ArrayPlotData
+from chaco.tools.api import PanTool, ZoomTool
 from enaml.validation import AbstractValidator
 from enaml.stdlib.radio_group import RadioGroup
 
@@ -27,6 +28,8 @@ class XvsYModel(HasTraits):
                                            y=self.data[:,int(self.yind)])
         plot = Plot(self.xvsy_plotdata)
         plot.plot(("x","y"),type='scatter',color='auto')
+        plot.tools.append(PanTool(plot))
+        plot.tools.append(ZoomTool(plot))
         self.xvsy_plot = plot
     
     def _xind_changed(self,new):
@@ -38,11 +41,12 @@ class XvsYModel(HasTraits):
 
 enamldef PlotListContainer(Container):
     Container:
-        
+        padding = 5
         constraints = [
             hbox(plot_name, plot_type, plot_type_select,
                  plot_visible_toggle, plot_edit_button)
         ]
+        hug_width='strong'
         
         Label:
             id: plot_name
@@ -71,14 +75,15 @@ enamldef PlotListContainer(Container):
 enamldef Main(MainWindow):
     attr xvsyplot = XvsYModel()
     Container:
-        
+        padding = 5
         constraints = [
             hbox(
             vbox(plot_area, hbox(legend_toggle, grid_toggle,indices_form)),
+            #vbox(pan_toggle, zoom_toggle, drag_toggle),
             vbox(add_plot_dialog, plot_list_scroll)
             )
         ]
-        
+        hug_width='strong'
         EnableCanvas:
             id: plot_area
             constraints = [height==512, width==512]
@@ -93,6 +98,10 @@ enamldef Main(MainWindow):
             id: grid_toggle
             text = 'Grid On/Off'
             checked = True
+        
+        
+            
+        
         
         PushButton:
             id: add_plot_dialog
