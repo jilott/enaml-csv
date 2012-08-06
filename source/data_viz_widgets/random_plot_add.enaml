@@ -1,0 +1,33 @@
+from chaco.api import Plot, ArrayPlotData, OverlayPlotContainer, \
+create_line_plot, create_scatter_plot
+
+from traits.api import HasTraits
+import numpy as np
+
+x = np.arange(100)
+y = np.random.random((100,))
+
+class MyPlots(HasTraits):
+    container = OverlayPlotContainer()
+    def __init__(self):
+        self.plotdata = ArrayPlotData(x=x,y=y)
+        plot = Plot(self.plotdata)
+        plot.plot(("x","y"),type='line',color='auto')
+        self.plot = plot
+        self.container.add(plot)
+        
+        
+
+enamldef Main(MainWindow):
+    attr mpl = MyPlots()
+    Container:
+        EnableCanvas:
+            constraints = [height==512, width==512]
+            component << mpl.container
+        PushButton:
+            text = 'Add Random Plot'
+            clicked ::
+                lineplot = create_line_plot((x,np.random.random(100,)),
+                                            bgcolor=mpl.plot.bgcolor)
+                mpl.container.add(lineplot)
+                mpl.container.request_redraw()
