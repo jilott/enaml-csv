@@ -1,0 +1,48 @@
+from chaco.api import Plot, ArrayPlotData, PlotGrid
+
+from traits.api import HasTraits
+#from traitsui.api import *
+from enable.component_editor import ComponentEditor
+import numpy as np
+
+x = np.linspace(-10*np.pi, 10*np.pi, 500)
+y = np.sin(x)
+
+
+class MyPlots(HasTraits):
+    plot = Plot
+#    view = View(Item('plot', editor=ComponentEditor()))
+    def __init__(self):
+        self.plotdata = ArrayPlotData(x=x,y=y)
+        plot = Plot(self.plotdata)
+        plot.plot(("x","y"),type='line',color='auto')
+        self.plot = plot
+    
+
+enamldef Main(MainWindow):
+    attr mpl = MyPlots()
+    Container:
+        EnableCanvas:
+            id: chaco_plot
+            component << mpl.plot
+        CheckBox:
+            id: grid_toggle
+            text = 'Grid On'
+            checked = True
+            toggled ::
+                if not checked:
+                    mpl.plot.underlays.remove(mpl.plot.underlays[0])
+                    mpl.plot.underlays.remove(mpl.plot.underlays[0])
+                    #mpl.plot.request_redraw()
+                else:
+                    xgrid = PlotGrid(mapper=mpl.plot.value_mapper,
+                                     component=mpl.plot,
+                                     orientation='horizontal',
+                                     line_color='lightgray', line_style="dot")
+                    ygrid = PlotGrid(mapper=mpl.plot.value_mapper,
+                                     component=mpl.plot,
+                                     orientation='vertical',
+                                     line_color='lightgray', line_style="dot")
+                    mpl.plot.underlays.append(xgrid)
+                    mpl.plot.underlays.append(ygrid)
+                mpl.plot.request_redraw()
