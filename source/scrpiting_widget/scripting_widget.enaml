@@ -1,0 +1,16 @@
+
+
+enamldef Main(MainWindow):
+    Container:
+        constraints = [hbox(script_area, run_button)]
+        TextEditor:
+            id: script_area
+        PushButton:
+            id: run_button
+            text = 'Run'
+            clicked ::
+                script = script_area.get_text()
+                exec(script)
+        #Container:
+        #    id: workspace
+            
