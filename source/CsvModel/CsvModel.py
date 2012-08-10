@@ -11,46 +11,112 @@ from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
 
 class CsvModel(HasTraits):
+    '''
+    The object that is passed to the MainWindow of the enaml view. This
+    represents a general model for different plots in the csv editor.
+    '''
     
+    # The .csv file to be opened.
     filename = File
+    
+    # The numpy array associated with the data in the file
     table = Array
+    
+    # The headers of the csv data
     headers = List
+    
+    # An sklearn.decomposition.PCA object, required for the
+    # reduced-dimensionality plots
     pca = Instance(PCA)
+    
+    # Default indices for the X vs Y plot.
     xvsy_indices = (0,1)
+    
+    # Default row to be plotted in the histogram
     hist_row_index = Int(2)
+    
+    # Defulat number of bins for the histogram
     hist_nbins = Int(10)
+    
+    # The mean of the 2-D block of the array, represented by the current
+    # selection
     block_mean = Float
+    
+    # The variance of the 2-D block of the array, represented by the current
+    # selection
     block_var = Float
+    
+    # The standard deviation of the 2-D block of the array, represented by the
+    # current selection
     block_std = Float
+    
+    # The TableModel instance to be passed to the item_model attribute of the
+    # TableView
     table_model = Instance(TableModel,())
+    
+    # chaco.api.ArrayPlotData instance for the image plot
     img_plotdata = Instance(ArrayPlotData,())
+    
+    # chaco.api.plot instance for the image plot
     image_plot = Instance(Plot,())
+    
+    # chaco.api.ArrayPlotData instance for the XY plot
     xvsy_plotdata = Instance(ArrayPlotData, ())
+    
+    # chaco.api.plot instance for the image plot
     x_vs_y_plot = Instance(Plot, ())
+    
+    # chaco.api.ArrayPlotData instance for the PCA plot
     pca_plotdata = Instance(ArrayPlotData,())
+    
+    # chaco.api.plot instance for the pca plot
     pca_plot = Instance(Plot,())
+    
+    # chaco.api.ArrayPlotData instance for the histogram
     hist_plotdata = Instance(ArrayPlotData,())
+    
+    # chaco.api.plot instance for the histogram
     hist_plot = Instance(Plot,())
     
     def __init__(self):
+        '''
+        So far only the PCA objects needs to be 'initialized'.
+        '''
+        
         self.pca = PCA(n_components=2)
         self.pca.whiten = True
     
     def _table_default(self):
+        '''
+        The default array in the TableView is a 100x100 array of zeros
+        '''
+        
         x = np.zeros((100,100))
         return x
     
     def _table_model_default(self):
+        '''
+        The default TableModel instance corresponding to the array of zeros
+        '''
+        
         tblmodel = TableModel(self.table, editable=True)
         return tblmodel
     
     def _image_plot_default(self):
+        '''
+        Default chaco plot object for the image plot.
+        '''
+        
         self.img_plotdata = ArrayPlotData(imagedata=self.table)
         p = Plot(self.img_plotdata)
         p.img_plot('imagedata')
         return p
     
     def _x_vs_y_plot_default(self):
+        '''
+        Default chaco plot object for the XY plot.
+        '''
+                
         self.xvsy_plotdata = ArrayPlotData(x=self.table[:,self.xvsy_indices[0]],
                                            y=self.table[:,self.xvsy_indices[1]])
         p = Plot(self.xvsy_plotdata)
@@ -58,6 +124,10 @@ class CsvModel(HasTraits):
         return p
     
     def _pca_plot_default(self):
+        '''
+        Default chaco plot object for the PCA plot.
+        '''
+        
         pc_red = self.pca.fit_transform(self.table[0:100,:])
         self.pca_plotdata = ArrayPlotData(x=pc_red[:,0],y=pc_red[:,1])
         pca_plot = Plot(self.pca_plotdata)
@@ -65,6 +135,10 @@ class CsvModel(HasTraits):
         return pca_plot
     
     def _hist_plot_default(self):
+        '''
+        Default chaco plot object for the histogram.
+        '''
+        
         h = np.histogram(self.table,10)[0]
         self.hist_plotdata = ArrayPlotData(x=h)
         p = Plot(self.hist_plotdata)
@@ -74,6 +148,10 @@ class CsvModel(HasTraits):
     
 
     def _filename_changed(self, new):
+        '''
+        Executes whenever a file is loaded into the view.
+        '''
+        
         self.table = np.genfromtxt(self.filename, delimiter=',', skip_header=1)
         csv_reader= csv.reader(file(self.filename))
         self.headers = csv_reader.next()
