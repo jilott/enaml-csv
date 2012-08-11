@@ -1,0 +1,29 @@
+from script_handler import ScriptHandler
+from workspace_handler import WorkspaceHandler
+from enaml.core.item_model import AbstractItemModel
+
+enamldef Main(MainWindow):
+    
+    attr script_handler = ScriptHandler()
+    # For handling the scripting
+    
+    attr workspace_handler = WorkspaceHandler({})
+    # Subclass for the TableView model
+    
+    Container:
+        constraints = [hbox(vbox(text_editor,run_button),tv)]
+        
+        TextEditor:
+            id: text_editor
+        PushButton:
+            id: run_button
+            text = 'Run'
+            clicked ::
+                script_handler.script = text_editor.get_text()
+                script_handler.exec_script()
+                wh = WorkspaceHandler(script_handler.my_locals)
+                tv.item_model = wh
+                
+        TableView:
+            id: tv
+            item_model = workspace_handler
