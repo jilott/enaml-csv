@@ -1,8 +1,19 @@
 from traits.api import HasTraits, String, Dict
 
 class ScriptHandler(HasTraits):
+    '''
+    A class to execute the script in the text editor and manage the generated
+    variables.
+    '''
+    
+    # The script itself, fetched through the get_text() method of the
+    # TextEditor
     script = String
+    
+    # Global variables
     my_locals = Dict
+    
+    # Local variables after 'exec'uting the script
     my_globals = Dict
     
     def _script_default(self):
