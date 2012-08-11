@@ -1,6 +1,15 @@
 from script_handler import ScriptHandler
 from workspace_handler import WorkspaceHandler
-from enaml.core.item_model import AbstractItemModel
+from enaml.stdlib.table_model import TableModel
+import os
+import csv
+import numpy as np
+
+filename = os.path.join('..','..','datasets','sample.csv')
+x = np.genfromtxt(filename, delimiter=',', skip_header=1)
+csv_reader = csv.reader(file(filename))
+headers = csv_reader.next()
+
 
 enamldef Main(MainWindow):
     
@@ -11,7 +20,14 @@ enamldef Main(MainWindow):
     # Subclass for the TableView model
     
     Container:
-        constraints = [hbox(vbox(text_editor,run_button),tv)]
+        constraints = [
+            hbox(tv_data, vbox(text_editor, run_button), tv)
+        ]
+        
+        TableView:
+            id: tv_data
+            item_model = TableModel(x, editable=True,
+                                    horizontal_headers=headers)
         
         TextEditor:
             id: text_editor
