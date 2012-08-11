@@ -1,0 +1,42 @@
+from enaml.stdlib.table_model import TableModel
+from enaml.core.item_model import AbstractItemModel
+from traits.api import HasTraits, Instance, Dict
+
+mydict = {}
+for i in range(10):
+    mydict[i]=i
+
+class DictModel(AbstractItemModel):
+    
+    mydict = Instance(Dict)
+    
+    def __init__(self, mydict=None):
+        self.mydict = mydict
+    
+    def data(self, idx):
+        row = idx.row
+        column = idx.column
+        if column == 0:
+            return self.mydict.keys()[row]
+        else:
+            return self.mydict[row]
+    
+    def index(self,row,column,parent=None):
+        if self.has_index(row,column,parent=None):
+            return self.create_index(row,column,None)
+            
+    
+    def parent(self, index):
+        pass
+    
+    def row_count(self,idx):
+        return len(self.mydict) 
+    
+    def column_count(self, idx):
+        return 2
+
+dict_model = DictModel(mydict)
+
+enamldef Main(MainWindow):
+    ListView:
+        item_model = dict_model
