@@ -5,6 +5,7 @@ from traits.api import HasTraits, List
 from enaml.stdlib.table_model import TableModel
 from enaml.stdlib.list_model import ListModel
 from workspace_handler import WorkspaceHandler
+from selection_handler import SelectionHandler
 
 filename = os.path.join('..','..','datasets', 'sample.csv')
 
@@ -15,15 +16,17 @@ del csv_reader
 data = np.genfromtxt(filename, delimiter=',', skip_header=1)
 
 enamldef SelectionDialog(Dialog):
-    attr selection_show
+    attr selection
     Container:
         Label:
             text = 'Your Selection'
         ListView:
-            item_model = ListModel(selection_show)
+            item_model = ListModel(selection.selected_indices)
+    closed ::
+        selection.flush()
 
 enamldef Main(MainWindow):
-    
+    attr selection = SelectionHandler()
     Container:
         TableView:
             id: tv
@@ -36,11 +39,7 @@ enamldef Main(MainWindow):
         PushButton:
             text = 'Configure Selection'
             clicked ::
-                selected = bsm.get_selection()
-                indices = []
-                for elem in selected:
-                    indices.append((elem[0].row, elem[0].column, elem[1].row,
-                                   elem[1].column))
-                
-                dlg = SelectionDialog(selection_show=indices)
+                selection.current_selection = bsm.get_selection()
+                selection.create_selection()
+                dlg = SelectionDialog(selection=selection)
                 dlg.show()
