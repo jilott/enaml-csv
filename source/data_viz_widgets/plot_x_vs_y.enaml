@@ -3,8 +3,8 @@
 
 import os
 import numpy as np
-from traits.api import HasTraits, Array, Str
-from chaco.api import Plot, ArrayPlotData
+from traits.api import HasTraits, Array, Str, List
+from chaco.api import Plot, ArrayPlotData, PlotGrid
 from chaco.tools.api import PanTool, ZoomTool
 from enaml.validation import AbstractValidator
 from enaml.stdlib.radio_group import RadioGroup
@@ -20,6 +20,7 @@ class XvsYModel(HasTraits):
     yind = Str(1)
     xvsy_plot = Plot
     xvsy_plotdata = ArrayPlotData
+    grid_underlays = List
     
     def __init__(self):
         
@@ -31,12 +32,27 @@ class XvsYModel(HasTraits):
         plot.tools.append(PanTool(plot))
         plot.tools.append(ZoomTool(plot))
         self.xvsy_plot = plot
+        self.grid_underlays = []
+        for underlay in self.xvsy_plot.underlays:
+            if isinstance(underlay, PlotGrid):
+                self.grid_underlays.append(underlay)
     
     def _xind_changed(self,new):
         self.xvsy_plotdata.set_data('x',self.data[:,str(new)])
     
     def _yind_changed(self, new):
         self.xvsy_plotdata.set_data('y',self.data[:,str(new)])
+    
+    def grid_toggle(self, checked):
+        if not checked:
+            for underlay in self.grid_underlays:
+                self.xvsy_plot.underlays.remove(underlay)
+            self.xvsy_plot.request_redraw()
+        else:
+            for underlay in self.grid_underlays:
+                self.xvsy_plot.underlays.append(underlay)
+            self.xvsy_plot.request_redraw()
+
 
 
 enamldef PlotListContainer(Container):
@@ -98,6 +114,8 @@ enamldef Main(MainWindow):
             id: grid_toggle
             text = 'Grid On/Off'
             checked = True
+            toggled ::
+                xvsyplot.grid_toggle(checked)
         
         
             
