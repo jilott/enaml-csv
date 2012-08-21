@@ -1,0 +1,46 @@
+import os
+import csv
+import numpy as np
+from traits.api import HasTraits, List
+from enaml.stdlib.table_model import TableModel
+from enaml.stdlib.list_model import ListModel
+from workspace_handler import WorkspaceHandler
+
+filename = os.path.join('..','..','datasets', 'sample.csv')
+
+csv_reader = csv.reader(file(filename))
+headers = csv_reader.next()
+del csv_reader
+
+data = np.genfromtxt(filename, delimiter=',', skip_header=1)
+
+enamldef SelectionDialog(Dialog):
+    attr selection_show
+    Container:
+        Label:
+            text = 'Your Selection'
+        ListView:
+            item_model = ListModel(selection_show)
+
+enamldef Main(MainWindow):
+    
+    Container:
+        TableView:
+            id: tv
+            item_model = TableModel(data, editable=True,
+                                    horizontal_headers=headers)
+            BaseSelectionModel:
+                id: bsm
+                selection_mode = 'extended'
+                
+        PushButton:
+            text = 'Configure Selection'
+            clicked ::
+                selected = bsm.get_selection()
+                indices = []
+                for elem in selected:
+                    indices.append((elem[0].row, elem[0].column, elem[1].row,
+                                   elem[1].column))
+                
+                dlg = SelectionDialog(selection_show=indices)
+                dlg.show()
