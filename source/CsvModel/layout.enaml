@@ -29,6 +29,7 @@ enamldef Loader(Container):
                 model.filename = dlg.path
 
 enamldef ControlPanel(Container):
+
     Loader:
         id: loader
 
@@ -254,6 +255,21 @@ enamldef Main(MainWindow):
                 width == 512
             ]
             item_model << model.table_model
+            BaseSelectionModel:
+                id: bsm
+                selection_mode = 'extended'
+        
+        PushButton:
+            id: use_selection_pb
+            text = 'Use Selection'
+            clicked ::
+                model.selection_handler.current_selection = bsm.get_selection()
+                model.selection_handler.create_selection()
+                # selection_handler.selected_indices contains the
+                # indices for plotting
+                model.use_selection_xyplot()
+                model.selection_handler.flush()
+                
         
         TabGroup:
             id: tab_parent
