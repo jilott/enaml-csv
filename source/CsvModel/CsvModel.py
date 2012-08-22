@@ -9,6 +9,7 @@ from enaml.stdlib.table_model import TableModel
 from chaco.api import Plot, ArrayPlotData
 from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
+from selection_handler import SelectionHandler
 
 class CsvModel(HasTraits):
     '''
@@ -78,6 +79,8 @@ class CsvModel(HasTraits):
     # chaco.api.plot instance for the histogram
     hist_plot = Instance(Plot,())
     
+    selection_handler = Instance(SelectionHandler)
+    
     def __init__(self):
         '''
         So far only the PCA objects needs to be 'initialized'.
@@ -145,6 +148,9 @@ class CsvModel(HasTraits):
         p.plot('x',type='bar',color='auto',bar_width=0.3)
         return p
     
+    def _selection_handler_default(self):
+        return SelectionHandler()
+    
     
 
     def _filename_changed(self, new):
@@ -166,3 +172,24 @@ class CsvModel(HasTraits):
             )
     
     
+    def use_selection_xyplot(self):
+        indices = self.selection_handler.selected_indices
+        if len(indices)>2:
+            print 'X Y Plot not possible'
+        else:
+            if indices[0][0]!=indices[1][0] or indices[0][2]!=indices[1][2]:
+                print 'X Y Plot not possible'
+            else:
+                self.xvsy_indices = (indices[0][1],
+                                     indices[1][1])
+        self.xvsy_plotdata.set_data('x',self.table[:,self.xvsy_indices[0]])
+        self.xvsy_plotdata.set_data('y',self.table[:,self.xvsy_indices[1]])
+    
+    def use_selection_histogram(self):
+        pass
+    
+    def use_selection_imageplot(self):
+        pass
+    
+    def use_selection_pcaplot(self):
+        pass
