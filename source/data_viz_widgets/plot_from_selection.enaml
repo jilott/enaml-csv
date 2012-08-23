@@ -1,0 +1,102 @@
+import numpy as np
+from enaml.stdlib.table_model import TableModel
+from enaml.stdlib.radio_group import RadioGroup
+from selection_handler import SelectionHandler
+from traits.api import HasTraits, Array, Instance, Int
+from traitsui.api import Item, View
+from chaco.api import Plot, ArrayPlotData, OverlayPlotContainer, marker_trait
+from enable.api import ColorTrait
+
+x = np.random.random((100,10))
+
+class ColorHandler(HasTraits):
+    color = ColorTrait("blue")
+    marker = marker_trait
+    marker_size = Int(4)
+    view = View(Item('color'),Item('marker'),Item('marker_size'))
+
+color_handler = ColorHandler()
+
+class PlotHandler(HasTraits):
+    #container = OverlayPlotContainer
+    #plotdata = ArrayPlotData
+    #color = ColorTrait
+    #plot = Plot
+    #data = Array
+    #selection_handler = Instance(SelectionHandler)
+    def __init__(self):
+        self.container = OverlayPlotContainer()
+        self.selection_handler = SelectionHandler()
+        self.data = x
+        plotdata = ArrayPlotData(x=self.data[:,0],
+                                 y=self.data[:,1])
+        plot = Plot(plotdata)
+        self.color = color_handler.color
+        self.marker = 'square'
+        self.marker_size=Int(4)
+        self.renderer = plot.plot(("x","y"), type='scatter',color='auto')[0]
+        self.container.add(plot)
+    def _color_changed(self):
+        self.renderer.color = self.color
+    def _marker_changed(self):
+        self.renderer.marker = self.marker
+    def _marker_size_changed(self):
+        self.renderer.marker_size = self.marker_size
+
+
+
+
+
+enamldef Main(MainWindow):
+    attr model = PlotHandler()
+    attr colormodel = color_handler
+    Container:
+        constraints = [hbox(vbox(tv,control_panel,add_from_selection),plot_area)]
+        TableView:
+            id: tv
+            item_model = TableModel(x)
+            BaseSelectionModel:
+                id: bsm
+                selection_behavior = 'columns'
+        EnableCanvas:
+            id: plot_area
+            component << model.container
+        Container:
+            id: control_panel
+            TraitsUIItem:
+                id: color_select
+                model = colormodel
+#                view = colormodel.view
+            RadioGroup:
+                RadioButton:
+                    id: plot_type_disc
+                    text = 'Discrete'
+                    checked  = True
+                RadioButton:
+                    id: plot_type_cont
+                    text = 'Continuous'
+        PushButton:
+            id: add_from_selection
+            text = 'Add Plot'
+            clicked ::
+                model.selection_handler.current_selection = bsm.get_selection()
+                model.selection_handler.create_selection()
+                if model.selection_handler.xyplot_check():
+                    plotdata = ArrayPlotData(
+                        x=model.data[:,model.selection_handler.selected_indices[0][1]],
+                        y=model.data[:,model.selection_handler.selected_indices[1][1]]
+                    )
+                    plot = Plot(plotdata)
+                    if plot_type_disc.checked:
+                        plot_type = 'scatter'
+                    else:
+                        plot_type = 'line'
+                    plot.plot(
+                        ("x","y"),type=plot_type,
+                        color=color_select.model.color,
+                        marker=color_select.model.marker,
+                        marker_size=color_select.model.marker_size
+                    )
+                    model.container.add(plot)
+                    model.container.request_redraw()
+                model.selection_handler.flush()
