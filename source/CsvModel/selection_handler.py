@@ -5,8 +5,15 @@ from enaml.core.item_model import AbstractItemModel, ALIGN_LEFT
 
 class SelectionHandler(HasTraits):
     
+    # The list returned by the get_selection() method of BaseSelectionModel
     current_selection = List
+    
+    # The list created to contain only the top left and bottom right indices
+    # of all selections
     selected_indices = List
+    
+    # The dict containing the type of selected components (cells, blocks, rows,
+    # columns, etc) along with their indices
     selection_dict = Dict
     
     def _current_selection_default(self):
@@ -18,6 +25,8 @@ class SelectionHandler(HasTraits):
     def _selection_dict_default(self):
         return {}
     
+    # Converts the output of the get_selection() function into a list of 4-tuples,
+    # each containing the top left and bottom right indices.
     def create_selection(self):
         for elem in self.current_selection:
             self.selected_indices.append(
@@ -27,10 +36,14 @@ class SelectionHandler(HasTraits):
                  elem[1].column)
             )
     
+    # Cleans up the current selection. Needs to be called every time a
+    # selection is used.
     def flush(self):
-        self.curren_selection = []
+        self.current_selection = []
         self.selected_indices = []
     
+    # Creates a dictionary for the current selection, useful for visualizing
+    # the selected components in a tabular from.
     def create_selection_dict(self):
         m=0
         for index in self.selected_indices:
@@ -45,6 +58,20 @@ class SelectionHandler(HasTraits):
             mydict['botright']=index[2:4]
             self.selection_dict[m]=mydict
             m+=1
+    
+    # Used for checking if the current selection is suitable for XY plotting
+    def xyplot_check(self):
+        if len(self.selected_indices)>2:
+            return False
+        else:
+            if self.selected_indices[0][0]==self.selected_indices[1][0] and \
+                self.selected_indices[0][2]==self.selected_indices[1][2]:
+                return True
+            return False
+            if self.selected_indices[0][1]==self.selected_indices[1][1] and \
+                self.selected_indices[0][3]==self.selected_indices[1][3]:
+                return True
+            return False
 
 class SelectionViewer(AbstractItemModel):
     '''
