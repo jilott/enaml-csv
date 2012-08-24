@@ -3,13 +3,31 @@
 import numpy as np
 import csv
 from traits.api import (
-    File, HasTraits, Array, List, Instance, Function, Int, Float
+    File, HasTraits, Array, List, Instance, Function, Int, Float, Bool
 )
 from enaml.stdlib.table_model import TableModel
-from chaco.api import Plot, ArrayPlotData
+from chaco.api import Plot, ArrayPlotData, marker_trait, OverlayPlotContainer
 from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
 from selection_handler import SelectionHandler
+from enable.api import ColorTrait
+from traitsui.api import View, Item
+
+class PlotProperties(HasTraits):
+    color = ColorTrait("blue")
+    marker = marker_trait
+    marker_size = Int(4)
+    view = View(
+        Item('color'),
+        Item('marker'),
+        Item('marker_size')
+    )
+    selection_handler = Instance(SelectionHandler)
+    def add_xyplot_container(self):
+        pass
+
+
+
 
 class CsvModel(HasTraits):
     '''
@@ -67,6 +85,9 @@ class CsvModel(HasTraits):
     # chaco.api.plot instance for the image plot
     x_vs_y_plot = Instance(Plot, ())
     
+    # Container for different XY plots
+    xyplot_container = OverlayPlotContainer
+    
     # chaco.api.ArrayPlotData instance for the PCA plot
     pca_plotdata = Instance(ArrayPlotData,())
     
@@ -79,15 +100,24 @@ class CsvModel(HasTraits):
     # chaco.api.plot instance for the histogram
     hist_plot = Instance(Plot,())
     
+    # Class for handling selections from the TableView
     selection_handler = Instance(SelectionHandler)
+    
+    plot_type_disc = Bool
+    
+    plot_type_cont = Bool
+    
+    plot_properties = Instance(PlotProperties,())
     
     def __init__(self):
         '''
-        So far only the PCA objects needs to be 'initialized'.
+        So far only the PCA objects and the XY plot container needs to be 'initialized'.
         '''
         
         self.pca = PCA(n_components=2)
         self.pca.whiten = True
+        self.xyplot_container = OverlayPlotContainer()
+        self.plot_properties = PlotProperties()
     
     def _table_default(self):
         '''
@@ -126,16 +156,20 @@ class CsvModel(HasTraits):
         p.plot(("x","y"), type='scatter',color='auto')
         return p
     
-    def _pca_plot_default(self):
-        '''
-        Default chaco plot object for the PCA plot.
-        '''
-        
-        pc_red = self.pca.fit_transform(self.table[0:100,:])
-        self.pca_plotdata = ArrayPlotData(x=pc_red[:,0],y=pc_red[:,1])
-        pca_plot = Plot(self.pca_plotdata)
-        pca_plot.plot(("x","y"),type='scatter',color='auto')
-        return pca_plot
+    def _plot_type_disc_default(self):
+        return True
+    
+    #def _pca_plot_default(self):
+    #    '''
+    #    Default chaco plot object for the PCA plot.
+    #    '''
+    #    
+    #    #pc_red = self.pca.fit_transform(self.table[0:100,:])
+    #    #self.pca_plotdata = ArrayPlotData(x=pc_red[:,0],y=pc_red[:,1])
+    #    #pca_plot = Plot(self.pca_plotdata)
+    #    #pca_plot.plot(("x","y"),type='scatter',color='auto')
+    #    #return pca_plot
+    #    return None
     
     def _hist_plot_default(self):
         '''
@@ -184,6 +218,36 @@ class CsvModel(HasTraits):
                                      indices[1][1])
         self.xvsy_plotdata.set_data('x',self.table[:,self.xvsy_indices[0]])
         self.xvsy_plotdata.set_data('y',self.table[:,self.xvsy_indices[1]])
+    
+    def create_plot_properties():
+        pass
+    
+    # Used for adding an XY plot to the current container
+    def add_xyplot_container(self):
+        self.selection_handler.create_selection()
+        if self.selection_handler.xyplot_check():
+            plotdata = ArrayPlotData(
+                x=self.table[:,self.selection_handler.selected_indices[0][1]],
+                y=self.table[:,self.selection_handler.selected_indices[1][1]]
+            )
+            plot = Plot(plotdata)
+            if self.plot_type_disc:
+                plot_type = 'scatter'
+            else:
+                plot_type = 'line'
+            plot.plot(
+                ("x","y"),type = plot_type,
+                color = self.plot_properties.color,
+                marker = self.plot_properties.marker,
+                marker_size = self.plot_properties.marker_size
+            )
+            self.xyplot_container.add(plot)
+            self.xyplot_container.request_redraw()
+        self.selection_handler.flush()
+    
+    def use_selection_preview(self):
+        pass
+    
     
     def use_selection_histogram(self):
         pass

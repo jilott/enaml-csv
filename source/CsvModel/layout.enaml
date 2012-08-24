@@ -2,6 +2,7 @@
 
 import os
 from enaml.stdlib.radio_group import RadioGroup
+from add_plot_dialog import AddXYPlotDialog
 
 enamldef Loader(Container):
     
@@ -22,14 +23,15 @@ enamldef Loader(Container):
             dlg = FileDialog(
                 title = 'Load file',
                 filters = ['CSV files (*.csv)'],
-                directory = os.path.dirname(__file__)
+                directory = os.path.dirname(os.path.join('..','..','datasets','sample.csv'))
             )
             dlg.show()
             if dlg.result == 'accepted':
                 model.filename = dlg.path
 
-enamldef ControlPanel(Container):
 
+enamldef ControlPanel(Container):
+    
     Loader:
         id: loader
 
@@ -240,25 +242,25 @@ enamldef HistogramContainer(Container):
 enamldef Main(MainWindow):
     
     attr model
+    attr xyplot_handler
     
     Container:
         constraints = [
-            vbox(
-                hbox(tv,tab_parent),
-                control_panel
-            )
+            
+                vbox(hbox(vbox(tv_area,use_selection_pb),tab_parent), control_panel)
+            
         ]
+
         TableView:
-            id: tv
+            id: tv_area
             constraints = [
-                height == 512,
-                width == 512
+                height <= 512,
+                width <= 512
             ]
             item_model << model.table_model
             BaseSelectionModel:
                 id: bsm
-                selection_mode = 'extended'
-        
+                selection_behavior = 'columns'
         PushButton:
             id: use_selection_pb
             text = 'Use Selection'
@@ -269,8 +271,7 @@ enamldef Main(MainWindow):
                 # indices for plotting
                 model.use_selection_xyplot()
                 model.selection_handler.flush()
-                
-        
+
         TabGroup:
             id: tab_parent
             Tab:
@@ -282,36 +283,38 @@ enamldef Main(MainWindow):
                         title = 'X vs Y'
                         Container:
                             constraints = [
-                                hbox(x_vs_y_plot, x_vs_y_control)
+                                hbox(
+                                    vbox(x_vs_y_plot, add_xyplot_pb),
+                                    vbox(plot_properties_traits, plot_radiogroup)
+                                )
                             ]
                             EnableCanvas:
                                 id: x_vs_y_plot
-                                constraints = [height==512, width==512]
-                                component << model.x_vs_y_plot
-                            Container:
-                                id: x_vs_y_control
-                                Form:
-                                    Label:
-                                        text = 'X'
-                                    Field:
-                                        id: x_index
-                                        value << model.xvsy_indices[0]
-                                    Label:
-                                        text = 'Y'
-                                    Field:
-                                        id: y_index
-                                        value << model.xvsy_indices[1]
-                                PushButton:
-                                    id: x_vs_y_plotbutton
-                                    text = 'Plot'
-                                    clicked ::
-                                        model.xvsy_plotdata.set_data(
-                                            'x',model.table[:,int(x_index.value)]
-                                        )
-                                        model.xvsy_plotdata.set_data(
-                                            'y',model.table[:,int(y_index.value)]
-                                        )
-                                        
+                                constraints = [256<=height<=512, 256<=width<=512]
+                                
+                                component << xyplot_handler.container
+                            TraitsUIItem:
+                                id: plot_properties_traits
+                                model = xyplot_handler
+                            RadioGroup:
+                                id: plot_radiogroup
+                                RadioButton:
+                                    id: plot_type_disc
+                                    text = 'Discrete'
+                                    checked := xyplot_handler.plot_type_disc
+                                RadioButton:
+                                    id: plot_type_cont
+                                    text = 'Continuous'
+                            
+                            PushButton:
+                                id: add_xyplot_pb
+                                text = 'Use Selection'
+                                clicked ::
+                                    xyplot_handler.table = model.table
+                                    xyplot_handler.selection_handler.current_selection = bsm.get_selection()
+                                    xyplot_handler.selection_handler.create_selection()
+                                    xyplot_handler.add_xyplot_selection()
+                                    
                         
                     Tab:
                         title = 'Image Plot'
