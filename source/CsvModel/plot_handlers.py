@@ -1,6 +1,9 @@
-from traits.api import HasTraits, Bool, Instance, Int, Array
+from traits.api import HasTraits, Bool, Instance, Int, Array, List
 from traitsui.api import View, Item
-from chaco.api import Plot, ArrayPlotData, OverlayPlotContainer, marker_trait
+from chaco.api import (
+    Plot, ArrayPlotData, OverlayPlotContainer, marker_trait, PlotGrid
+)
+
 from enable.api import ColorTrait
 from selection_handler import SelectionHandler
 
@@ -16,6 +19,7 @@ class XYPlotHandler(HasTraits):
     plot_type_disc = Bool
     plot_type_cont = Bool
     table = Array
+    grid_underlays = List
     view = View(
         Item('color'),
         Item('marker'),
@@ -24,9 +28,11 @@ class XYPlotHandler(HasTraits):
     def __init__(self):
         self.selection_handler = SelectionHandler()
         self.container = OverlayPlotContainer()
+        self.underlays = []
     
     
     
+        
     #def _selection_handler_default(self):
     #    return SelectionHandler()
     
@@ -51,8 +57,26 @@ class XYPlotHandler(HasTraits):
             )
             
             self.plot = plot
-            self.container.add(self.plot)
             
+            for underlay in self.plot.underlays:
+                if isinstance(underlay, PlotGrid):
+                    if underlay not in self.grid_underlays:
+                        self.grid_underlays.append(underlay)
+            
+            self.container.add(self.plot)            
             self.container.request_redraw()
             
         self.selection_handler.flush()
+
+    def grid_toggle(self, checked):
+        if not checked:
+            for plot in self.container.components:
+                for underlay in self.grid_underlays:
+                    if underlay in plot.underlays:
+                        plot.underlays.remove(underlay)
+        else:
+            for plot in self.container.components:
+                for underlay in self.grid_underlays:
+                    if underlay not in plot.underlays:
+                        plot.underlays.append(underlay)
+        self.container.request_redraw()

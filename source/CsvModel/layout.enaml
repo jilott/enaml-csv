@@ -42,7 +42,7 @@ enamldef PCAPlotContainer(Container):
         ]
         EnableCanvas:
             id: pca_plot_canvas
-            constraints = [height==512, width==512]
+            constraints = [height<=512, width<=512]
             component << model.pca_plot
         Container:
             id: pca_control
@@ -214,8 +214,8 @@ enamldef HistogramContainer(Container):
         EnableCanvas:
             id: histogram_plot
             constraints = [
-                width == 512,
-                height == 512
+                width <= 512,
+                height <= 512
             ]
             
             component << model.hist_plot
@@ -247,7 +247,7 @@ enamldef Main(MainWindow):
     Container:
         constraints = [
             
-                vbox(hbox(vbox(tv_area,use_selection_pb),tab_parent), control_panel)
+                vbox(hbox(tv_area,tab_parent), control_panel)
             
         ]
 
@@ -261,16 +261,6 @@ enamldef Main(MainWindow):
             BaseSelectionModel:
                 id: bsm
                 selection_behavior = 'columns'
-        PushButton:
-            id: use_selection_pb
-            text = 'Use Selection'
-            clicked ::
-                model.selection_handler.current_selection = bsm.get_selection()
-                model.selection_handler.create_selection()
-                # selection_handler.selected_indices contains the
-                # indices for plotting
-                model.use_selection_xyplot()
-                model.selection_handler.flush()
 
         TabGroup:
             id: tab_parent
@@ -284,7 +274,7 @@ enamldef Main(MainWindow):
                         Container:
                             constraints = [
                                 hbox(
-                                    vbox(x_vs_y_plot, add_xyplot_pb),
+                                    vbox(x_vs_y_plot, add_xyplot_pb,grid_toggle),
                                     vbox(plot_properties_traits, plot_radiogroup)
                                 )
                             ]
@@ -314,6 +304,13 @@ enamldef Main(MainWindow):
                                     xyplot_handler.selection_handler.current_selection = bsm.get_selection()
                                     xyplot_handler.selection_handler.create_selection()
                                     xyplot_handler.add_xyplot_selection()
+                            
+                            CheckBox:
+                                id: grid_toggle
+                                text = 'Show Grid'
+                                checked = True
+                                toggled ::
+                                    xyplot_handler.grid_toggle(grid_toggle.checked)
                                     
                         
                     Tab:
@@ -325,8 +322,8 @@ enamldef Main(MainWindow):
                             EnableCanvas:
                                 id: image_plot
                                 constraints = [
-                                    height == 512,
-                                    width == 512
+                                    height <= 512,
+                                    width <= 512
                                 ]
                                 component << model.image_plot
                             Container:
