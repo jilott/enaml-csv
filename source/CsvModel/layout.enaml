@@ -1,6 +1,7 @@
 # One of the possible layouts for the editor
 
 import os
+from workspace_handler import WorkspaceHandler
 from enaml.stdlib.radio_group import RadioGroup
 from enaml.stdlib.list_model import ListModel
 from add_plot_dialog import AddXYPlotDialog
@@ -85,7 +86,6 @@ enamldef Miscellaneous(Container):
         GroupBox:
             
             id: ops_rows
-#            constraints = [width==400]
             title = 'Operations on Row(s)'
             title_align = 'left'
             Form:
@@ -114,7 +114,6 @@ enamldef Miscellaneous(Container):
                     text << str(model.table[:,int(misc_row_no.value)].std())
         GroupBox:
             id: ops_columns
-#            constraints = [width==ops_rows.width]
             title = 'Operations on Column(s)'
             title_align = 'left'
             Form:
@@ -395,13 +394,7 @@ enamldef Main(MainWindow):
                         title = 'Misc'
                         Miscellaneous:
                             id: misc_ops
-            #        Tab:
-            #            title = 'Clustering'
-            #            KMeansContainer:
-            #                id: kmeans_container
-            #        Tab:
-            #            SpectrogramContainer:
-            #                id: spectrum_container
+
             Tab:
                 id: other_ops_tab
                 title = 'Other'
@@ -431,9 +424,33 @@ enamldef Main(MainWindow):
                                 text = 'Sort'
                                 clicked ::
                                     pass
-                            #TableView:
-                            #    id: sorted_tv
+
                     
-                
+            Tab:
+                title = 'Scripting'
+                Container:
+                    constraints = [
+                        hbox(vbox(text_editor, use_selection_script, script_run_pb),
+                        workspace_view)
+                    ]
+                    TextEditor:
+                        id: text_editor
+                    TableView:
+                        id: workspace_view
+                        item_model = model.workspace_handler
+                    PushButton:
+                        id: script_run_pb
+                        text = 'Run'
+                        clicked ::
+                            model.script_handler.script = text_editor.get_text()
+                            model.script_handler.exec_script()
+                            model.workspace_handler = WorkspaceHandler(model.script_handler.my_locals)
+                            workspace_view.item_model = model.workspace_handler
+                    PushButton:
+                        id: use_selection_script
+                        text = 'Use Selection'
+                        clicked ::
+                            pass
+        
         ControlPanel:
             id: control_panel
