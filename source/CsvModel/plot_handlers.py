@@ -4,7 +4,8 @@ from chaco.api import (
     Plot, ArrayPlotData, OverlayPlotContainer, marker_trait, PlotGrid,
     Legend
 )
-
+from chaco.tools.api import ZoomTool, PanTool
+from chaco.tools.traits_tool import TraitsTool
 from enable.api import ColorTrait
 from selection_handler import SelectionHandler
 
@@ -87,6 +88,10 @@ class XYPlotHandler(HasTraits):
                 marker_size = self.marker_size
             )
             
+            plot.tools.append(PanTool(plot))
+            plot.tools.append(ZoomTool(plot))
+            plot.tools.append(TraitsTool(plot))
+            
             self.plot = plot
             
             for underlay in self.plot.underlays:
@@ -95,7 +100,8 @@ class XYPlotHandler(HasTraits):
                         self.grid_underlays.append(underlay)
             
             if plot_name == '':
-                self.plot_list_view['plot'+str(len(self.plot_list_view))]=self.plot
+                self.plot_list_view[
+                    'plot'+str(len(self.plot_list_view))]=self.plot
             else:
                 self.plot_list_view[plot_name]=self.plot
             self.container.add(self.plot)
@@ -121,6 +127,9 @@ class XYPlotHandler(HasTraits):
         self.container.request_redraw()
     
     def remove_selected_plots(self,selection):
+        '''
+        Called when the 'Remove Selected Plots' button is clicked
+        '''
         remove_indices = []
         for model_index in selection:
             remove_indices.append(model_index[0].row)
