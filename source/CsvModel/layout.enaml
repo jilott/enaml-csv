@@ -69,47 +69,57 @@ enamldef PCAPlotContainer(Container):
     Container:
         
         constraints = [
-            hbox(pca_plot_canvas, pca_control)
+            hbox(pca_plot_canvas, pcaplot_pb)
         ]
         
         EnableCanvas:
             id: pca_plot_canvas
-            constraints = [height<=512, width<=512]
-            component << model.pca_plot
+            constraints = [height==512, width==512]
+            component << pcaplot_handler.container
         
-        Container:
-            id: pca_control
+        PushButton:
+            id: pcaplot_pb
+            text = 'Use Selection'
+            clicked ::
+                pcaplot_handler.table = model.table
+                pcaplot_handler.selection_handler.current_selection = \
+                    bsm.get_selection()
+                pcaplot_handler.draw_pc_plot()
+                pcaplot_handler.selection_handler.flush()
         
-            Form:
-                Label:
-                    text = 'Top Left'
-                Field:
-                    id: top_left_pca
-                    value << '0,0'
-                Label:
-                    text = 'Bottom Right'
-                Field:
-                    id: bottom_right_pca
-                    value << '100,20'
-        
-            PushButton:
-                text = 'Draw PC Plot'
-                clicked ::
-                    tp_left_inds = [
-                        int(top_left_pca.value.split(',')[0]),
-                        int(top_left_pca.value.split(',')[1])
-                    ]
-                    btm_right_inds = [
-                        int(bottom_right_pca.value.split(',')[0]),
-                        int(bottom_right_pca.value.split(',')[1])
-                    ]
-                    x = model.table[
-                        tp_left_inds[0]:btm_right_inds[0],
-                        tp_left_inds[1]:btm_right_inds[1]
-                    ]
-                    pc_red = model.pca.fit_transform(x)
-                    model.pca_plotdata.set_data('x',pc_red[:,0])
-                    model.pca_plotdata.set_data('y',pc_red[:,1])
+        #Container:
+        #    id: pca_control
+        #
+        #    Form:
+        #        Label:
+        #            text = 'Top Left'
+        #        Field:
+        #            id: top_left_pca
+        #            value << '0,0'
+        #        Label:
+        #            text = 'Bottom Right'
+        #        Field:
+        #            id: bottom_right_pca
+        #            value << '100,20'
+        #
+        #    PushButton:
+        #        text = 'Draw PC Plot'
+        #        clicked ::
+        #            tp_left_inds = [
+        #                int(top_left_pca.value.split(',')[0]),
+        #                int(top_left_pca.value.split(',')[1])
+        #            ]
+        #            btm_right_inds = [
+        #                int(bottom_right_pca.value.split(',')[0]),
+        #                int(bottom_right_pca.value.split(',')[1])
+        #            ]
+        #            x = model.table[
+        #                tp_left_inds[0]:btm_right_inds[0],
+        #                tp_left_inds[1]:btm_right_inds[1]
+        #            ]
+        #            pc_red = model.pca.fit_transform(x)
+        #            model.pca_plotdata.set_data('x',pc_red[:,0])
+        #            model.pca_plotdata.set_data('y',pc_red[:,1])
 
 enamldef Miscellaneous(Container):
     
@@ -280,6 +290,7 @@ enamldef Main(MainWindow):
     attr model
     attr xyplot_handler
     attr imageplot_handler
+    attr pcaplot_handler
     attr script_selection = ScriptSelection({})
     
     Container:
@@ -298,7 +309,7 @@ enamldef Main(MainWindow):
             item_model << model.table_model
             BaseSelectionModel:
                 id: bsm
-                selection_behavior = 'columns'
+                #selection_behavior = 'columns'
 
         TabGroup:
             id: tab_parent
@@ -402,14 +413,31 @@ enamldef Main(MainWindow):
                                     imageplot_handler.selection_handler.create_selection()
                                     
                                     imageplot_handler.draw_image_plot()
-                                   
                                     imageplot_handler.selection_handler.flush()
 
                     Tab:
                         
                         title = 'PC Plot'
-                        PCAPlotContainer:
-                            id: pca_plot_container
+                        Container:
+        
+                            constraints = [
+                                hbox(pca_plot_canvas, pcaplot_pb)
+                            ]
+                            
+                            EnableCanvas:
+                                id: pca_plot_canvas
+                                constraints = [height==512, width==512]
+                                component << pcaplot_handler.container
+                            
+                            PushButton:
+                                id: pcaplot_pb
+                                text = 'Use Selection'
+                                clicked ::
+                                    pcaplot_handler.table = model.table
+                                    pcaplot_handler.selection_handler.current_selection = \
+                                        bsm.get_selection()
+                                    pcaplot_handler.draw_pc_plot()
+                                    pcaplot_handler.selection_handler.flush()
                     Tab:
                         title = 'Histogram'
                         HistogramContainer:

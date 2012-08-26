@@ -8,6 +8,7 @@ from chaco.tools.api import ZoomTool, PanTool
 from chaco.tools.traits_tool import TraitsTool
 from enable.api import ColorTrait
 from selection_handler import SelectionHandler
+from sklearn.decomposition import PCA
 
 
 class XYPlotHandler(HasTraits):
@@ -210,3 +211,39 @@ class ImagePlotHandler(HasTraits):
         #self.container.add(colorbar)
         
         self.container.request_redraw()
+
+
+class PCPlotHandler(HasTraits):
+    
+    container = OverlayPlotContainer()
+    
+    pca = PCA
+    
+    whiten = Bool
+    
+    table = Array
+    
+    selection_handler = Instance(SelectionHandler)
+    
+    def __init__(self):
+        self.pca = PCA(n_components = 2)
+        self.pca.whiten = True
+        self.container = OverlayPlotContainer()
+        self.selection_handler = SelectionHandler()
+    
+    def draw_pc_plot(self):
+        self.selection_handler.create_selection()
+        if len(self.selection_handler.selected_indices)==1:
+            top_left = self.selection_handler.selected_indices[0][0:2]
+            bot_right = self.selection_handler.selected_indices[0][2:4]
+            data = self.table[top_left[0]:bot_right[0],
+                              top_left[1]:bot_right[1]]
+            pc_red = self.pca.fit_transform(data)
+            plotdata = ArrayPlotData(
+                x = pc_red[:,0],
+                y = pc_red[:,1]
+            )
+            plot = Plot(plotdata)
+            plot.plot(("x","y"),type='scatter')
+            self.container.add(plot)
+            self.container.request_redraw()
