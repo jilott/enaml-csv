@@ -277,7 +277,8 @@ enamldef Main(MainWindow):
                                 hbox(
                                     vbox(x_vs_y_plot, add_xyplot_pb,grid_toggle),
                                     vbox(plot_properties_traits, plot_radiogroup,
-                                         plot_list_view,plot_name_form)
+                                         plot_list_view,remove_selected_plots,
+                                         plot_name_form)
                                 )
                             ]
                             EnableCanvas:
@@ -313,9 +314,19 @@ enamldef Main(MainWindow):
                                     xyplot_handler.selection_handler.create_selection()
                                     xyplot_handler.add_xyplot_selection(plot_name.value)
                                     plot_list_view.item_model = ListModel(xyplot_handler.plot_list_view.keys())
+                            PushButton:
+                                id: remove_selected_plots
+                                text = 'Remove Selected Plots'
+                                clicked ::
+                                    xyplot_handler.remove_selected_plots(
+                                        bsm_plotlist.get_selection()
+                                    )
+                                    plot_list_view.item_model = ListModel(xyplot_handler.plot_list_view.keys())
                             ListView:
                                 id: plot_list_view
                                 item_model = ListModel(xyplot_handler.plot_list_view.keys())
+                                BaseSelectionModel:
+                                    id: bsm_plotlist
                             CheckBox:
                                 id: grid_toggle
                                 text = 'Show Grid'
