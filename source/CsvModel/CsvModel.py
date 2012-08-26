@@ -112,7 +112,7 @@ class CsvModel(HasTraits):
     workspace_handler = Instance(WorkspaceHandler,())
     
     # Class for handling selections from the TableView
-    #selection_handler = Instance(SelectionHandler)
+    selection_handler = Instance(SelectionHandler)
     
     #plot_type_disc = Bool
     
@@ -129,6 +129,7 @@ class CsvModel(HasTraits):
         self.pca.whiten = True
         self.script_handler = ScriptHandler()
         self.workspace_handler = WorkspaceHandler({})
+        self.selection_handler = SelectionHandler()
     
     def _table_default(self):
         '''

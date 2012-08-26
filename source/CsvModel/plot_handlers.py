@@ -2,7 +2,7 @@ from traits.api import HasTraits, Bool, Instance, Int, Array, List,Dict
 from traitsui.api import View, Item
 from chaco.api import (
     Plot, ArrayPlotData, OverlayPlotContainer, marker_trait, PlotGrid,
-    Legend
+    Legend, ColorBar
 )
 from chaco.tools.api import ZoomTool, PanTool
 from chaco.tools.traits_tool import TraitsTool
@@ -144,4 +144,69 @@ class XYPlotHandler(HasTraits):
             self.container.remove(plot)
         for plot in self.plot_list_view.keys():
             self.container.add(self.plot_list_view[plot])
+        self.container.request_redraw()
+
+
+class ImagePlotHandler(HasTraits):
+    
+    container = Instance(OverlayPlotContainer)
+    
+    selection_handler = Instance(SelectionHandler)
+    
+    table = Array
+    
+    colorbar = ColorBar
+    
+    def __init__(self):
+        self.container = OverlayPlotContainer()
+        plot = ArrayPlotData(imagedata=self.table)
+        self.selection_handler = SelectionHandler()
+        
+    
+    def imageplot_check(self):
+        if len(self.selection_handler.selected_indices)>1:
+            shape_list = []
+            for index_tuple in self.selection_handler.selected_handler:
+                x = self.table[index_tuple[0]:index_tuple[2],
+                               index_tuple[1]:index_tuple[3]]
+                shape_list.append(x.shape)
+            shape_ = shape_list[0]
+            if shape_list.count(shape_)!=len(shape_list):
+                return False
+            return True
+        else:
+            return True
+    
+    def toggle_colorbar(self, checked):
+        if not checked:
+            for component in self.container.components:
+                if isinstance(component, ColorBar):
+                    self.colorbar = component
+            self.container.components.remove(self.colorbar)
+        else:
+            self.container.add(self.colorbar)
+        self.container.request_redraw()
+
+    
+    def draw_image_plot(self):
+        self.top_left = self.selection_handler.selected_indices[0][0:2]
+        self.bot_right = self.selection_handler.selected_indices[0][2:4]
+        data = self.table[self.top_left[0]:self.bot_right[0],
+                          self.top_left[1]:self.bot_right[1]]
+        plotdata = ArrayPlotData(imagedata=data)
+        plot = Plot(plotdata)
+        plot.img_plot('imagedata')
+        plot.tools.append(PanTool(plot))
+        plot.tools.append(ZoomTool(plot))
+        plot.tools.append(TraitsTool(plot))
+        self.container.add(plot)
+        
+        #colorbar = ColorBar(
+        #    index_mapper=LinearMapper(range=plot.color_mapper.range),
+        #    color_mapper = plot.color_mapper,
+        #    orientation='v'
+        #)
+        #self.colorbar = ColorBar
+        #self.container.add(colorbar)
+        
         self.container.request_redraw()

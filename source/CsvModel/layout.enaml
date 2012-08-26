@@ -5,6 +5,28 @@ from workspace_handler import WorkspaceHandler
 from enaml.stdlib.radio_group import RadioGroup
 from enaml.stdlib.list_model import ListModel
 from add_plot_dialog import AddXYPlotDialog
+from selection_handler import ScriptSelection
+
+enamldef ConfigureSelection(Dialog):
+    
+    attr config_workspace
+    title = 'Configure Selection'
+    
+    Container:
+        
+        TableView:
+            item_model = config_workspace
+        
+        Form:
+            PushButton:
+                text = 'OK'
+                clicked ::
+                    accept()
+            PushButton:
+                text = 'Cancel'
+                clicked ::
+                    reject()
+
 
 enamldef Loader(Container):
     
@@ -12,12 +34,15 @@ enamldef Loader(Container):
         hbox(lbl, fld, load_button),
         width == 500
         ]
+    
     Label:
         id: lbl
         text = 'Filename'
+    
     Field:
         id: fld
         value << model.filename
+    
     PushButton:
         id: load_button
         text = 'Load'
@@ -25,7 +50,8 @@ enamldef Loader(Container):
             dlg = FileDialog(
                 title = 'Load file',
                 filters = ['CSV files (*.csv)'],
-                directory = os.path.dirname(os.path.join('..','..','datasets','sample.csv'))
+                directory = os.path.dirname(
+                    os.path.join('..','..','datasets','sample.csv'))
             )
             dlg.show()
             if dlg.result == 'accepted':
@@ -37,17 +63,23 @@ enamldef ControlPanel(Container):
     Loader:
         id: loader
 
+
 enamldef PCAPlotContainer(Container):
+    
     Container:
+        
         constraints = [
             hbox(pca_plot_canvas, pca_control)
         ]
+        
         EnableCanvas:
             id: pca_plot_canvas
             constraints = [height<=512, width<=512]
             component << model.pca_plot
+        
         Container:
             id: pca_control
+        
             Form:
                 Label:
                     text = 'Top Left'
@@ -59,6 +91,7 @@ enamldef PCAPlotContainer(Container):
                 Field:
                     id: bottom_right_pca
                     value << '100,20'
+        
             PushButton:
                 text = 'Draw PC Plot'
                 clicked ::
@@ -79,15 +112,17 @@ enamldef PCAPlotContainer(Container):
                     model.pca_plotdata.set_data('y',pc_red[:,1])
 
 enamldef Miscellaneous(Container):
+    
     Container:
         constraints = [
             vbox(hbox(ops_rows, ops_columns), ops_blocks)
         ]
+    
         GroupBox:
-            
             id: ops_rows
             title = 'Operations on Row(s)'
             title_align = 'left'
+    
             Form:
                 Field:
                     id: misc_row_no
@@ -112,6 +147,7 @@ enamldef Miscellaneous(Container):
                 Label:
                     id: row_sd_result
                     text << str(model.table[:,int(misc_row_no.value)].std())
+    
         GroupBox:
             id: ops_columns
             title = 'Operations on Column(s)'
@@ -137,9 +173,9 @@ enamldef Miscellaneous(Container):
                     text = 'SD'
                 Label:
                     text << str(model.table[int(misc_col_no.value),:].std())
+    
         GroupBox:
             id: ops_blocks
-            
             title = 'Operations on blocks of cells'
             title_align = 'left'
             Container:
@@ -171,22 +207,18 @@ enamldef Miscellaneous(Container):
                             int(misc_block_botright.value.split(',')[0]),
                             int(misc_block_botright.value.split(',')[1])
                                         ]
-                        
                         model.block_mean = model.table[
                             tp_left_inds[0]:btm_right_inds[0],
                             tp_left_inds[1]:btm_right_inds[1],
                         ].mean()
-                        
                         model.block_var = model.table[
                             tp_left_inds[0]:btm_right_inds[0],
                             tp_left_inds[1]:btm_right_inds[1],
                         ].var()
-
                         model.block_std = model.table[
                             tp_left_inds[0]:btm_right_inds[0],
                             tp_left_inds[1]:btm_right_inds[1],
                         ].std()
-
                 Form:
                     id: misc_block_results
                     Label:
@@ -205,8 +237,11 @@ enamldef Miscellaneous(Container):
                         id: misc_block_std
                         text << str(model.block_std)
 
+
 enamldef HistogramContainer(Container):
+    
     Container:
+    
         constraints = [
             hbox(histogram_plot,hist_control)
         ]
@@ -219,6 +254,7 @@ enamldef HistogramContainer(Container):
             ]
             
             component << model.hist_plot
+    
         Container:
             id: hist_control
             Slider:
@@ -243,6 +279,8 @@ enamldef Main(MainWindow):
     
     attr model
     attr xyplot_handler
+    attr imageplot_handler
+    attr script_selection = ScriptSelection({})
     
     Container:
         constraints = [
@@ -282,7 +320,9 @@ enamldef Main(MainWindow):
                             ]
                             EnableCanvas:
                                 id: x_vs_y_plot
-                                constraints = [256<=height<=512, 256<=width<=512]
+                                constraints = [
+                                    256<=height<=512, 256<=width<=512
+                                    ]
                                 
                                 component << xyplot_handler.container
                             TraitsUIItem:
@@ -311,8 +351,10 @@ enamldef Main(MainWindow):
                                     xyplot_handler.table = model.table
                                     xyplot_handler.selection_handler.current_selection = bsm.get_selection()
                                     xyplot_handler.selection_handler.create_selection()
-                                    xyplot_handler.add_xyplot_selection(plot_name.value)
-                                    plot_list_view.item_model = ListModel(xyplot_handler.plot_list_view.keys())
+                                    xyplot_handler.add_xyplot_selection(
+                                        plot_name.value)
+                                    plot_list_view.item_model = ListModel(
+                                        xyplot_handler.plot_list_view.keys())
                             PushButton:
                                 id: remove_selected_plots
                                 text = 'Remove Selected Plots'
@@ -320,10 +362,12 @@ enamldef Main(MainWindow):
                                     xyplot_handler.remove_selected_plots(
                                         bsm_plotlist.get_selection()
                                     )
-                                    plot_list_view.item_model = ListModel(xyplot_handler.plot_list_view.keys())
+                                    plot_list_view.item_model = ListModel(
+                                        xyplot_handler.plot_list_view.keys())
                             ListView:
                                 id: plot_list_view
-                                item_model = ListModel(xyplot_handler.plot_list_view.keys())
+                                item_model = ListModel(
+                                    xyplot_handler.plot_list_view.keys())
                                 BaseSelectionModel:
                                     id: bsm_plotlist
                             CheckBox:
@@ -331,52 +375,36 @@ enamldef Main(MainWindow):
                                 text = 'Show Grid'
                                 checked = True
                                 toggled ::
-                                    xyplot_handler.grid_toggle(grid_toggle.checked)
+                                    xyplot_handler.grid_toggle(
+                                        grid_toggle.checked)
                                     
                         
                     Tab:
                         title = 'Image Plot'
                         Container:
                             constraints = [
-                                hbox(image_plot, image_plot_control)
+                                hbox(image_plot, imageplot_pb)
                             ]
                             EnableCanvas:
                                 id: image_plot
                                 constraints = [
-                                    height <= 512,
-                                    width <= 512
+                                    height == 512,
+                                    width == 512
                                 ]
-                                component << model.image_plot
-                            Container:
-                                id: image_plot_control
-                                Form:
-                                    Label:
-                                        text = 'Top Left'
-                                    Field:
-                                        id: image_top_left
-                                        value << '0,0'
-                                    Label:
-                                        text = 'Bottom right'
-                                    Field:
-                                        id: image_bottom_right
-                                        value << str(model.table.shape[0])+ \
-                                                 ','+str(model.table.shape[1])
-                                PushButton:
-                                    text = 'Draw Plot'
-                                    clicked ::
-                                        tp_left_inds = [
-                                            int(image_top_left.value.split(',')[0]),
-                                            int(image_top_left.value.split(',')[1])
-                                        ]
-                                        btm_right_inds = [
-                                            int(image_bottom_right.value.split(',')[0]),
-                                            int(image_bottom_right.value.split(',')[1])
-                                        ]
-                                        model.img_plotdata.set_data('imagedata',
-                                                                model.table[
-                                            tp_left_inds[0]:btm_right_inds[0],
-                                            tp_left_inds[1]:btm_right_inds[1]
-                                            ])
+                                component << imageplot_handler.container
+                            PushButton:
+                                id: imageplot_pb
+                                text = 'Use Selection'
+                                clicked ::
+                                    imageplot_handler.table = model.table
+                                    imageplot_handler.selection_handler.current_selection = \
+                                        bsm.get_selection()
+                                    imageplot_handler.selection_handler.create_selection()
+                                    
+                                    imageplot_handler.draw_image_plot()
+                                   
+                                    imageplot_handler.selection_handler.flush()
+
                     Tab:
                         
                         title = 'PC Plot'
@@ -430,7 +458,8 @@ enamldef Main(MainWindow):
                 title = 'Scripting'
                 Container:
                     constraints = [
-                        hbox(vbox(text_editor, use_selection_script, script_run_pb),
+                        hbox(vbox(text_editor, use_selection_script,
+                                  script_run_pb),
                         workspace_view)
                     ]
                     TextEditor:
@@ -442,15 +471,27 @@ enamldef Main(MainWindow):
                         id: script_run_pb
                         text = 'Run'
                         clicked ::
-                            model.script_handler.script = text_editor.get_text()
+                            model.script_handler.script = \
+                                text_editor.get_text()
                             model.script_handler.exec_script()
-                            model.workspace_handler = WorkspaceHandler(model.script_handler.my_locals)
+                            model.workspace_handler = WorkspaceHandler(
+                                model.script_handler.my_locals)
                             workspace_view.item_model = model.workspace_handler
                     PushButton:
                         id: use_selection_script
                         text = 'Use Selection'
                         clicked ::
-                            pass
+                            model.selection_handler.current_selection = \
+                                bsm.get_selection()
+                            model.selection_handler.create_selection()
+                            script_selection.selection_list = \
+                                model.selection_handler.selected_indices
+                            dlg = ConfigureSelection(
+                                config_workspace=script_selection
+                            )
+                            dlg.show()
+                            if dlg.result=='accepted':
+                                pass
         
         ControlPanel:
             id: control_panel
