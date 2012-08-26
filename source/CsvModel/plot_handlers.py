@@ -1,7 +1,8 @@
-from traits.api import HasTraits, Bool, Instance, Int, Array, List
+from traits.api import HasTraits, Bool, Instance, Int, Array, List,Dict
 from traitsui.api import View, Item
 from chaco.api import (
-    Plot, ArrayPlotData, OverlayPlotContainer, marker_trait, PlotGrid
+    Plot, ArrayPlotData, OverlayPlotContainer, marker_trait, PlotGrid,
+    Legend
 )
 
 from enable.api import ColorTrait
@@ -20,6 +21,7 @@ class XYPlotHandler(HasTraits):
     plot_type_cont = Bool
     table = Array
     grid_underlays = List
+    plot_list_view = Dict
     view = View(
         Item('color'),
         Item('marker'),
@@ -36,7 +38,7 @@ class XYPlotHandler(HasTraits):
     #def _selection_handler_default(self):
     #    return SelectionHandler()
     
-    def add_xyplot_selection(self):
+    def add_xyplot_selection(self,plot_name):
         if self.selection_handler.xyplot_check():
             self.plotdata = ArrayPlotData(
                 x=self.table[:,self.selection_handler.selected_indices[0][1]],
@@ -63,7 +65,9 @@ class XYPlotHandler(HasTraits):
                     if underlay not in self.grid_underlays:
                         self.grid_underlays.append(underlay)
             
-            self.container.add(self.plot)            
+            self.plot_list_view[plot_name]=self.plot
+            self.container.add(self.plot)
+
             self.container.request_redraw()
             
         self.selection_handler.flush()

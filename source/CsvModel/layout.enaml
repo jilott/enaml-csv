@@ -2,6 +2,7 @@
 
 import os
 from enaml.stdlib.radio_group import RadioGroup
+from enaml.stdlib.list_model import ListModel
 from add_plot_dialog import AddXYPlotDialog
 
 enamldef Loader(Container):
@@ -275,7 +276,8 @@ enamldef Main(MainWindow):
                             constraints = [
                                 hbox(
                                     vbox(x_vs_y_plot, add_xyplot_pb,grid_toggle),
-                                    vbox(plot_properties_traits, plot_radiogroup)
+                                    vbox(plot_properties_traits, plot_radiogroup,
+                                         plot_list_view,plot_name_form)
                                 )
                             ]
                             EnableCanvas:
@@ -295,7 +297,13 @@ enamldef Main(MainWindow):
                                 RadioButton:
                                     id: plot_type_cont
                                     text = 'Continuous'
-                            
+                            Form:
+                                id: plot_name_form
+                                Label:
+                                    text = 'Plot Name'
+                                Field:
+                                    id: plot_name
+                                    value = ''
                             PushButton:
                                 id: add_xyplot_pb
                                 text = 'Use Selection'
@@ -303,8 +311,11 @@ enamldef Main(MainWindow):
                                     xyplot_handler.table = model.table
                                     xyplot_handler.selection_handler.current_selection = bsm.get_selection()
                                     xyplot_handler.selection_handler.create_selection()
-                                    xyplot_handler.add_xyplot_selection()
-                            
+                                    xyplot_handler.add_xyplot_selection(plot_name.value)
+                                    plot_list_view.item_model = ListModel(xyplot_handler.plot_list_view.keys())
+                            ListView:
+                                id: plot_list_view
+                                item_model = ListModel(xyplot_handler.plot_list_view.keys())
                             CheckBox:
                                 id: grid_toggle
                                 text = 'Show Grid'
