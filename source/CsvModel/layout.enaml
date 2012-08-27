@@ -102,7 +102,7 @@ enamldef HistogramContainer(Container):
                     value >> int(model.hist_row_index)
 
 enamldef Main(MainWindow):
-    
+    id: main_window
     attr model
     attr xyplot_handler
     attr imageplot_handler
@@ -112,21 +112,25 @@ enamldef Main(MainWindow):
     Container:
         constraints = [
             
-                vbox(hbox(tv_area,tab_parent), control_panel)
-            
-        ]
-
-        TableView:
-            id: tv_area
-            constraints = [
-                height <= 512,
-                width <= 512
+                hbox(left_view,tab_parent),
+                
             ]
-            item_model << model.table_model
-            BaseSelectionModel:
-                id: bsm
-                #selection_behavior = 'columns'
-
+        Container:
+            id: left_view
+            constraints = [
+                vbox(tv_area,control_panel),
+                tv_area.height >= 200,
+                tv_area.width >= 200,
+                control_panel.width == tv_area.width,               
+            ]
+            TableView:
+                id: tv_area
+                item_model << model.table_model
+                BaseSelectionModel:
+                    id: bsm
+                    #selection_behavior = 'columns'
+            ControlPanel:
+                id: control_panel
         TabGroup:
             id: tab_parent
             Tab:
@@ -139,11 +143,14 @@ enamldef Main(MainWindow):
                         Container:
                             constraints = [
                                 hbox(
-                                    vbox(x_vs_y_plot, add_xyplot_pb,grid_toggle),
+                                    vbox(x_vs_y_plot, grid_toggle),
                                     vbox(plot_properties_traits, plot_radiogroup,
-                                         plot_list_view,remove_selected_plots,
-                                         plot_name_form)
-                                )
+                                         plot_name_form,add_xyplot_pb,
+                                         plot_list_view,remove_selected_plots
+                                         )
+                                ),
+                                plot_radiogroup.width == plot_properties_traits.width,
+                                plot_name_form.width == plot_radiogroup.width
                             ]
                             EnableCanvas:
                                 id: x_vs_y_plot
@@ -155,15 +162,18 @@ enamldef Main(MainWindow):
                             TraitsUIItem:
                                 id: plot_properties_traits
                                 model = xyplot_handler
-                            RadioGroup:
+                            Form:
                                 id: plot_radiogroup
-                                RadioButton:
-                                    id: plot_type_disc
-                                    text = 'Discrete'
-                                    checked := xyplot_handler.plot_type_disc
-                                RadioButton:
-                                    id: plot_type_cont
-                                    text = 'Continuous'
+                                Label:
+                                    text = 'Plot Type'
+                                RadioGroup:                                
+                                    RadioButton:
+                                        id: plot_type_disc
+                                        text = 'Discrete'
+                                        checked := xyplot_handler.plot_type_disc
+                                    RadioButton:
+                                        id: plot_type_cont
+                                        text = 'Continuous'
                             Form:
                                 id: plot_name_form
                                 Label:
@@ -173,7 +183,7 @@ enamldef Main(MainWindow):
                                     value = ''
                             PushButton:
                                 id: add_xyplot_pb
-                                text = 'Use Selection'
+                                text = 'Plot From Selection'
                                 clicked ::
                                     xyplot_handler.table = model.table
                                     xyplot_handler.selection_handler.current_selection = bsm.get_selection()
@@ -364,5 +374,3 @@ enamldef Main(MainWindow):
                             if dlg.result=='accepted':
                                 pass
         
-        ControlPanel:
-            id: control_panel
