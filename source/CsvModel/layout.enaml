@@ -28,10 +28,13 @@ enamldef ConfigureSelection(Dialog):
                     reject()
 
 
+
+
 enamldef Loader(Container):
     
     constraints = [
-        hbox(lbl, fld, load_button),
+        vbox(hbox(lbl, fld, load_button),
+        data_type_rb),
         width == 500
         ]
     
@@ -52,10 +55,21 @@ enamldef Loader(Container):
                 filters = ['CSV files (*.csv)'],
                 directory = os.path.dirname(
                     os.path.join('..','..','datasets','sample.csv'))
+                
             )
             dlg.show()
             if dlg.result == 'accepted':
                 model.filename = dlg.path
+    
+    RadioGroup:
+        id: data_type_rb
+        RadioButton:
+            id: as_pandas
+            text = 'As Pandas DataFrame'
+            checked := model.AS_PANDAS_DATAFRAME
+        RadioButton:
+            id: as_nparray
+            text = 'As numpy.ndarray'
 
 
 enamldef ControlPanel(Container):

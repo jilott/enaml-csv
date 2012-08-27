@@ -15,6 +15,9 @@ from script_handler import ScriptHandler
 from workspace_handler import WorkspaceHandler
 from enable.api import ColorTrait
 from traitsui.api import View, Item
+from pandas.io.parsers import read_csv
+from enaml_item_models import DataFrameModel
+from pandas import DataFrame
 
 #class PlotProperties(HasTraits):
 #    color = ColorTrait("blue")
@@ -39,6 +42,8 @@ class CsvModel(HasTraits):
     The object that is passed to the MainWindow of the enaml view. This
     represents a general model for different plots in the csv editor.
     '''
+    
+    data_frame = Instance(DataFrame,())
     
     # The .csv file to be opened.
     filename = File
@@ -121,6 +126,8 @@ class CsvModel(HasTraits):
     #plot_type_cont = Bool
     
     #plot_properties = Instance(PlotProperties,())
+    
+    AS_PANDAS_DATAFRAME = Bool
     
     def __init__(self):
         '''
@@ -205,59 +212,25 @@ class CsvModel(HasTraits):
         '''
         Executes whenever a file is loaded into the view.
         '''
-        
-        self.table = np.genfromtxt(self.filename, delimiter=',', skip_header=1)
-        csv_reader= csv.reader(file(self.filename))
-        self.headers = csv_reader.next()
-        del csv_reader
-        self.table_model = TableModel(self.table, editable=True,
-                                 horizontal_headers=self.headers)
-        self.img_plotdata.set_data('imagedata',self.table)
-        #self.xvsy_plotdata.set_data('x',self.table[:,self.xvsy_indices[0]])
-        #self.xvsy_plotdata.set_data('y',self.table[:,self.xvsy_indices[1]])
-        self.hist_plotdata.set_data(
-            'x',np.histogram(self.table[:,self.hist_row_index],self.hist_nbins)[0]
+        if self.AS_PANDAS_DATAFRAME:
+            self.data_frame = read_csv(self.filename)
+            self.table_model = DataFrameModel(
+                self.data_frame,
+                editable=True,
+                horizontal_headers=self.data_frame.columns,
             )
+        else:
+            self.table = np.genfromtxt(self.filename, delimiter=',', skip_header=1)
+            csv_reader= csv.reader(file(self.filename))
+            self.headers = csv_reader.next()
+            del csv_reader
+            self.table_model = TableModel(self.table, editable=True,
+                                     horizontal_headers=self.headers)
     
-    
-    #def use_selection_xyplot(self):
-    #    indices = self.selection_handler.selected_indices
-    #    if len(indices)>2:
-    #        print 'X Y Plot not possible'
-    #    else:
-    #        if indices[0][0]!=indices[1][0] or indices[0][2]!=indices[1][2]:
-    #            print 'X Y Plot not possible'
-    #        else:
-    #            self.xvsy_indices = (indices[0][1],
-    #                                 indices[1][1])
-    #    self.xvsy_plotdata.set_data('x',self.table[:,self.xvsy_indices[0]])
-    #    self.xvsy_plotdata.set_data('y',self.table[:,self.xvsy_indices[1]])
     
     def create_plot_properties():
         pass
     
-    # Used for adding an XY plot to the current container
-    #def add_xyplot_container(self):
-    #    self.selection_handler.create_selection()
-    #    if self.selection_handler.xyplot_check():
-    #        plotdata = ArrayPlotData(
-    #            x=self.table[:,self.selection_handler.selected_indices[0][1]],
-    #            y=self.table[:,self.selection_handler.selected_indices[1][1]]
-    #        )
-    #        plot = Plot(plotdata)
-    #        if self.plot_type_disc:
-    #            plot_type = 'scatter'
-    #        else:
-    #            plot_type = 'line'
-    #        plot.plot(
-    #            ("x","y"),type = plot_type,
-    #            color = self.plot_properties.color,
-    #            marker = self.plot_properties.marker,
-    #            marker_size = self.plot_properties.marker_size
-    #        )
-    #        self.xyplot_container.add(plot)
-    #        self.xyplot_container.request_redraw()
-    #    self.selection_handler.flush()
     
     def use_selection_preview(self):
         pass
@@ -285,6 +258,9 @@ class CsvModel(HasTraits):
         self.selection_std = t.std()
         self.selection_var = t.var()
         self.selection_sum = t.sum()
+    
+    def create_pandas_dataframe(self):
+        pass
 
 def create_array(data, tuple_list):
     x_ = np.empty((0,))
