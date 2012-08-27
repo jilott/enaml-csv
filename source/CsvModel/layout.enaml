@@ -64,190 +64,6 @@ enamldef ControlPanel(Container):
         id: loader
 
 
-enamldef PCAPlotContainer(Container):
-    
-    Container:
-        
-        constraints = [
-            hbox(pca_plot_canvas, pcaplot_pb)
-        ]
-        
-        EnableCanvas:
-            id: pca_plot_canvas
-            constraints = [height==512, width==512]
-            component << pcaplot_handler.container
-        
-        PushButton:
-            id: pcaplot_pb
-            text = 'Use Selection'
-            clicked ::
-                pcaplot_handler.table = model.table
-                pcaplot_handler.selection_handler.current_selection = \
-                    bsm.get_selection()
-                pcaplot_handler.draw_pc_plot()
-                pcaplot_handler.selection_handler.flush()
-        
-        #Container:
-        #    id: pca_control
-        #
-        #    Form:
-        #        Label:
-        #            text = 'Top Left'
-        #        Field:
-        #            id: top_left_pca
-        #            value << '0,0'
-        #        Label:
-        #            text = 'Bottom Right'
-        #        Field:
-        #            id: bottom_right_pca
-        #            value << '100,20'
-        #
-        #    PushButton:
-        #        text = 'Draw PC Plot'
-        #        clicked ::
-        #            tp_left_inds = [
-        #                int(top_left_pca.value.split(',')[0]),
-        #                int(top_left_pca.value.split(',')[1])
-        #            ]
-        #            btm_right_inds = [
-        #                int(bottom_right_pca.value.split(',')[0]),
-        #                int(bottom_right_pca.value.split(',')[1])
-        #            ]
-        #            x = model.table[
-        #                tp_left_inds[0]:btm_right_inds[0],
-        #                tp_left_inds[1]:btm_right_inds[1]
-        #            ]
-        #            pc_red = model.pca.fit_transform(x)
-        #            model.pca_plotdata.set_data('x',pc_red[:,0])
-        #            model.pca_plotdata.set_data('y',pc_red[:,1])
-
-enamldef Miscellaneous(Container):
-    
-    Container:
-        constraints = [
-            vbox(hbox(ops_rows, ops_columns), ops_blocks)
-        ]
-    
-        GroupBox:
-            id: ops_rows
-            title = 'Operations on Row(s)'
-            title_align = 'left'
-    
-            Form:
-                Field:
-                    id: misc_row_no
-                    value << '0'
-                PushButton:
-                    id: pb_row
-                    text = 'Calculate'
-                    clicked ::
-                        pass
-                Label:
-                    text = 'Mean'
-                Label:
-                    id: row_mean_result
-                    text << str(model.table[:,int(misc_row_no.value)].mean())
-                Label:
-                    text = 'Variance'
-                Label:
-                    id: row_var_result
-                    text << str(model.table[:,int(misc_row_no.value)].var())
-                Label:
-                    text = 'SD'
-                Label:
-                    id: row_sd_result
-                    text << str(model.table[:,int(misc_row_no.value)].std())
-    
-        GroupBox:
-            id: ops_columns
-            title = 'Operations on Column(s)'
-            title_align = 'left'
-            Form:
-                Field:
-                    id: misc_col_no
-                    value << '0'
-                PushButton:
-                    id: pb_row
-                    text = 'Calculate'
-                    clicked ::
-                        pass
-                Label:
-                    text = 'Mean'
-                Label:
-                    text << str(model.table[int(misc_col_no.value),:].mean())
-                Label:
-                    text = 'Variance'
-                Label:
-                    text << str(model.table[int(misc_col_no.value),:].var())
-                Label:
-                    text = 'SD'
-                Label:
-                    text << str(model.table[int(misc_col_no.value),:].std())
-    
-        GroupBox:
-            id: ops_blocks
-            title = 'Operations on blocks of cells'
-            title_align = 'left'
-            Container:
-                constraints = [
-                    vbox(hbox(misc_block_indices, pb_misc_block),
-                         misc_block_results)
-                ]
-                Form:
-                    id: misc_block_indices
-                    Label:
-                        text = 'Top Left'
-                    Field:
-                        id: misc_block_topleft
-                        value << '0,0'
-                    Label:
-                        text = 'Bottom Right'
-                    Field:
-                        id: misc_block_botright
-                        value << '0,0'
-                PushButton:
-                    id: pb_misc_block
-                    text = 'Calculate'
-                    clicked ::
-                        tp_left_inds = [
-                            int(misc_block_topleft.value.split(',')[0]),
-                            int(misc_block_topleft.value.split(',')[1])
-                        ]
-                        btm_right_inds = [
-                            int(misc_block_botright.value.split(',')[0]),
-                            int(misc_block_botright.value.split(',')[1])
-                                        ]
-                        model.block_mean = model.table[
-                            tp_left_inds[0]:btm_right_inds[0],
-                            tp_left_inds[1]:btm_right_inds[1],
-                        ].mean()
-                        model.block_var = model.table[
-                            tp_left_inds[0]:btm_right_inds[0],
-                            tp_left_inds[1]:btm_right_inds[1],
-                        ].var()
-                        model.block_std = model.table[
-                            tp_left_inds[0]:btm_right_inds[0],
-                            tp_left_inds[1]:btm_right_inds[1],
-                        ].std()
-                Form:
-                    id: misc_block_results
-                    Label:
-                        text = 'Mean'
-                    Label:
-                        id: misc_block_mean
-                        text << str(model.block_mean)
-                    Label:
-                        text = 'Variance'
-                    Label:
-                        id: misc_block_var
-                        text << str(model.block_var)
-                    Label:
-                        text = 'SD'
-                    Label:
-                        id: misc_block_std
-                        text << str(model.block_std)
-
-
 enamldef HistogramContainer(Container):
     
     Container:
@@ -448,8 +264,35 @@ enamldef Main(MainWindow):
                 TabGroup:
                     Tab:
                         title = 'Misc'
-                        Miscellaneous:
+                        Container:
                             id: misc_ops
+                            constraints = [vbox(params_form,params_pb)]
+                            GroupBox:
+                                id: params_form
+                                Form:
+                                    Label:
+                                        text = 'Sum'
+                                    Label:
+                                        text << str(model.selection_sum)
+                                    Label:
+                                        text = 'Mean'
+                                    Label:
+                                        text << str(model.selection_mean)
+                                    Label:
+                                        text = 'Variance'
+                                    Label:
+                                        text << str(model.selection_var)
+                                    Label:
+                                        text = 'Standard Deviation'
+                                    Label:
+                                        text << str(model.selection_std)
+                            PushButton:
+                                id: params_pb
+                                text = 'Use Selection'
+                                clicked ::
+                                    model.selection_handler.current_selection = bsm.get_selection()
+                                    model.calculate_selection_params()
+                                    model.selection_handler.flush()
 
             Tab:
                 id: other_ops_tab

@@ -64,15 +64,17 @@ class CsvModel(HasTraits):
     
     # The mean of the 2-D block of the array, represented by the current
     # selection
-    block_mean = Float
+    selection_mean = Float
     
     # The variance of the 2-D block of the array, represented by the current
     # selection
-    block_var = Float
+    selection_var = Float
     
     # The standard deviation of the 2-D block of the array, represented by the
     # current selection
-    block_std = Float
+    selection_std = Float
+    
+    selection_sum = Float
     
     # The TableModel instance to be passed to the item_model attribute of the
     # TableView
@@ -269,3 +271,24 @@ class CsvModel(HasTraits):
     
     def use_selection_pcaplot(self):
         pass
+    
+    def calculate_selection_params(self):
+        self.selection_handler.create_selection()
+        tuple_list = self.selection_handler.selected_indices
+        t = self.table[tuple_list[0][0]:tuple_list[0][2],
+                       tuple_list[0][1]:tuple_list[0][3]]
+        t.reshape((1,t.size))
+        for index in tuple_list[1:len(tuple_list)-1]:
+            x = self.table[index[0]:index[2],index[1]:index[3]]
+            t = np.hstack((t,x.reshape((1,x.size))))
+        self.selection_mean = t.mean()
+        self.selection_std = t.std()
+        self.selection_var = t.var()
+        self.selection_sum = t.sum()
+
+def create_array(data, tuple_list):
+    x_ = np.empty((0,))
+    for index in tuple_list:
+        x = data[index[0]:index[2],index[1]:index[3]]
+        x_ = np.hstack((x_,x.reshape((1,x.size))))
+    return x_.var(), x_.std(), x_.sum(), x_.mean()
