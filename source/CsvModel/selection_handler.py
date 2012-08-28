@@ -72,6 +72,9 @@ class SelectionHandler(HasTraits):
                 self.selected_indices[0][3]==self.selected_indices[1][3]:
                 return True
             return False
+    
+    
+        
 
 class SelectionViewer(AbstractItemModel):
     '''
@@ -80,7 +83,7 @@ class SelectionViewer(AbstractItemModel):
     script in the scripting widget. 
     '''
     
-    selection_list = List
+    selection_list = Dict
     
     # Initialize atleast with an empty dict.
     def __init__(self, selection_list):
@@ -129,8 +132,68 @@ class SelectionViewer(AbstractItemModel):
         else:
             bounds = self.selection_list[row]
             return str(bounds[2:4])
+
     
     def alignment(self, index):
         if index.column == 0:
             return ALIGN_LEFT
         return super(SelectionViewer, self).alignment(index)
+
+class ScriptSelection(AbstractItemModel):
+    selection_list = List
+    
+    # Initialize atleast with an empty dict.
+    def __init__(self, selection_list):
+        self.selection_list = selection_list
+        
+    # Just something required by AbstractItemModel subclasses
+    def index(self, row, column, parent=None):
+        if self.has_index(row,column,parent=None):
+            return self.create_index(row,column,None)
+    
+    # No concept of parents here, workspace is not a tree-like structure
+    def parent(self, index):
+        pass
+    
+    # No. of local variables in the workspace
+    def row_count(self, idx):
+        if len(self.selection_list)>0:
+            return len(self.selection_list)
+    
+    # No. of properties of each variable that are displayed
+    def column_count(self, idx):
+        return 4
+    
+    # The properties of each variable in the workspace
+    def horizontal_header_data(self, section):
+        return ['Type', 'Top Left', 'Bottom Right','Variable Name'][section]
+    
+    # A function for the AbstractItemModel subclass to generate the data for
+    # viewing
+    def data(self, idx):
+        row = idx.row
+        column = idx.column
+        if column == 0:
+            bounds = self.selection_list[row]
+            if bounds[0:2]==bounds[2:4]:
+                return 'cell'
+            elif bounds[0]==bounds[2] and bounds[1]!=bounds[3]:
+                return 'row'
+            elif bounds[1]==bounds[3] and bounds[2]!=bounds[0]:
+                return 'column'
+            else:
+                return 'block'
+        elif column == 1:
+            bounds = self.selection_list[row]
+            return str(bounds[0:2])
+        elif column == 2:
+            bounds = self.selection_list[row]
+            return str(bounds[2:4])
+        else:
+            return ''
+
+    
+    def alignment(self, index):
+        if index.column == 0:
+            return ALIGN_LEFT
+        return super(ScriptSelection, self).alignment(index)
