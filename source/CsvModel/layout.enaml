@@ -4,7 +4,7 @@ import os
 from workspace_handler import WorkspaceHandler
 from enaml.stdlib.radio_group import RadioGroup
 from enaml.stdlib.list_model import ListModel
-from add_plot_dialog import AddXYPlotDialog
+
 from selection_handler import ScriptSelection
 
 enamldef ConfigureSelection(Dialog):
