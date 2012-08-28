@@ -271,22 +271,14 @@ class CsvModel(HasTraits):
         '''
         Save the current table as a csv file
         '''
-        f = open(self.save_filename,'w')
+        
         if self.AS_PANDAS_DATAFRAME:
-            for item in self.data_frame.columns:
-                f.write(item)
-                f.write(',')
-            f.write('\n')
-            for index in self.data_frame.index:
-                for item in self.data_frame.ix[index]:
-                    f.write(str(item))
-                    f.write(',')
-                f.write('\n')
+            self.data_frame.to_csv(self.save_filename,index=False)
             
         else:
             # add file writing script for a numpy array
             pass
-        f.close()
+        
     
     def normalize_selection(self):
         '''
