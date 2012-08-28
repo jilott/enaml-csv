@@ -1,3 +1,4 @@
+import numpy as np
 from traits.api import HasTraits, Bool, Instance, Int, Array, List,Dict
 from traitsui.api import View, Item
 from chaco.api import (
@@ -9,12 +10,16 @@ from chaco.tools.traits_tool import TraitsTool
 from enable.api import ColorTrait
 from selection_handler import SelectionHandler
 from sklearn.decomposition import PCA
+from pandas import DataFrame
 
 
 class XYPlotHandler(HasTraits):
     '''
     Class for handling XY plots
     '''
+    
+    # Whether the data is a pandas dataframe
+    AS_PANDAS_DATAFRAME = Bool
     
     # The container for all current plots. Gets updated everytime a plot is
     # added.
@@ -47,6 +52,9 @@ class XYPlotHandler(HasTraits):
     # CsvModel
     table = Array
     
+    # The pandas data frame if AS_PANDAS_DATAFRAME
+    data_frame = Instance(DataFrame)
+    
     # Contains the grid underlays of all the current plots
     grid_underlays = List
     
@@ -70,11 +78,26 @@ class XYPlotHandler(HasTraits):
         '''
         Called when the 'add plot from selection button is clicked.'
         '''
+        
+        
         if self.selection_handler.xyplot_check():
-            self.plotdata = ArrayPlotData(
-                x=self.table[:,self.selection_handler.selected_indices[0][1]],
-                y=self.table[:,self.selection_handler.selected_indices[1][1]]
-            )
+            
+            if self.AS_PANDAS_DATAFRAME:
+                x_column = self.data_frame.columns[
+                    self.selection_handler.selected_indices[0][1]
+                ]
+                y_column = self.data_frame.columns[
+                    self.selection_handler.selected_indices[1][1]
+                ]
+                x = np.array(self.data_frame[x_column])
+                y = np.array(self.data_frame[y_column])
+                self.plotdata = ArrayPlotData(x=x,y=y)
+            
+            else:
+                self.plotdata = ArrayPlotData(
+                    x=self.table[:,self.selection_handler.selected_indices[0][1]],
+                    y=self.table[:,self.selection_handler.selected_indices[1][1]]
+                )
             
             plot = Plot(self.plotdata)
             

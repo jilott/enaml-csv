@@ -59,6 +59,7 @@ enamldef Loader(Container):
             dlg.show()
             if dlg.result == 'accepted':
                 model.filename = dlg.path
+                xyplot_handler.AS_PANDAS_DATAFRAME = model.AS_PANDAS_DATAFRAME
     
     RadioGroup:
         id: data_type_rb
@@ -213,9 +214,11 @@ enamldef Main(MainWindow):
                                 id: add_xyplot_pb
                                 text = 'Plot From Selection'
                                 clicked ::
-                                    xyplot_handler.table = model.table
+                                    if xyplot_handler.AS_PANDAS_DATAFRAME:
+                                        xyplot_handler.data_frame = model.data_frame
                                     xyplot_handler.selection_handler.current_selection = bsm.get_selection()
                                     xyplot_handler.selection_handler.create_selection()
+                                    
                                     xyplot_handler.add_xyplot_selection(
                                         plot_name.value)
                                     plot_list_view.item_model = ListModel(
