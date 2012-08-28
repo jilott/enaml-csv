@@ -338,7 +338,7 @@ enamldef Main(MainWindow):
                 Container:
                     constraints = [
                         vbox(hbox(sorting_ops,other_other),use_selection_other,
-                             map_to_unique)
+                             map_to_unique, norm_selection)
                     ]
                     GroupBox:
                         id: sorting_ops
@@ -390,6 +390,13 @@ enamldef Main(MainWindow):
                             model.selection_handler.current_selection = \
                                 bsm.get_selection()
                             model.map_to_unique()
+                    PushButton:
+                        id: norm_selection
+                        text = 'Normalize Selection'
+                        clicked ::
+                            model.selection_handler.current_selection\
+                                = bsm.get_selection()
+                            model.normalize_selection()
 
                     
             Tab:

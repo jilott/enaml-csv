@@ -20,19 +20,6 @@ from pandas.io.parsers import read_csv
 from enaml_item_models import DataFrameModel
 from pandas import DataFrame
 
-#class PlotProperties(HasTraits):
-#    color = ColorTrait("blue")
-#    marker = marker_trait
-#    marker_size = Int(4)
-#    view = View(
-#        Item('color'),
-#        Item('marker'),
-#        Item('marker_size')
-#    )
-#    selection_handler = Instance(SelectionHandler)
-#    def add_xyplot_container(self):
-#        pass
-
 
 class MyTableModel(AbstractItemModel):
     def font(self, index):
@@ -44,17 +31,23 @@ class CsvModel(HasTraits):
     represents a general model for different plots in the csv editor.
     '''
     
+    
+    # The pandas data frame associated with the current instance of the editor.
     data_frame = Instance(DataFrame,())
     
+    # Lenght of the selected column
     column_length = Int
     
+    # Number of unique items in a selection
     unique_items_nos = Int
     
+    # the unique mapping from a list of items to a list of integers
     unique_map = Dict
 
     # The .csv file to be opened.
     filename = File
     
+    # The filename of the file to be saved
     save_filename = String
     
     # The numpy array associated with the data in the file
@@ -66,9 +59,6 @@ class CsvModel(HasTraits):
     # An sklearn.decomposition.PCA object, required for the
     # reduced-dimensionality plots
     pca = Instance(PCA)
-    
-    # Default indices for the X vs Y plot.
-    #xvsy_indices = (0,1)
     
     # Default row to be plotted in the histogram
     hist_row_index = Int(2)
@@ -88,6 +78,7 @@ class CsvModel(HasTraits):
     # current selection
     selection_std = Float
     
+    # The sum of the current selection
     selection_sum = Float
     
     # The TableModel instance to be passed to the item_model attribute of the
@@ -100,20 +91,11 @@ class CsvModel(HasTraits):
     # chaco.api.plot instance for the image plot
     image_plot = Instance(Plot,())
     
-    # chaco.api.ArrayPlotData instance for the XY plot
-    #xvsy_plotdata = Instance(ArrayPlotData, ())
-    
-    # chaco.api.plot instance for the image plot
-    #x_vs_y_plot = Instance(Plot, ())
-    
-    # Container for different XY plots
-    #xyplot_container = OverlayPlotContainer
-    
     # chaco.api.ArrayPlotData instance for the PCA plot
     pca_plotdata = Instance(ArrayPlotData,())
     
     # chaco.api.plot instance for the pca plot
-    pca_plot = Instance(Plot,())
+    pca_plot = Instance(Plot,()) 
     
     # chaco.api.ArrayPlotData instance for the histogram
     hist_plotdata = Instance(ArrayPlotData,())
@@ -130,12 +112,7 @@ class CsvModel(HasTraits):
     # Class for handling selections from the TableView
     selection_handler = Instance(SelectionHandler)
     
-    #plot_type_disc = Bool
-    
-    #plot_type_cont = Bool
-    
-    #plot_properties = Instance(PlotProperties,())
-    
+    # If the file should be imported as a Pandas dataframe
     AS_PANDAS_DATAFRAME = Bool
     
     def __init__(self):
@@ -175,32 +152,6 @@ class CsvModel(HasTraits):
         p.img_plot('imagedata')
         return p
     
-    #def _x_vs_y_plot_default(self):
-    #    '''
-    #    Default chaco plot object for the XY plot.
-    #    '''
-    #            
-    #    self.xvsy_plotdata = ArrayPlotData(x=self.table[:,self.xvsy_indices[0]],
-    #                                       y=self.table[:,self.xvsy_indices[1]])
-    #    p = Plot(self.xvsy_plotdata)
-    #    p.plot(("x","y"), type='scatter',color='auto')
-    #    return p
-    
-    #def _plot_type_disc_default(self):
-    #    return True
-    
-    #def _pca_plot_default(self):
-    #    '''
-    #    Default chaco plot object for the PCA plot.
-    #    '''
-    #    
-    #    #pc_red = self.pca.fit_transform(self.table[0:100,:])
-    #    #self.pca_plotdata = ArrayPlotData(x=pc_red[:,0],y=pc_red[:,1])
-    #    #pca_plot = Plot(self.pca_plotdata)
-    #    #pca_plot.plot(("x","y"),type='scatter',color='auto')
-    #    #return pca_plot
-    #    return None
-    
     def _hist_plot_default(self):
         '''
         Default chaco plot object for the histogram.
@@ -212,11 +163,6 @@ class CsvModel(HasTraits):
         p.plot('x',type='bar',color='auto',bar_width=0.3)
         return p
     
-    #def _selection_handler_default(self):
-    #    return SelectionHandler()
-    
-    
-
     def _filename_changed(self, new):
         '''
         Executes whenever a file is loaded into the view.
@@ -255,6 +201,10 @@ class CsvModel(HasTraits):
         pass
     
     def calculate_selection_params(self):
+        
+        '''
+        Called to calculate statistics of a selection.
+        '''
         self.selection_handler.create_selection()
         tuple_list = self.selection_handler.selected_indices
         t = self.table[tuple_list[0][0]:tuple_list[0][2],
@@ -334,8 +284,36 @@ class CsvModel(HasTraits):
                 f.write('\n')
             
         else:
+            # add file writing script for a numpy array
             pass
         f.close()
+    
+    def normalize_selection(self):
+        '''
+        Normalize the current selection.
+        '''
+        self.selection_handler.create_selection()
+        if len(self.selection_handler.selected_indices)==1:
+            column_index = self.selection_handler.selected_indices[0][1]
+            if self.AS_PANDAS_DATAFRAME:
+                column_name = self.data_frame.columns[column_index]
+                x = self.data_frame[column_name]
+                x = x - x.mean()
+                x = x/x.std()
+                self.data_frame[column_name]=x
+                self.table_model = DataFrameModel(
+                    self.data_frame,
+                    editable=True,
+                    horizontal_headers=self.data_frame.columns
+                )
+            else:
+                x = self.table[:,column_index]
+                x = x - x.mean()
+                x = x/x.std()
+                self.table[:,column_index] = x
+                self.table_model = TableModel(self.table, editable=True,
+                                              horizontal_headers=self.headers)
+        self.selection_handler.flush()
 
 def create_array(data, tuple_list):
     x_ = np.empty((0,))
