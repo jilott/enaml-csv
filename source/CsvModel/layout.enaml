@@ -33,8 +33,7 @@ enamldef ConfigureSelection(Dialog):
 enamldef Loader(Container):
     
     constraints = [
-        vbox(hbox(lbl, fld, load_button),
-        data_type_rb),
+        vbox(data_type_rb,hbox(lbl, fld, load_button, save_button)),
         width == 500
         ]
     
@@ -70,6 +69,21 @@ enamldef Loader(Container):
         RadioButton:
             id: as_nparray
             text = 'As numpy.ndarray'
+    PushButton:
+        id: save_button
+        text = 'Save as csv'
+        clicked ::
+            dlg = FileDialog(
+                title = 'Save file',
+                mode = 'save',
+                filters = ['CSV (*.csv)'],
+                directory = os.path.dirname(
+                    os.path.join('..','..','datasets','sample.csv'))
+                )
+            dlg.show()
+            if dlg.result == 'accepted':
+                model.save_filename = dlg.path
+                model.save_as()
 
 
 enamldef ControlPanel(Container):

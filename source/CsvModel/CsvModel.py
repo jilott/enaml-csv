@@ -3,7 +3,8 @@
 import numpy as np
 import csv
 from traits.api import (
-    File, HasTraits, Array, List, Instance, Function, Int, Float, Bool, Dict
+    File, HasTraits, Array, List, Instance, Function, Int, Float, Bool, Dict,
+    String
 )
 from enaml.stdlib.table_model import TableModel
 from enaml.core.item_model import AbstractItemModel
@@ -53,6 +54,8 @@ class CsvModel(HasTraits):
 
     # The .csv file to be opened.
     filename = File
+    
+    save_filename = String
     
     # The numpy array associated with the data in the file
     table = Array
@@ -313,6 +316,26 @@ class CsvModel(HasTraits):
             
             
         self.selection_handler.flush()
+    
+    def save_as(self):
+        '''
+        Save the current table as a csv file
+        '''
+        f = open(self.save_filename,'w')
+        if self.AS_PANDAS_DATAFRAME:
+            for item in self.data_frame.columns:
+                f.write(item)
+                f.write(',')
+            f.write('\n')
+            for index in self.data_frame.index:
+                for item in self.data_frame.ix[index]:
+                    f.write(str(item))
+                    f.write(',')
+                f.write('\n')
+            
+        else:
+            pass
+        f.close()
 
 def create_array(data, tuple_list):
     x_ = np.empty((0,))
