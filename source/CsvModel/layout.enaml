@@ -93,42 +93,10 @@ enamldef ControlPanel(Container):
         id: loader
 
 
-enamldef HistogramContainer(Container):
+
     
-    Container:
     
-        constraints = [
-            hbox(histogram_plot,hist_control)
-        ]
-        
-        EnableCanvas:
-            id: histogram_plot
-            constraints = [
-                width <= 512,
-                height <= 512
-            ]
-            
-            component << model.hist_plot
-    
-        Container:
-            id: hist_control
-            Slider:
-                id: hist_nbins_slider
-                minimum = 10
-                maximum = 1000
-                value >> int(model.hist_nbins)
-            RadioGroup:
-                id: hist_radio
-                RadioButton:
-                    text = 'Row'
-                RadioButton:
-                    text = 'Column'
-            Form:
-                Label:
-                    text = 'Index'
-                Field:
-                    id: hist_index
-                    value >> int(model.hist_row_index)
+                
 
 enamldef Main(MainWindow):
     id: main_window
@@ -138,6 +106,7 @@ enamldef Main(MainWindow):
     attr pcaplot_handler
     attr script_selection = ScriptSelection({})
     attr regressplot
+    attr histplot_handler
     
     Container:
         constraints = [
@@ -298,8 +267,37 @@ enamldef Main(MainWindow):
                                     pcaplot_handler.selection_handler.flush()
                     Tab:
                         title = 'Histogram'
-                        HistogramContainer:
+                        Container:
                             id: hist_container
+
+                            constraints = [
+                                vbox(hist_plot_container, nbins_slider, draw_hist_pb)
+                            ]
+                            EnableCanvas:
+                                id: hist_plot_container
+                                constraints = [
+                                    256<=width<=512,
+                                    256<=height<=512,
+                                ]
+                                component << histplot_handler.container
+                            Slider:
+                                id: nbins_slider
+                                minimum = 10
+                                maximum = 1000
+                                value >> histplot_handler.nbins
+                            PushButton:
+                                id: draw_hist_pb
+                                text = 'Use Selection'
+                                clicked ::
+                                    histplot_handler.AS_PANDAS_DATAFRAME = \
+                                        model.AS_PANDAS_DATAFRAME
+                                    if histplot_handler.AS_PANDAS_DATAFRAME:
+                                        histplot_handler.data = model.data_frame
+                                    else:
+                                        histplot_handler.data = model.table
+                                    histplot_handler.selection_handler.current_selection = \
+                                        bsm.get_selection()
+                                    histplot_handler.draw_histogram()
             Tab:
                 id: data_analysis
                 title = 'Data Analysis'

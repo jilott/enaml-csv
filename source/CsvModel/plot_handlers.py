@@ -332,3 +332,51 @@ class RegressionPlotHandler(HasTraits):
         self.container.add(plot)
         
         self.container.request_redraw()
+
+class HistogramPlotHandler(HasTraits):
+    
+    index = Array
+    
+    selection_handler = Instance(SelectionHandler)
+    
+    container = Instance(OverlayPlotContainer)
+    
+    nbins = Int(10)
+    
+    AS_PANDAS_DATAFRAME = Bool
+    
+    def __init__(self):
+        self.index = range(self.nbins)
+        self.selection_handler = SelectionHandler()
+        self.container = OverlayPlotContainer()
+    
+    def draw_histogram(self):
+        for component in self.container.components:
+            self.container.remove(component)
+            
+        self.selection_handler.create_selection()
+        
+        if len(self.selection_handler.selected_indices)==1:
+            tuple_list = self.selection_handler.selected_indices[0]
+            if self.AS_PANDAS_DATAFRAME:
+                column_name = self.data.columns[tuple_list[1]]
+                y = self.data[column_name]
+                self.index = np.arange(self.nbins)
+                hist = np.histogram(y, self.nbins)[0]
+                plotdata = ArrayPlotData(x=self.index,y=hist)
+                plot = Plot(plotdata)
+                plot.plot(("x","y"),type='bar',bar_width=0.5)
+                self.container.add(plot)
+            else:
+                column = tuple_list[1]
+                y = self.data[:,column]
+                self.index = np.arange(self.nbins)
+                hist = np.histogram(y, self.nbins)[0]
+                plotdata = ArrayPlotData(x=self.index,y=hist)
+                plot = Plot(plotdata)
+                plot.plot(("x","y"),type='bar',bar_width=0.5)
+                self.container.add(plot)
+            
+            self.container.request_redraw()
+    
+        self.selection_handler.flush()
