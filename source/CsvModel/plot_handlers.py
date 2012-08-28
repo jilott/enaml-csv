@@ -11,6 +11,7 @@ from enable.api import ColorTrait
 from selection_handler import SelectionHandler
 from sklearn.decomposition import PCA
 from pandas import DataFrame
+from statsmodels.api import OLS
 
 
 class XYPlotHandler(HasTraits):
@@ -23,7 +24,7 @@ class XYPlotHandler(HasTraits):
     
     # The container for all current plots. Gets updated everytime a plot is
     # added.
-    container = OverlayPlotContainer
+    container = OverlayPlotContainer    
     
     # This can be removed.
     plotdata = ArrayPlotData
@@ -270,3 +271,64 @@ class PCPlotHandler(HasTraits):
             plot.plot(("x","y"),type='scatter')
             self.container.add(plot)
             self.container.request_redraw()
+
+
+class RegressionPlotHandler(HasTraits):
+    
+    data = Array
+    
+    # The input, or the selected column / row
+    Y = Array
+    
+    # OLS fitted values of the current selection
+    selection_olsfit = Array
+    
+    # the index used to plot the output
+    index = Array
+    
+    # the container for the plots
+    container = Instance(OverlayPlotContainer)
+    
+    selection_handler = Instance(SelectionHandler)
+    
+    def __init__(self):
+        self.selection_handler = SelectionHandler()
+        self.container = OverlayPlotContainer()
+    
+    def fit_selection(self):
+        self.selection_handler.create_selection()
+        if len(self.selection_handler.selected_indices)==1:
+            tuple_list = self.selection_handler.selected_indices[0]
+            if tuple_list[1]==tuple_list[3]:
+                L = tuple_list[2]-tuple_list[0]
+                self.index = np.arange(L+1)
+                self.Y = self.data[:,tuple_list[1]]
+                print self.Y.shape
+                print self.index.shape
+                results = OLS(self.Y,self.index).fit()
+                self.selection_olsfit = results.fittedvalues
+        self.selection_handler.flush()
+    
+    def plot_fits(self):
+        
+        components = []
+        
+        for component in self.container.plot_components:
+            components.append(component)
+        
+        for component in components:
+            self.container.plot_components.remove(component)
+                
+        
+        plotdata = ArrayPlotData(x=self.index, y=self.Y)
+        plot = Plot(plotdata)
+        plot.plot(("x","y"),type='line',color='red')
+        plot.line_style = 'dash'
+        self.container.add(plot)
+        
+        plotdata = ArrayPlotData(x=self.index,y=self.selection_olsfit)
+        plot = Plot(plotdata)
+        plot.plot(("x","y"),type='line',color='blue')
+        self.container.add(plot)
+        
+        self.container.request_redraw()

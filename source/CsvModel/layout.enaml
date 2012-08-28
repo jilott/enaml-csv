@@ -137,6 +137,7 @@ enamldef Main(MainWindow):
     attr imageplot_handler
     attr pcaplot_handler
     attr script_selection = ScriptSelection({})
+    attr regressplot
     
     Container:
         constraints = [
@@ -304,9 +305,8 @@ enamldef Main(MainWindow):
                 title = 'Data Analysis'
                 TabGroup:
                     Tab:
-                        title = 'Misc'
+                        title = 'Descriptive Stats'
                         Container:
-                            id: misc_ops
                             constraints = [vbox(params_form,params_pb)]
                             GroupBox:
                                 id: params_form
@@ -335,13 +335,40 @@ enamldef Main(MainWindow):
                                         text = 'Minimum'
                                     Label:
                                         text << str(model.selection_min)
+                                    Label:
+                                        text = 'Covariance'
+                                    Label:
+                                        text << str(model.selection_cov)
                             PushButton:
                                 id: params_pb
                                 text = 'Use Selection'
                                 clicked ::
                                     model.selection_handler.current_selection = bsm.get_selection()
                                     model.calculate_selection_params()
-                                    
+                    Tab:
+                        title = 'Regression'
+                        Container:
+                            constraints = [vbox(regression_plot,
+                                                regress_plot_pb)]
+                            EnableCanvas:
+                                id: regression_plot
+                                constraints = [
+                                    256<=height<=512, 256<=width<=512
+                                ]
+                                component << regressplot.container
+                            PushButton:
+                                id: regress_plot_pb
+                                text = 'Use Selection'
+                                clicked ::
+                                    if model.AS_PANDAS_DATAFRAME:
+                                        regressplot.data = model.data_frame
+                                    else:
+                                        regressplot.data = model.table
+                                    regressplot.selection_handler.current_selection = \
+                                        bsm.get_selection()
+                                    regressplot.fit_selection()
+                                    regressplot.plot_fits()
+                                
 
             Tab:
                 id: other_ops_tab

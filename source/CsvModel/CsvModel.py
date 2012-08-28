@@ -19,6 +19,7 @@ from traitsui.api import View, Item
 from pandas.io.parsers import read_csv
 from enaml_item_models import DataFrameModel
 from pandas import DataFrame
+from statsmodels.api import OLS
 
 
 class MyTableModel(AbstractItemModel):
@@ -86,6 +87,10 @@ class CsvModel(HasTraits):
     
     # The maximum value from the current selection
     selection_max = Float
+    
+    # The covariance between a pair of rows or columns
+    # NOT IMPLEMENTED
+    selection_cov = Float(0)
     
     # The TableModel instance to be passed to the item_model attribute of the
     # TableView
@@ -220,6 +225,7 @@ class CsvModel(HasTraits):
                 column_name = self.data_frame.columns[tuple_list[0][1]]
                 t = self.data_frame[column_name]
                 
+                
         else:
             
             if len(tuple_list) == 1:
@@ -240,6 +246,7 @@ class CsvModel(HasTraits):
         self.selection_sum = t.sum()
         self.selection_max = np.amax(t)
         self.selection_min = np.amin(t)
+        
         
         self.selection_handler.flush()
     
