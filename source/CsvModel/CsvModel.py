@@ -81,6 +81,12 @@ class CsvModel(HasTraits):
     # The sum of the current selection
     selection_sum = Float
     
+    # The minimum value from the current selection
+    selection_min = Float
+    
+    # The maximum value from the current selection
+    selection_max = Float
+    
     # The TableModel instance to be passed to the item_model attribute of the
     # TableView
     table_model = Instance(TableModel,())
@@ -207,16 +213,35 @@ class CsvModel(HasTraits):
         '''
         self.selection_handler.create_selection()
         tuple_list = self.selection_handler.selected_indices
-        t = self.table[tuple_list[0][0]:tuple_list[0][2],
-                       tuple_list[0][1]:tuple_list[0][3]]
-        t.reshape((1,t.size))
-        for index in tuple_list[1:len(tuple_list)-1]:
-            x = self.table[index[0]:index[2],index[1]:index[3]]
-            t = np.hstack((t,x.reshape((1,x.size))))
+
+        if self.AS_PANDAS_DATAFRAME:
+            if len(tuple_list)==1:
+                # works for one column name
+                column_name = self.data_frame.columns[tuple_list[0][1]]
+                t = self.data_frame[column_name]
+                
+        else:
+            
+            if len(tuple_list) == 1:
+                if tuple_list[0][1]==tuple_list[0][3]:
+                    t = self.table[tuple_list[0][0]:tuple_list[0][2],
+                                   tuple_list[0][3]]
+                elif tuple_list[0][0]==tuple_list[0][2]:
+                    t = self.table[tuple_list[0],
+                                   tuple_list[0][1]:tuple_list[3]]
+                t.reshape((1,t.size))
+                for index in tuple_list[1:len(tuple_list)-1]:
+                    x = self.table[index[0]:index[2],index[1]:index[3]]
+                    t = np.hstack((t,x.reshape((1,x.size))))
+
         self.selection_mean = t.mean()
         self.selection_std = t.std()
         self.selection_var = t.var()
         self.selection_sum = t.sum()
+        self.selection_max = np.amax(t)
+        self.selection_min = np.amin(t)
+        
+        self.selection_handler.flush()
     
     def create_pandas_dataframe(self):
         pass

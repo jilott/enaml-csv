@@ -327,13 +327,21 @@ enamldef Main(MainWindow):
                                         text = 'Standard Deviation'
                                     Label:
                                         text << str(model.selection_std)
+                                    Label:
+                                        text = 'Maximum'
+                                    Label:
+                                        text << str(model.selection_max)
+                                    Label:
+                                        text = 'Minimum'
+                                    Label:
+                                        text << str(model.selection_min)
                             PushButton:
                                 id: params_pb
                                 text = 'Use Selection'
                                 clicked ::
                                     model.selection_handler.current_selection = bsm.get_selection()
                                     model.calculate_selection_params()
-                                    model.selection_handler.flush()
+                                    
 
             Tab:
                 id: other_ops_tab
