@@ -3,7 +3,7 @@
 import numpy as np
 import csv
 from traits.api import (
-    File, HasTraits, Array, List, Instance, Function, Int, Float, Bool
+    File, HasTraits, Array, List, Instance, Function, Int, Float, Bool, Dict
 )
 from enaml.stdlib.table_model import TableModel
 from enaml.core.item_model import AbstractItemModel
@@ -45,6 +45,12 @@ class CsvModel(HasTraits):
     
     data_frame = Instance(DataFrame,())
     
+    column_length = Int
+    
+    unique_items_nos = Int
+    
+    unique_map = Dict
+
     # The .csv file to be opened.
     filename = File
     
@@ -261,6 +267,52 @@ class CsvModel(HasTraits):
     
     def create_pandas_dataframe(self):
         pass
+    
+    def string_ops(self):
+        '''
+        Perform trivial ops on a column of the data frame.
+        '''
+        self.selection_handler.create_selection()
+        
+        if len(self.selection_handler.selected_indices)==1:
+            # currently works only for a single column
+            column = self.selection_handler.selected_indices[0][1]
+            column_name = self.data_frame.columns[column]
+            self.column_length = len(self.data_frame[column_name])
+            self.unique_items_nos = len(self.data_frame[column_name].unique())
+        
+        self.selection_handler.flush()
+    
+    def map_to_unique(self):
+        '''
+        USed to map a set of items onto unique integers,
+        and change tabular display accordingly.
+        '''
+        self.selection_handler.create_selection()
+        
+        if len(self.selection_handler.selected_indices)==1:
+            # currently works only for a single coulmn
+            self.unique_map = {}
+            column = self.selection_handler.selected_indices[0][1]
+            column_name = self.data_frame.columns[column]
+            data = self.data_frame[column_name]
+            m = 0
+            index = 0
+            for item in data:
+                if item not in self.unique_map.keys():
+                    self.unique_map[item]=m
+                    m+=1
+            for item in data:
+                self.data_frame[column_name][index]=self.unique_map[item]
+                index +=1
+            self.table_model = DataFrameModel(
+                self.data_frame,
+                editable=True,
+                horizontal_headers=self.data_frame.columns,
+            )
+            
+            
+        self.selection_handler.flush()
 
 def create_array(data, tuple_list):
     x_ = np.empty((0,))

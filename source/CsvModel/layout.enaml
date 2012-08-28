@@ -322,6 +322,10 @@ enamldef Main(MainWindow):
                 id: other_ops_tab
                 title = 'Other'
                 Container:
+                    constraints = [
+                        vbox(hbox(sorting_ops,other_other),use_selection_other,
+                             map_to_unique)
+                    ]
                     GroupBox:
                         id: sorting_ops
                         title = 'Sort Rows / Columns'
@@ -347,6 +351,31 @@ enamldef Main(MainWindow):
                                 text = 'Sort'
                                 clicked ::
                                     pass
+                    GroupBox:
+                        id: other_other
+                        Form:
+                            Label:
+                                text = 'No. of Items'
+                            Label:
+                                text << str(model.column_length)
+                            Label:
+                                text = 'Unique Items'
+                            Label:
+                                text << str(model.unique_items_nos)
+                    PushButton:
+                        id: use_selection_other
+                        text = 'Use Selection'
+                        clicked ::
+                            model.selection_handler.current_selection = \
+                                bsm.get_selection()
+                            model.string_ops()
+                    PushButton:
+                        id: map_to_unique
+                        text = 'Map to Integers'
+                        clicked ::
+                            model.selection_handler.current_selection = \
+                                bsm.get_selection()
+                            model.map_to_unique()
 
                     
             Tab:
