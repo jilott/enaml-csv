@@ -28,8 +28,6 @@ enamldef ConfigureSelection(Dialog):
                     reject()
 
 
-
-
 enamldef Loader(Container):
     
     constraints = [
@@ -92,11 +90,6 @@ enamldef ControlPanel(Container):
     Loader:
         id: loader
 
-
-
-    
-    
-                
 
 enamldef Main(MainWindow):
     id: main_window
@@ -186,8 +179,10 @@ enamldef Main(MainWindow):
                                 clicked ::
                                     if xyplot_handler.AS_PANDAS_DATAFRAME:
                                         xyplot_handler.data_frame = model.data_frame
+                                    else:
+                                        xyplot_handler.table = model.table
                                     xyplot_handler.selection_handler.current_selection = bsm.get_selection()
-                                    xyplot_handler.selection_handler.create_selection()
+                                    
                                     
                                     xyplot_handler.add_xyplot_selection(
                                         plot_name.value)
@@ -473,4 +468,3 @@ enamldef Main(MainWindow):
                             dlg.show()
                             if dlg.result=='accepted':
                                 pass
-        

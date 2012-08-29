@@ -80,7 +80,7 @@ class XYPlotHandler(HasTraits):
         Called when the 'add plot from selection button is clicked.'
         '''
         
-        
+        self.selection_handler.create_selection()
         if self.selection_handler.xyplot_check():
             
             if self.AS_PANDAS_DATAFRAME:
@@ -95,9 +95,12 @@ class XYPlotHandler(HasTraits):
                 self.plotdata = ArrayPlotData(x=x,y=y)
             
             else:
+                
+                first_column = self.selection_handler.selected_indices[0]
+                second_column = self.selection_handler.selected_indices[1]
                 self.plotdata = ArrayPlotData(
-                    x=self.table[:,self.selection_handler.selected_indices[0][1]],
-                    y=self.table[:,self.selection_handler.selected_indices[1][1]]
+                    x=self.table[:,first_column[1]],
+                    y=self.table[:,second_column[1]]
                 )
             
             plot = Plot(self.plotdata)
