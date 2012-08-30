@@ -100,6 +100,7 @@ enamldef Main(MainWindow):
     attr script_selection = ScriptSelection({})
     attr regressplot
     attr histplot_handler
+    attr kmeans_plot
     
     Container:
         constraints = [
@@ -178,10 +179,12 @@ enamldef Main(MainWindow):
                                 text = 'Plot From Selection'
                                 clicked ::
                                     if xyplot_handler.AS_PANDAS_DATAFRAME:
-                                        xyplot_handler.data_frame = model.data_frame
+                                        xyplot_handler.data_frame = \
+                                        model.data_frame
                                     else:
                                         xyplot_handler.table = model.table
-                                    xyplot_handler.selection_handler.current_selection = bsm.get_selection()
+                                    xyplot_handler.selection_handler.current_selection \
+                                    = bsm.get_selection()
                                     
                                     
                                     xyplot_handler.add_xyplot_selection(
@@ -266,7 +269,8 @@ enamldef Main(MainWindow):
                             id: hist_container
 
                             constraints = [
-                                vbox(hist_plot_container, nbins_slider, draw_hist_pb)
+                                vbox(hist_plot_container,
+                                     nbins_slider, draw_hist_pb)
                             ]
                             EnableCanvas:
                                 id: hist_plot_container
@@ -336,7 +340,8 @@ enamldef Main(MainWindow):
                                 id: params_pb
                                 text = 'Use Selection'
                                 clicked ::
-                                    model.selection_handler.current_selection = bsm.get_selection()
+                                    model.selection_handler.current_selection \
+                                    = bsm.get_selection()
                                     model.calculate_selection_params()
                     Tab:
                         title = 'Regression'
@@ -361,6 +366,52 @@ enamldef Main(MainWindow):
                                         bsm.get_selection()
                                     regressplot.fit_selection()
                                     regressplot.plot_fits()
+                                
+                    Tab:
+                        title = 'K-means Clustering'
+                        Container:
+                            constraints = [
+                                vbox(kmeans_plot_canvas,
+                                     kmeans_params_form, kmeans_pb 
+                                     )
+                            ]
+                            EnableCanvas:
+                                id: kmeans_plot_canvas
+                                constraints = [
+                                    256<=height<=512, 256<=width<=512
+                                ]
+                                component << kmeans_plot.container
+                            Form:
+                                id: kmeans_params_form
+                                Label:
+                                    text = 'No. of Clusters'
+                                Slider:
+                                    id: n_clusters_slider
+                                    minimum = 2
+                                    maximum = 10
+                                Label:
+                                    text = 'No. of Iterations'
+                                Slider:
+                                    id: max_iter_slider
+                                    minimum = 10
+                                    maximum = 500
+                                Label:
+                                    text = 'Columns to omit'
+                                Field:
+                                    id: kmeans_col_omit
+                                    
+                            PushButton:
+                                id: kmeans_pb
+                                text = 'Plot Clusters'
+                                clicked ::
+                                    to_omit = str(kmeans_col_omit.value)
+                                    to_omit = to_omit.split(',')
+                                    kmeans_plot.to_omit = to_omit
+                                    kmeans_plot.n_clusters = n_clusters_slider.value
+                                    if not model.AS_PANDAS_DATAFRAME:
+                                        kmeans_plot.data = model.table
+                                        kmeans_plot.create_dataset()
+                                        kmeans_plot.plot_clusters()
                                 
 
             Tab:

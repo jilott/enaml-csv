@@ -7,11 +7,14 @@ from chaco.api import (
 )
 from chaco.tools.api import ZoomTool, PanTool
 from chaco.tools.traits_tool import TraitsTool
+from chaco.example_support import COLOR_PALETTE
 from enable.api import ColorTrait
 from selection_handler import SelectionHandler
 from sklearn.decomposition import PCA
+from sklearn.cluster import KMeans
 from pandas import DataFrame
 from statsmodels.api import OLS
+from matplotlib.mlab import find
 
 
 class XYPlotHandler(HasTraits):
@@ -316,11 +319,11 @@ class RegressionPlotHandler(HasTraits):
         
         components = []
         
-        for component in self.container.plot_components:
+        for component in self.container.components:
             components.append(component)
         
         for component in components:
-            self.container.plot_components.remove(component)
+            self.container.components.remove(component)
                 
         
         plotdata = ArrayPlotData(x=self.index, y=self.Y)
@@ -383,3 +386,85 @@ class HistogramPlotHandler(HasTraits):
             self.container.request_redraw()
     
         self.selection_handler.flush()
+
+class KMeansPlotHandler(HasTraits):
+    
+    data = Array
+    
+    dataset = Array
+    
+    kmeans = Instance(KMeans)
+    
+    n_clusters = Int
+    
+    max_iter = Int
+    
+    container = Instance(OverlayPlotContainer)
+    
+    to_omit = List
+    
+    
+    def __init__(self):
+        self.kmeans = KMeans()
+        self.container = OverlayPlotContainer()
+    
+    def create_dataset(self):
+        
+        if self.to_omit:
+            if len(self.to_omit)>0:
+                n_rows = self.data.shape[0]
+                n_cols = self.data.shape[1]
+                to_omit = []
+                for elem in self.to_omit:
+                    if elem.isdigit():
+                        to_omit.append(int(elem))
+                
+                dataset = self.data[:,0].reshape((n_rows,1))
+                
+                for elem in range(n_cols):
+                    if elem not in to_omit:
+                        if elem > 0:
+                            dataset = np.hstack((dataset,
+                                                 self.data[:,elem].reshape((
+                                                    n_rows,1))))
+            self.dataset = dataset
+        
+       
+    
+
+    def plot_clusters(self):
+        
+        self.kmeans.n_clusters = self.n_clusters
+        self.kmeans.fit(self.dataset)
+        
+        # Reducing dimensions of the dataset and the cluster centers for
+        # plottting
+        pca = PCA(n_components=2, whiten=True)
+        cluster_centers = pca.fit_transform(self.kmeans.cluster_centers_)
+        dataset_red = pca.fit_transform(self.dataset)
+        
+        removed_components = []
+        for component in self.container.components:
+            removed_components.append(component)
+        
+        for component in removed_components:
+            self.container.remove(component)
+        
+        for i in range(self.n_clusters):
+            
+            current_indices = find(self.kmeans.labels_==i)
+            current_data = dataset_red[current_indices,:]
+            
+            plotdata = ArrayPlotData(x=current_data[:,0], y=current_data[:,1])
+            plot = Plot(plotdata)
+            plot.plot(("x","y"),type='scatter',color=tuple(COLOR_PALETTE[i]))
+            self.container.add(plot)
+            
+            
+        plotdata_cent = ArrayPlotData(x=cluster_centers[:,0],
+                                      y=cluster_centers[:,1])
+        plot_cent = Plot(plotdata_cent)
+        plot_cent.plot(("x","y"),type='scatter',marker='cross',marker_size=8)
+        self.container.add(plot_cent)
+        
+        self.container.request_redraw()
