@@ -177,7 +177,7 @@ class XYPlotHandler(HasTraits):
             self.container.add(self.plot_list_view[plot])
         self.container.request_redraw()
     
-    def edit_selection(self, selection, plot_type):
+    def edit_selection(self, selection, plot_type, show_grid):
         
         to_edit_index = selection[0][0].row
         to_edit_plot = self.plot_list_view.keys()[to_edit_index]        
@@ -194,9 +194,23 @@ class XYPlotHandler(HasTraits):
             marker_size = self.marker_size
         )
         
+        removed_grids = []
+        
+        for underlay in new_plot.underlays:
+            if isinstance(underlay, PlotGrid):
+                removed_grids.append(underlay)
+        
+        if not show_grid:
+            for grid in removed_grids:
+                new_plot.underlays.remove(grid)
+        else:
+            for grid in removed_grids:
+                new_plot.underlaysa.append(grid)
+        
+        
+        
         self.container.add(new_plot)
         self.container.request_redraw()
-        
         
 
 

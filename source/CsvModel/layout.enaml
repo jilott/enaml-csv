@@ -31,13 +31,17 @@ enamldef ConfigureSelection(Dialog):
 enamldef EditPlotDialog(Dialog):
     attr xyplot_handler
     attr plot_type_disc_ = xyplot_handler.plot_type_disc
-
+    attr show_grid = True
     
     Container:
-        constraints = [vbox(edit_plot_traits,edit_plot_form)]
+        constraints = [vbox(edit_plot_traits,show_grid_toggle,edit_plot_form)]
         TraitsUIItem:
             id: edit_plot_traits
             model := xyplot_handler
+        CheckBox:
+            id: show_grid_toggle
+            text = 'Show Grid'
+            checked := show_grid
         
         Form:
             id: edit_plot_form
@@ -251,7 +255,8 @@ enamldef Main(MainWindow):
 
                                         xyplot_handler.edit_selection(
                                             bsm_plotlist.get_selection(),
-                                            plot_type = plot_type
+                                            plot_type = plot_type,
+                                            show_grid = dlg.show_grid
                                         )
                             ListView:
                                 id: plot_list_view
