@@ -1,7 +1,8 @@
 # Classes for converting ModelIndices into
 
-from traits.api import HasTraits, List, Dict
-from enaml.core.item_model import AbstractItemModel, ALIGN_LEFT
+from traits.api import HasTraits, List, Dict, Bool
+from enaml.core.item_model import (AbstractItemModel, ALIGN_LEFT,
+ITEM_IS_EDITABLE, ITEM_IS_ENABLED, ITEM_IS_SELECTABLE)
 
 class SelectionHandler(HasTraits):
     
@@ -140,11 +141,22 @@ class SelectionViewer(AbstractItemModel):
         return super(SelectionViewer, self).alignment(index)
 
 class ScriptSelection(AbstractItemModel):
+    
+    base_flags = ITEM_IS_ENABLED | ITEM_IS_SELECTABLE
+    
     selection_list = List
     
+    selection_dict = Dict
+    
+    _editable = Bool
+    
     # Initialize atleast with an empty dict.
-    def __init__(self, selection_list):
+    def __init__(self, selection_list, editable=False):
+        self._data_source = selection_list
         self.selection_list = selection_list
+        self._editable = editable
+        self._edit_data_converter = unicode
+        self.selection_dict = {}
         
     # Just something required by AbstractItemModel subclasses
     def index(self, row, column, parent=None):
@@ -168,30 +180,82 @@ class ScriptSelection(AbstractItemModel):
     def horizontal_header_data(self, section):
         return ['Type', 'Top Left', 'Bottom Right','Variable Name'][section]
     
+    def flags(self, index):
+        """ Returns the flags for the items in the model.
+
+        """
+        flags = self.base_flags
+        if self._editable:
+            flags |= ITEM_IS_EDITABLE
+        return flags
+    
+    
+    def create_selection_dict(self):
+        for i in range(len(self.selection_list)):
+            self.selection_dict[i] = []
+            bounds = self.selection_list[i]
+            if bounds[0:2]==bounds[2:4]:
+                sel_type='cell'
+            elif bounds[0]==bounds[2] and bounds[1]!=bounds[3]:
+                sel_type = 'row'
+            elif bounds[1]==bounds[3] and bounds[2]!=bounds[0]:
+                sel_type = 'column'
+            else:
+                sel_type = 'block'
+            self.selection_dict[i].append(sel_type)
+            
+            
+            top_left = str(bounds[0:2])
+            self.selection_dict[i].append(top_left)
+            
+            
+            bot_right = str(bounds[2:4])
+            self.selection_dict[i].append(bot_right)
+            
+            var_name = ''
+            self.selection_dict[i].append(var_name)
+    
+    
     # A function for the AbstractItemModel subclass to generate the data for
     # viewing
-    def data(self, idx):
+    def data(self, idx, value=None):
         row = idx.row
         column = idx.column
-        if column == 0:
-            bounds = self.selection_list[row]
-            if bounds[0:2]==bounds[2:4]:
-                return 'cell'
-            elif bounds[0]==bounds[2] and bounds[1]!=bounds[3]:
-                return 'row'
-            elif bounds[1]==bounds[3] and bounds[2]!=bounds[0]:
-                return 'column'
-            else:
-                return 'block'
-        elif column == 1:
-            bounds = self.selection_list[row]
-            return str(bounds[0:2])
-        elif column == 2:
-            bounds = self.selection_list[row]
-            return str(bounds[2:4])
-        else:
-            return ''
+        return self.selection_dict[row][column] 
+    
 
+    
+    def edit_data(self, index):
+        """ Returns the data value for editing. If an edit converter is
+        provided, then the unicode form of the data is returned, 
+        otherwise, the raw datapoint is returned.
+
+        """
+
+        if self._edit_data_converter is None:
+            row = index.row
+            col = index.column
+            return self._data_source[row, col]
+        return self.selection_dict[index.row][index.column]
+    
+    def set_data(self, index, value):
+
+        """ Sets the data source with the converted value, emits the 
+        proper changed notification and returns True. 
+
+        """
+        converter = self._edit_data_converter
+        if converter is not None:
+            try:
+                value = converter(value)
+            except ValueError:
+                return False
+        row = index.row
+        col = index.column
+        
+        self.selection_dict[row][col]=value
+        self.notify_data_changed(index, index)
+        return True
     
     def alignment(self, index):
         if index.column == 0:

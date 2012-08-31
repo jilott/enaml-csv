@@ -142,7 +142,7 @@ enamldef Main(MainWindow):
     attr xyplot_handler
     attr imageplot_handler
     attr pcaplot_handler
-    attr script_selection = ScriptSelection({})
+    attr script_selection = ScriptSelection({}, editable=True)
     attr regressplot
     attr histplot_handler
     attr kmeans_plot
@@ -578,6 +578,7 @@ enamldef Main(MainWindow):
                             model.selection_handler.create_selection()
                             script_selection.selection_list = \
                                 model.selection_handler.selected_indices
+                            script_selection.create_selection_dict()
                             dlg = ConfigureSelection(
                                 config_workspace=script_selection
                             )
