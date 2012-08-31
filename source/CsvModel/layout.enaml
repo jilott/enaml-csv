@@ -28,6 +28,41 @@ enamldef ConfigureSelection(Dialog):
                     reject()
 
 
+enamldef EditPlotDialog(Dialog):
+    attr xyplot_handler
+    attr plot_type_disc_ = xyplot_handler.plot_type_disc
+
+    
+    Container:
+        constraints = [vbox(edit_plot_traits,edit_plot_form)]
+        TraitsUIItem:
+            id: edit_plot_traits
+            model := xyplot_handler
+        
+        Form:
+            id: edit_plot_form
+            Label:
+                text = 'Plot Type'
+            RadioGroup:
+                id: plot_type_radio
+                RadioButton:
+                    id: plot_type_disc
+                    text = 'Discrete'
+                    checked := plot_type_disc_
+                RadioButton:
+                    id: plot_type_cont
+                    text = 'Continuous'
+            PushButton:
+                text = 'Ok'
+                clicked ::
+
+                    accept()
+            PushButton:
+                text = 'Cancel'
+                clicked ::
+                    reject()
+
+
 enamldef Loader(Container):
     
     constraints = [
@@ -139,7 +174,8 @@ enamldef Main(MainWindow):
                                     vbox(x_vs_y_plot, grid_toggle),
                                     vbox(plot_properties_traits, plot_radiogroup,
                                          plot_name_form,add_xyplot_pb,
-                                         plot_list_view,remove_selected_plots
+                                         plot_list_view, edit_plots_pb,
+                                         remove_selected_plots
                                          )
                                 ),
                                 plot_radiogroup.width == plot_properties_traits.width,
@@ -200,6 +236,23 @@ enamldef Main(MainWindow):
                                     )
                                     plot_list_view.item_model = ListModel(
                                         xyplot_handler.plot_list_view.keys())
+                            PushButton:
+                                id: edit_plots_pb
+                                text = 'Edit Plot Traits'
+                                clicked ::
+                                    dlg = EditPlotDialog(xyplot_handler= \
+                                                         xyplot_handler)
+                                    dlg.show()
+                                    if dlg.result == 'accepted':
+                                        if dlg.plot_type_disc_:
+                                            plot_type = 'scatter'
+                                        else:
+                                            plot_type = 'line'
+
+                                        xyplot_handler.edit_selection(
+                                            bsm_plotlist.get_selection(),
+                                            plot_type = plot_type
+                                        )
                             ListView:
                                 id: plot_list_view
                                 item_model = ListModel(

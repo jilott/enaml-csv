@@ -176,6 +176,28 @@ class XYPlotHandler(HasTraits):
         for plot in self.plot_list_view.keys():
             self.container.add(self.plot_list_view[plot])
         self.container.request_redraw()
+    
+    def edit_selection(self, selection, plot_type):
+        
+        to_edit_index = selection[0][0].row
+        to_edit_plot = self.plot_list_view.keys()[to_edit_index]        
+        edited_plot = self.plot_list_view.pop(to_edit_plot)
+        
+        
+        self.container.remove(edited_plot)
+        
+        new_plot = Plot(edited_plot.data)
+        
+        new_plot.plot(
+            ("x","y"),type=plot_type,
+            color=self.color, marker=self.marker,
+            marker_size = self.marker_size
+        )
+        
+        self.container.add(new_plot)
+        self.container.request_redraw()
+        
+        
 
 
 class ImagePlotHandler(HasTraits):
@@ -309,8 +331,8 @@ class RegressionPlotHandler(HasTraits):
                 L = tuple_list[2]-tuple_list[0]
                 self.index = np.arange(L+1)
                 self.Y = self.data[:,tuple_list[1]]
-                print self.Y.shape
-                print self.index.shape
+                #print self.Y.shape
+                #print self.index.shape
                 results = OLS(self.Y,self.index).fit()
                 self.selection_olsfit = results.fittedvalues
         self.selection_handler.flush()
