@@ -30,21 +30,28 @@ enamldef ConfigureSelection(Dialog):
 
 enamldef EditPlotDialog(Dialog):
     attr xyplot_handler
+    # add an attribute that binds to the selected chaco plot
     attr plot_type_disc_ = xyplot_handler.plot_type_disc
     attr show_grid = True
+    attr show_plot = True
     
     Container:
-        constraints = [vbox(edit_plot_traits,show_grid_toggle,edit_plot_form)]
+        constraints = [vbox(edit_plot_traits,edit_plot_form)]
         TraitsUIItem:
             id: edit_plot_traits
             model := xyplot_handler
-        CheckBox:
-            id: show_grid_toggle
-            text = 'Show Grid'
-            checked := show_grid
         
         Form:
             id: edit_plot_form
+            
+            CheckBox:
+                id: show_grid_toggle
+                text = 'Show Grid'
+                checked := show_grid
+            CheckBox:
+                id: plot_visible_toggle
+                text = 'Plot Visible'
+                checked := show_plot
             Label:
                 text = 'Plot Type'
             RadioGroup:
@@ -59,7 +66,6 @@ enamldef EditPlotDialog(Dialog):
             PushButton:
                 text = 'Ok'
                 clicked ::
-
                     accept()
             PushButton:
                 text = 'Cancel'
@@ -255,8 +261,9 @@ enamldef Main(MainWindow):
 
                                         xyplot_handler.edit_selection(
                                             bsm_plotlist.get_selection(),
-                                            plot_type = plot_type,
-                                            show_grid = dlg.show_grid
+                                            plot_type=plot_type,
+                                            show_grid=dlg.show_grid,
+                                            show_plot=dlg.show_plot
                                         )
                             ListView:
                                 id: plot_list_view

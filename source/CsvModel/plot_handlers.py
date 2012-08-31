@@ -177,7 +177,12 @@ class XYPlotHandler(HasTraits):
             self.container.add(self.plot_list_view[plot])
         self.container.request_redraw()
     
-    def edit_selection(self, selection, plot_type, show_grid):
+    def edit_selection(self, selection, plot_type, show_grid, show_plot):
+        
+        '''
+        Needs to be fixed, the visible checkbox in the EditPlotDialog must bind
+        bind to the visibility of the selected plot
+        '''
         
         to_edit_index = selection[0][0].row
         to_edit_plot = self.plot_list_view.keys()[to_edit_index]        
@@ -205,8 +210,11 @@ class XYPlotHandler(HasTraits):
                 new_plot.underlays.remove(grid)
         else:
             for grid in removed_grids:
-                new_plot.underlaysa.append(grid)
+                new_plot.underlays.append(grid)
         
+
+        if not show_plot:
+            new_plot.visible = False
         
         
         self.container.add(new_plot)
