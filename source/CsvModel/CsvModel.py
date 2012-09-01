@@ -339,6 +339,26 @@ class CsvModel(HasTraits):
                                               horizontal_headers=self.headers)
         self.selection_handler.flush()
 
+    
+    def add_uservariables(self, var_dict):
+        
+        for key in var_dict:
+            
+            top_left = var_dict[key][0]
+            exec('top_left='+top_left)
+            
+            
+            bot_right = var_dict[key][1]
+            exec('bot_right='+bot_right)
+            
+            
+            x = self.table[top_left[0]:bot_right[0]+1,
+                           top_left[1]:bot_right[1]+1]
+            print x
+            self.script_handler.my_locals[key] = x
+            
+    
+    
 def create_array(data, tuple_list):
     x_ = np.empty((0,))
     for index in tuple_list:

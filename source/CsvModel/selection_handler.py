@@ -223,7 +223,9 @@ class ScriptSelection(AbstractItemModel):
         column = idx.column
         return self.selection_dict[row][column] 
     
-
+    def flush(self):
+        self.selection_dict = {}
+        self.selection_list = []
     
     def edit_data(self, index):
         """ Returns the data value for editing. If an edit converter is
@@ -256,6 +258,16 @@ class ScriptSelection(AbstractItemModel):
         self.selection_dict[row][col]=value
         self.notify_data_changed(index, index)
         return True
+    
+    def add_to_workspace(self):
+        '''
+        Returns the indices of selected objects as per the user-assigned name
+        '''
+        return_dict = {}
+        for key in self.selection_dict:
+            t = self.selection_dict[key]
+            return_dict[t[3]] = [t[1],t[2]]
+        return return_dict
     
     def alignment(self, index):
         if index.column == 0:

@@ -584,4 +584,6 @@ enamldef Main(MainWindow):
                             )
                             dlg.show()
                             if dlg.result=='accepted':
-                                pass
+                                var_dict = script_selection.add_to_workspace()
+                                model.add_uservariables(var_dict)
+                                script_selection.flush()
