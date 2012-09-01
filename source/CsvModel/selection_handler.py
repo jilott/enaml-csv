@@ -84,6 +84,8 @@ class SelectionViewer(AbstractItemModel):
     script in the scripting widget. 
     '''
     
+    # A list containing tuple pairs, each pair contains the top left and the
+    # bottom right indices of a selection.
     selection_list = Dict
     
     # Initialize atleast with an empty dict.
@@ -144,8 +146,12 @@ class ScriptSelection(AbstractItemModel):
     
     base_flags = ITEM_IS_ENABLED | ITEM_IS_SELECTABLE
     
+    # A list containing tuple pairs, each pair contains the top left and the
+    # bottom right indices of a selection.
     selection_list = List
     
+    # A dict that maps the selected vairables to a list of its attributes, which
+    # include the size, indices and type of selection.
     selection_dict = Dict
     
     _editable = Bool
@@ -191,6 +197,9 @@ class ScriptSelection(AbstractItemModel):
     
     
     def create_selection_dict(self):
+        '''
+        Called to create the selection_dict from the selection_list.
+        '''
         for i in range(len(self.selection_list)):
             self.selection_dict[i] = []
             bounds = self.selection_list[i]
@@ -224,6 +233,10 @@ class ScriptSelection(AbstractItemModel):
         return self.selection_dict[row][column] 
     
     def flush(self):
+        '''
+        Needs to be called before making a new selection, to ensure the previous
+        selection has been flushed out.
+        '''
         self.selection_dict = {}
         self.selection_list = []
     

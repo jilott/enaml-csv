@@ -26,6 +26,10 @@ class ScriptHandler(HasTraits):
         return {}
     
     def exec_script(self):
+        '''
+        'Exec'utes the script in the text editor widget, the generated variables
+        are in the local workspace, i.e. self.my_locals
+        '''
         exec(self.script) in self.my_globals, self.my_locals
     
     def _my_locals_items_changed(self, new):

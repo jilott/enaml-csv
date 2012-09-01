@@ -341,6 +341,11 @@ class CsvModel(HasTraits):
 
     
     def add_uservariables(self, var_dict):
+        '''
+        Used to add variables selected from the tabular view and named by
+        the user to the local workspace. These variables are identifiable by
+        their user given names in the script.
+        '''
         
         for key in var_dict:
             
@@ -360,6 +365,9 @@ class CsvModel(HasTraits):
     
     
 def create_array(data, tuple_list):
+    '''
+    To be removed.
+    '''
     x_ = np.empty((0,))
     for index in tuple_list:
         x = data[index[0]:index[2],index[1]:index[3]]

@@ -9,6 +9,7 @@ class WorkspaceHandler(AbstractItemModel):
     script in the scripting widget. 
     '''
     
+    # The workspace, which maps the name of a variable to an object
     workspace = Dict
     
     # Initialize atleast with an empty dict.
@@ -26,7 +27,7 @@ class WorkspaceHandler(AbstractItemModel):
     
     # No. of local variables in the workspace
     def row_count(self, idx):
-        if self.workspace.keys():
+        if len(self.workspace.keys())>0:
             return len(self.workspace.keys())
     
     # No. of properties of each variable that are displayed
@@ -36,6 +37,64 @@ class WorkspaceHandler(AbstractItemModel):
     # The properties of each variable in the workspace
     def horizontal_header_data(self, section):
         return ['Name', 'Type', 'Dimensions', 'Size (bytes)'][section]
+    
+    # A function for the AbstractItemModel subclass to generate the data for
+    # viewing
+    def data(self, idx):
+        row = idx.row
+        column = idx.column
+        if column == 0:
+            return self.workspace.keys()[row]
+        elif column == 1:
+            key = self.workspace.keys()[row]
+            s = str(type(self.workspace[key]))
+            return s.split('\'')[1]
+        elif column == 2:
+            key = self.workspace.keys()[row]
+            if type(self.workspace[key]) is np.ndarray:
+                return str(self.workspace[key].shape)                
+            else:
+                return 'N/A'
+        else:
+            key = self.workspace.keys()[row]
+            return self.workspace[key].__sizeof__()
+    
+    def alignment(self, index):
+        if index.column == 0:
+            return ALIGN_LEFT
+        return super(WorkspaceHandler, self).alignment(index)
+
+
+class SelectionWorkspace(AbstractItemModel):
+
+    
+    workspace = Dict
+    
+    # Initialize atleast with an empty dict.
+    def __init__(self, workspace):
+        self.workspace = workspace
+        
+    # Just something required by AbstractItemModel subclasses
+    def index(self, row, column, parent=None):
+        if self.has_index(row,column,parent=None):
+            return self.create_index(row,column,None)
+    
+    # No concept of parents here, workspace is not a tree-like structure
+    def parent(self, index):
+        pass
+    
+    # No. of local variables in the workspace
+    def row_count(self, idx):
+        if len(self.workspace.keys())>0:
+            return len(self.workspace.keys())
+    
+    # No. of properties of each variable that are displayed
+    def column_count(self, idx):
+        return 4
+    
+    # The properties of each variable in the workspace
+    def horizontal_header_data(self, section):
+        return ['Type', 'Top Left', 'Bottom Right','Variable Name'][section]
     
     # A function for the AbstractItemModel subclass to generate the data for
     # viewing
