@@ -126,11 +126,17 @@ class CsvModel(HasTraits):
     # If the file should be imported as a Pandas dataframe
     AS_PANDAS_DATAFRAME = Bool
     
-    def __init__(self):
+    def __init__(self, data=None, AS_PANDAS_DATAFRAME=False):
         '''
         So far only the PCA objects and the XY plot container needs to be 'initialized'.
         '''
-        
+        if AS_PANDAS_DATAFRAME:
+            self.AS_PANDAS_DATAFRAME = AS_PANDAS_DATAFRAME
+        if data is not None:
+            if self.AS_PANDAS_DATAFRAME:
+                self.data_frame = data
+            else:
+                self.table = data
         self.pca = PCA(n_components=2)
         self.pca.whiten = True
         self.script_handler = ScriptHandler()
