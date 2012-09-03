@@ -27,8 +27,7 @@ class WorkspaceHandler(AbstractItemModel):
     
     # No. of local variables in the workspace
     def row_count(self, idx):
-        if len(self.workspace.keys())>0:
-            return len(self.workspace.keys())
+        return len(self.workspace.keys())
     
     # No. of properties of each variable that are displayed
     def column_count(self, idx):
