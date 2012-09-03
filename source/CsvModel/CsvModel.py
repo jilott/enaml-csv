@@ -200,6 +200,16 @@ class CsvModel(HasTraits):
                                      horizontal_headers=self.headers)
     
     
+    def redraw_tablemodel(self):
+        if self.AS_PANDAS_DATAFRAME:
+            self.table_model = DataFrameModel(
+                self.data_frame, editable= True,
+                horizontal_headers=self.data_frame.columns
+            )
+        else:
+            self.table_model = TableModel(self.table, editable=True,
+                                          horizontal_headers=self.headers)
+    
     def create_plot_properties():
         pass
     
@@ -374,13 +384,14 @@ class CsvModel(HasTraits):
         Called to delete columns from the pandas dataframe
         '''
         self.selection_handler.create_selection()
-        print self.selection_handler.selected_indices
+        
         to_remove = []        
         for index in self.selection_handler.selected_indices:
             column_name = self.data_frame.columns[index[1]]
             to_remove.append(column_name)
         for column_name in to_remove:
             del self.data_frame[column_name]
+        self.redraw_tablemodel()
 
     
 def create_array(data, tuple_list):
