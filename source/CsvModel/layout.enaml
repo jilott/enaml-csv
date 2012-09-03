@@ -157,8 +157,8 @@ enamldef Main(MainWindow):
             id: left_view
             constraints = [
                 vbox(tv_area,control_panel),
-                tv_area.height >= 200,
-                tv_area.width >= 200,
+                512>=tv_area.height >= 200,
+                512>=tv_area.width >= 200,
                 control_panel.width == tv_area.width,               
             ]
             TableView:
@@ -485,7 +485,7 @@ enamldef Main(MainWindow):
                 Container:
                     constraints = [
                         vbox(hbox(sorting_ops,other_other),use_selection_other,
-                             map_to_unique, norm_selection)
+                             map_to_unique, norm_selection, del_row_pb)
                     ]
                     GroupBox:
                         id: sorting_ops
@@ -544,6 +544,14 @@ enamldef Main(MainWindow):
                             model.selection_handler.current_selection\
                                 = bsm.get_selection()
                             model.normalize_selection()
+                    PushButton:
+                        id: del_row_pb
+                        text = 'Delete Row/Column'
+                        clicked ::
+                            model.selection_handler.current_selection = \
+                                bsm.get_selection()
+                            model.delete_rowcol()
+                            
 
                     
             Tab:

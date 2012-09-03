@@ -369,6 +369,19 @@ class CsvModel(HasTraits):
             self.script_handler.my_locals[key] = x
             
     
+    def delete_rowcol(self):
+        '''
+        Called to delete columns from the pandas dataframe
+        '''
+        self.selection_handler.create_selection()
+        print self.selection_handler.selected_indices
+        to_remove = []        
+        for index in self.selection_handler.selected_indices:
+            column_name = self.data_frame.columns[index[1]]
+            to_remove.append(column_name)
+        for column_name in to_remove:
+            del self.data_frame[column_name]
+
     
 def create_array(data, tuple_list):
     '''
