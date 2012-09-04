@@ -1,5 +1,5 @@
 import numpy as np
-from traits.api import HasTraits, Bool, Instance, Int, Array, List,Dict
+from traits.api import HasTraits, Bool, Instance, Int, Array, List,Dict, String
 from traitsui.api import View, Item
 from chaco.api import (
     Plot, ArrayPlotData, OverlayPlotContainer, marker_trait, PlotGrid,
@@ -71,6 +71,9 @@ class XYPlotHandler(HasTraits):
         Item('marker'),
         Item('marker_size')
     )
+    
+    # The plot that is being edited.
+    current_plot = Instance(Plot)
     
     def __init__(self):
         self.selection_handler = SelectionHandler()
@@ -177,49 +180,45 @@ class XYPlotHandler(HasTraits):
             self.container.add(self.plot_list_view[plot])
         self.container.request_redraw()
     
-    def edit_selection(self, selection, plot_type, show_grid, show_plot):
+    def edit_selection(self, show_grid, plot_visible, plot_type_disc):
         
-        '''
-        Needs to be fixed, the visible checkbox in the EditPlotDialog must bind
-        bind to the visibility of the selected plot
-        '''
+        self.selection_handler.create_selection()
+        index = self.selection_handler.selected_indices[0][0]
+        plot_name = self.plot_list_view.keys()[index]
         
-        to_edit_index = selection[0][0].row
-        to_edit_plot = self.plot_list_view.keys()[to_edit_index]        
-        edited_plot = self.plot_list_view.pop(to_edit_plot)
+        plot = self.plot_list_view[plot_name]
+        self.container.remove(plot)
         
         
-        self.container.remove(edited_plot)
+        self.plot_type_disc = plot_type_disc
         
-        new_plot = Plot(edited_plot.data)
+        if self.plot_type_disc:
+            plot_type = 'scatter'
+        else:
+            plot_type = 'line'
         
-        new_plot.plot(
-            ("x","y"),type=plot_type,
-            color=self.color, marker=self.marker,
-            marker_size = self.marker_size
+        plot = Plot(plot.data)
+        plot.plot(
+            ("x","y"),color=self.color, type = plot_type,
+            marker = self.marker, marker_size = self.marker_size
         )
+        self.plot = plot
+        self.plot.visible = plot_visible
         
-        removed_grids = []
-        
-        for underlay in new_plot.underlays:
-            if isinstance(underlay, PlotGrid):
-                removed_grids.append(underlay)
+        grid_underlays = []
         
         if not show_grid:
-            for grid in removed_grids:
-                new_plot.underlays.remove(grid)
-        else:
-            for grid in removed_grids:
-                new_plot.underlays.append(grid)
+            for underlay in self.plot.underlays:
+                if isinstance(underlay,PlotGrid):
+                    grid_underlays.append(underlay)
+            for underlay in grid_underlays:
+                self.plot.underlays.remove(underlay)
+                    
         
-
-        if not show_plot:
-            new_plot.visible = False
-        
-        
-        self.container.add(new_plot)
+        self.container.add(self.plot)
         self.container.request_redraw()
         
+        self.selection_handler.flush()
 
 
 class ImagePlotHandler(HasTraits):
@@ -512,3 +511,22 @@ class KMeansPlotHandler(HasTraits):
         self.container.add(plot_cent)
         
         self.container.request_redraw()
+
+class PlotEditor(HasTraits):
+    
+    marker =  marker_trait
+    color = ColorTrait
+    marker_size = Int
+    plot = Instance(Plot)
+    show_grid = Bool
+    plot_visible = Bool
+    plot_type_disc = Bool
+    plot_type = String
+    
+    def __init__(self, plot_name=None):
+        if plot_name is not None:
+            self.plot = plot_name
+    
+    def edit_plot(self):
+        self.plot.visible = self.plot_visible
+        

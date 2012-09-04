@@ -29,11 +29,11 @@ enamldef ConfigureSelection(Dialog):
 
 
 enamldef EditPlotDialog(Dialog):
+    
     attr xyplot_handler
-    # add an attribute that binds to the selected chaco plot
-    attr plot_type_disc_ = xyplot_handler.plot_type_disc
-    attr show_grid = True
-    attr show_plot = True
+    attr show_grid
+    attr plot_visible
+    attr plot_type_disc_
     
     Container:
         constraints = [vbox(edit_plot_traits,edit_plot_form)]
@@ -51,7 +51,7 @@ enamldef EditPlotDialog(Dialog):
             CheckBox:
                 id: plot_visible_toggle
                 text = 'Plot Visible'
-                checked := show_plot
+                checked := plot_visible
             Label:
                 text = 'Plot Type'
             RadioGroup:
@@ -250,21 +250,24 @@ enamldef Main(MainWindow):
                                 id: edit_plots_pb
                                 text = 'Edit Plot Traits'
                                 clicked ::
-                                    dlg = EditPlotDialog(xyplot_handler= \
-                                                         xyplot_handler)
+                                    xyplot_handler.selection_handler.current_selection = \
+                                        bsm_plotlist.get_selection()
+                                    dlg = EditPlotDialog(
+                                        xyplot_handler = xyplot_handler,
+                                        show_grid = True,
+                                        plot_visible = True,
+                                        plot_type_disc_ = \
+                                            xyplot_handler.plot_type_disc
+                                    )
                                     dlg.show()
                                     if dlg.result == 'accepted':
-                                        if dlg.plot_type_disc_:
-                                            plot_type = 'scatter'
-                                        else:
-                                            plot_type = 'line'
-
                                         xyplot_handler.edit_selection(
-                                            bsm_plotlist.get_selection(),
-                                            plot_type=plot_type,
-                                            show_grid=dlg.show_grid,
-                                            show_plot=dlg.show_plot
+                                            dlg.show_grid, dlg.plot_visible,
+                                            dlg.plot_type_disc_
                                         )
+                                    
+                                    
+                                    
                             ListView:
                                 id: plot_list_view
                                 item_model = ListModel(
