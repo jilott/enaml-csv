@@ -276,11 +276,15 @@ class CsvModel(HasTraits):
         self.selection_handler.create_selection()
         
         if len(self.selection_handler.selected_indices)==1:
-            # currently works only for a single column
             column = self.selection_handler.selected_indices[0][1]
-            column_name = self.data_frame.columns[column]
-            self.column_length = len(self.data_frame[column_name])
-            self.unique_items_nos = len(self.data_frame[column_name].unique())
+            # currently works only for a single column
+            if self.AS_PANDAS_DATAFRAME:                
+                column_name = self.data_frame.columns[column]
+                self.column_length = len(self.data_frame[column_name])
+                self.unique_items_nos = len(self.data_frame[column_name].unique())
+            else:
+                self.column_length = len(self.table[:,column])
+                self.unique_items_nos = len(np.unique(self.table[:,column]))
         
         self.selection_handler.flush()
     
