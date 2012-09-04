@@ -181,7 +181,7 @@ enamldef Main(MainWindow):
                         Container:
                             constraints = [
                                 hbox(
-                                    vbox(x_vs_y_plot, grid_toggle),
+                                    vbox(x_vs_y_plot, hbox(grid_toggle, chaco_tools_rb)),
                                     vbox(plot_properties_traits, plot_radiogroup,
                                          plot_name_form,add_xyplot_pb,
                                          plot_list_view, edit_plots_pb,
@@ -281,7 +281,16 @@ enamldef Main(MainWindow):
                                 toggled ::
                                     xyplot_handler.grid_toggle(
                                         grid_toggle.checked)
-                                    
+                            
+                            
+                            RadioGroup:
+                                id: chaco_tools_rb
+                                RadioButton:
+                                    id: drag_zoom_cb
+                                    text = 'Drag Zoom'
+                                RadioButton:
+                                    id: pan_tool_cb
+                                    text = 'Pan Tool'
                         
                     Tab:
                         title = 'Image Plot'
