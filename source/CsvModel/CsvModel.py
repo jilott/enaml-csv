@@ -379,7 +379,7 @@ class CsvModel(HasTraits):
             
             x = self.table[top_left[0]:bot_right[0]+1,
                            top_left[1]:bot_right[1]+1]
-            print x
+            
             self.script_handler.my_locals[key] = x
             
     
@@ -395,7 +395,9 @@ class CsvModel(HasTraits):
             to_remove.append(column_name)
         for column_name in to_remove:
             del self.data_frame[column_name]
+        
         self.redraw_tablemodel()
+        self.selection_handler.flush()
 
     
 def create_array(data, tuple_list):
