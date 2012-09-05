@@ -612,11 +612,17 @@ enamldef Main(MainWindow):
                 title = 'Text Processing'
 
                 Container:
-                    id: simple_class_control
-                   # constraints = [vbox(simple_class_control,tfidf_pb)]
+                    
                     
                     Form:
                         id: simple_class_params
+                        Label:
+                            text = 'Select Classifier'
+                        ComboBox:
+                            id: classifier_select_list
+                            items = ['LinearSVC','Perceptron','RidgeClassifier',
+                                     'SGDClassifier']
+                            value >> text_class.classifier_select
                         Label:
                             text = 'Training Data Length'
                         Field:
@@ -638,6 +644,7 @@ enamldef Main(MainWindow):
                             text_class.data_frame = model.data_frame
                             text_class.create_dataset()
                             text_class.text_vectorize()
+                            text_class.select_classifier()
                             text_class.train_classifier()
                             text_class.test_classifier()
                     

@@ -1,7 +1,8 @@
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.svm import LinearSVC
+from sklearn.linear_model import Perceptron, RidgeClassifier, SGDClassifier
 from scipy.sparse.csr import csr_matrix
-from traits.api import HasTraits, Instance, Float, CInt
+from traits.api import HasTraits, Instance, Float, CInt, String, Dict
 from pandas import DataFrame
 from selection_handler import SelectionHandler
 
@@ -22,22 +23,28 @@ class TextClassifier(HasTraits):
     target_col_no = CInt(0)
     data_frame = Instance(DataFrame)
     selection_handler = Instance(SelectionHandler)
-    
+    classifier_select = String
+    classifier_dict = Dict
 
     
-    def __init__(self, vectorizer=None, classifier=None, data_frame=None):
+    def __init__(self, vectorizer=None, data_frame=None):
 
         if vectorizer is not None:
             self.vectorizer = vectorizer
         else:
             self.vectorizer = TfidfVectorizer()
-        if classifier is not None:
-            self.classifier = classifier
-        else:
-            self.classifier = LinearSVC()
         if data_frame is not None:
             self.data_frame = data_frame
         self.selection_handler = SelectionHandler()
+        self.classifier_dict = {
+            'LinearSVC':LinearSVC(),
+            'Perceptron':Perceptron(),
+            'RidgeClassifier':RidgeClassifier(),
+            'SGDClassifier':SGDClassifier()
+        }
+    
+    def select_classifier(self):
+        self.classifier = self.classifier_dict[self.classifier_select]
     
     def create_dataset(self):
         
