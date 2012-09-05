@@ -146,6 +146,7 @@ enamldef Main(MainWindow):
     attr regressplot
     attr histplot_handler
     attr kmeans_plot
+    attr text_class
     
     Container:
         constraints = [
@@ -607,3 +608,36 @@ enamldef Main(MainWindow):
                                 var_dict = script_selection.add_to_workspace()
                                 model.add_uservariables(var_dict)
                                 script_selection.flush()
+            Tab:
+                title = 'Text Processing'
+
+                Container:
+                    id: simple_class_control
+                   # constraints = [vbox(simple_class_control,tfidf_pb)]
+                    
+                    Form:
+                        id: simple_class_params
+                        Label:
+                            text = 'Training Data Length'
+                        Field:
+                            value := text_class.train_length
+                        Label:
+                            text = 'Target Column'
+                        Field:
+                            value := text_class.target_col_no
+                        Label:
+                            text = 'Classifier Score'
+                        Label:
+                            text << str(text_class.classifier_score)
+                    PushButton:
+                        id: tfidf_pb
+                        text = 'Tokenize - Bag of Words'
+                        clicked ::
+                            text_class.selection_handler.current_selection = \
+                                bsm.get_selection()
+                            text_class.data_frame = model.data_frame
+                            text_class.create_dataset()
+                            text_class.text_vectorize()
+                            text_class.train_classifier()
+                            text_class.test_classifier()
+                    

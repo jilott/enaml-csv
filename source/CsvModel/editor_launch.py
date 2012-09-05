@@ -1,6 +1,7 @@
 from CsvModel import CsvModel
 from plot_handlers import (XYPlotHandler, ImagePlotHandler, PCPlotHandler,
 RegressionPlotHandler, HistogramPlotHandler, KMeansPlotHandler)
+from text_tools import TextClassifier
 
 model = CsvModel()
 xyplot_handler = XYPlotHandler()
@@ -9,7 +10,7 @@ pcplot_handler = PCPlotHandler()
 regressplot = RegressionPlotHandler()
 histplot_handler = HistogramPlotHandler()
 kmeans_plot = KMeansPlotHandler()
-
+text_class = TextClassifier()
 
 
 
@@ -35,7 +36,8 @@ def enaml_editor_launch(x, AS_PANDAS=False):
             pcaplot_handler=pcplot_handler,
             regressplot = regressplot,
             histplot_handler=histplot_handler,
-            kmeans_plot = kmeans_plot
+            kmeans_plot = kmeans_plot,
+            text_class = text_class
         )
         view.show()
 
@@ -49,5 +51,6 @@ if __name__ == '__main__':
                     pcaplot_handler=pcplot_handler,
                     regressplot = regressplot,
                     histplot_handler=histplot_handler,
-                    kmeans_plot = kmeans_plot)
+                    kmeans_plot = kmeans_plot,
+                    text_class = text_class)
         view.show()
