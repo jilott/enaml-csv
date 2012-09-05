@@ -76,7 +76,8 @@ enamldef EditPlotDialog(Dialog):
 enamldef Loader(Container):
     
     constraints = [
-        vbox(data_type_rb,hbox(lbl, fld, load_button, save_button)),
+        vbox(data_type_rb,hbox(lbl, fld, load_button, save_button,
+                               add_another_csv_pb)),
         width == 500
         ]
     
@@ -128,6 +129,13 @@ enamldef Loader(Container):
             if dlg.result == 'accepted':
                 model.save_filename = dlg.path
                 model.save_as()
+    PushButton:
+        id: add_another_csv_pb
+        constraints = [height==save_button.height,
+                       width == 30]
+        text = '+'
+        clicked ::
+            pass
 
 
 enamldef ControlPanel(Container):
@@ -154,22 +162,24 @@ enamldef Main(MainWindow):
                 hbox(left_view,tab_parent),
                 
             ]
-        Container:
+        TabGroup:
             id: left_view
-            constraints = [
-                vbox(tv_area,control_panel),
-                512>=tv_area.height >= 200,
-                512>=tv_area.width >= 200,
-                control_panel.width == tv_area.width,               
-            ]
-            TableView:
-                id: tv_area
-                item_model << model.table_model
-                BaseSelectionModel:
-                    id: bsm
-                    #selection_behavior = 'columns'
-            ControlPanel:
-                id: control_panel
+            Tab:
+                title << model.filename.split('/')[len(model.filename.split('/'))-1]
+                constraints = [
+                    vbox(tv_area,control_panel),
+                    512>=tv_area.height >= 200,
+                    512>=tv_area.width >= 200,
+                    control_panel.width == tv_area.width,               
+                ]
+                TableView:
+                    id: tv_area
+                    item_model << model.table_model
+                    BaseSelectionModel:
+                        id: bsm
+                        #selection_behavior = 'columns'
+                ControlPanel:
+                    id: control_panel
         TabGroup:
             id: tab_parent
             Tab:
@@ -566,7 +576,6 @@ enamldef Main(MainWindow):
                             model.delete_rowcol()
                             
 
-                    
             Tab:
                 title = 'Scripting'
                 Container:
@@ -612,7 +621,10 @@ enamldef Main(MainWindow):
                 title = 'Text Processing'
 
                 Container:
-                    
+                    constraints = [
+                        hbox(simple_class_params,vbox(tfidf_pb,train_class_pb,
+                             test_class_pb))
+                    ]
                     
                     Form:
                         id: simple_class_params
@@ -634,6 +646,7 @@ enamldef Main(MainWindow):
                         Label:
                             text = 'Classifier Score'
                         Label:
+                            #constraints = [width==classifier_select_list.width]
                             text << str(text_class.classifier_score)
                     PushButton:
                         id: tfidf_pb
@@ -644,7 +657,16 @@ enamldef Main(MainWindow):
                             text_class.data_frame = model.data_frame
                             text_class.create_dataset()
                             text_class.text_vectorize()
+
+                    PushButton:
+                        id: train_class_pb
+                        text = 'Train Classifier'
+                        clicked ::
                             text_class.select_classifier()
                             text_class.train_classifier()
+                    PushButton:
+                        id: test_class_pb
+                        text = 'Test Classifier'
+                        clicked ::
                             text_class.test_classifier()
-                    
+                        
