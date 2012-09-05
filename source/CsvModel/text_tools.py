@@ -5,6 +5,7 @@ from scipy.sparse.csr import csr_matrix
 from traits.api import HasTraits, Instance, Float, CInt, String, Dict
 from pandas import DataFrame
 from selection_handler import SelectionHandler
+import pickle
 
 
 class DataExtractor(HasTraits):
@@ -74,3 +75,12 @@ class TextClassifier(HasTraits):
         self.classifier_score = self.classifier.score(self.x_test,
                                                       self.test_targets)
     
+    def save_classifier(self, pickle_filename):
+        op = open(pickle_filename, 'w')
+        pickle.dump(self.classifier, op)
+        op.close()
+    
+    def load_classifier(self, pickle_filename):
+        op = open(pickle_filename, 'r')
+        self.classifier = pickle.load(op)
+        op.close()
