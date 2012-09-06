@@ -639,8 +639,7 @@ enamldef Main(MainWindow):
                                 text = 'Select Classifier'
                             ComboBox:
                                 id: classifier_select_list
-                                items = ['LinearSVC','Perceptron','RidgeClassifier',
-                                         'SGDClassifier']
+                                items = text_class.classifier_dict.keys()
                                 value >> text_class.classifier_select
                             Label:
                                 text = 'Training Data Length'
