@@ -181,6 +181,10 @@ class XYPlotHandler(HasTraits):
         self.container.request_redraw()
     
     def edit_selection(self, show_grid, plot_visible, plot_type_disc):
+        '''
+        Called to start editing the selected plot. Should accompany the 'Edit
+        Plot' dialog.
+        '''
         
         self.selection_handler.create_selection()
         index = self.selection_handler.selected_indices[0][0]
@@ -223,12 +227,16 @@ class XYPlotHandler(HasTraits):
 
 class ImagePlotHandler(HasTraits):
     
+    # the overlay container for the plot
     container = Instance(OverlayPlotContainer)
     
+    # the selection handler instance for the tableview
     selection_handler = Instance(SelectionHandler)
     
+    # the input data.
     table = Array
     
+    # The chaco colorbar object accompanying the plot.
     colorbar = ColorBar
     
     def __init__(self):
@@ -238,6 +246,10 @@ class ImagePlotHandler(HasTraits):
         
     
     def imageplot_check(self):
+        '''
+        Called to check whether the current selection is compatible with an
+        image plot.
+        '''
         if len(self.selection_handler.selected_indices)>1:
             shape_list = []
             for index_tuple in self.selection_handler.selected_handler:
@@ -252,6 +264,9 @@ class ImagePlotHandler(HasTraits):
             return True
     
     def toggle_colorbar(self, checked):
+        '''
+        Function called to toggle the colorbar on the image plot.
+        '''
         if not checked:
             for component in self.container.components:
                 if isinstance(component, ColorBar):
@@ -263,6 +278,9 @@ class ImagePlotHandler(HasTraits):
 
     
     def draw_image_plot(self):
+        '''
+        Function called to draw the image plot.
+        '''
         self.top_left = self.selection_handler.selected_indices[0][0:2]
         self.bot_right = self.selection_handler.selected_indices[0][2:4]
         data = self.table[self.top_left[0]:self.bot_right[0],
@@ -288,14 +306,20 @@ class ImagePlotHandler(HasTraits):
 
 class PCPlotHandler(HasTraits):
     
+    # The container for the plot.
     container = OverlayPlotContainer()
     
+    # the sklearn.decmoposition.PCA object
     pca = PCA
     
+    # Whether or not to normalize the data, one of the parameters of the PCA
+    # object
     whiten = Bool
     
+    # The input data.
     table = Array
     
+    # The selection_handler instance for the tableview
     selection_handler = Instance(SelectionHandler)
     
     def __init__(self):
@@ -305,6 +329,9 @@ class PCPlotHandler(HasTraits):
         self.selection_handler = SelectionHandler()
     
     def draw_pc_plot(self):
+        '''
+        Called to draw the PCA plot.
+        '''
         self.selection_handler.create_selection()
         if len(self.selection_handler.selected_indices)==1:
             top_left = self.selection_handler.selected_indices[0][0:2]
@@ -324,6 +351,7 @@ class PCPlotHandler(HasTraits):
 
 class RegressionPlotHandler(HasTraits):
     
+    # The input data from the csv file
     data = Array
     
     # The input, or the selected column / row
@@ -338,6 +366,7 @@ class RegressionPlotHandler(HasTraits):
     # the container for the plots
     container = Instance(OverlayPlotContainer)
     
+    # The selection handler object for the tableview
     selection_handler = Instance(SelectionHandler)
     
     def __init__(self):
@@ -345,6 +374,9 @@ class RegressionPlotHandler(HasTraits):
         self.container = OverlayPlotContainer()
     
     def fit_selection(self):
+        '''
+        Function that computes the curve to fit.
+        '''
         self.selection_handler.create_selection()
         if len(self.selection_handler.selected_indices)==1:
             tuple_list = self.selection_handler.selected_indices[0]
@@ -352,14 +384,15 @@ class RegressionPlotHandler(HasTraits):
                 L = tuple_list[2]-tuple_list[0]
                 self.index = np.arange(L+1)
                 self.Y = self.data[:,tuple_list[1]]
-                #print self.Y.shape
-                #print self.index.shape
+
                 results = OLS(self.Y,self.index).fit()
                 self.selection_olsfit = results.fittedvalues
         self.selection_handler.flush()
     
     def plot_fits(self):
-        
+        '''
+        Function called to plot the regression fits.
+        '''
         components = []
         
         for component in self.container.components:
@@ -384,14 +417,19 @@ class RegressionPlotHandler(HasTraits):
 
 class HistogramPlotHandler(HasTraits):
     
+    # Index for the histogram plot
     index = Array
     
+    # The selection handler object for the selected data
     selection_handler = Instance(SelectionHandler)
     
+    # OVerlayPlotContainer for the histogram plot
     container = Instance(OverlayPlotContainer)
     
+    # Number of bins of the histogram
     nbins = Int(10)
     
+    # Whether the data is a pandas dataframe or a numpy array
     AS_PANDAS_DATAFRAME = Bool
     
     def __init__(self):
@@ -400,6 +438,9 @@ class HistogramPlotHandler(HasTraits):
         self.container = OverlayPlotContainer()
     
     def draw_histogram(self):
+        '''
+        Default function called when drawing the histogram.
+        '''
         for component in self.container.components:
             self.container.remove(component)
             
@@ -432,18 +473,25 @@ class HistogramPlotHandler(HasTraits):
 
 class KMeansPlotHandler(HasTraits):
     
+    # the data to cluster
     data = Array
     
+    # the dataset created after preprocessing
     dataset = Array
     
+    # the sklearn.cluster.KMeans object
     kmeans = Instance(KMeans)
     
+    # Number of clusters
     n_clusters = Int
     
+    # Maximum iterations for the clustering algorithm
     max_iter = Int
     
+    # Container for the cluster plots
     container = Instance(OverlayPlotContainer)
     
+    # the columns from the dataset to omit when performing clustering
     to_omit = List
     
     
@@ -512,21 +560,3 @@ class KMeansPlotHandler(HasTraits):
         
         self.container.request_redraw()
 
-class PlotEditor(HasTraits):
-    
-    marker =  marker_trait
-    color = ColorTrait
-    marker_size = Int
-    plot = Instance(Plot)
-    show_grid = Bool
-    plot_visible = Bool
-    plot_type_disc = Bool
-    plot_type = String
-    
-    def __init__(self, plot_name=None):
-        if plot_name is not None:
-            self.plot = plot_name
-    
-    def edit_plot(self):
-        self.plot.visible = self.plot_visible
-        
