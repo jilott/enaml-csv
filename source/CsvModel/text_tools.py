@@ -1,6 +1,8 @@
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.svm import LinearSVC
 from sklearn.linear_model import Perceptron, RidgeClassifier, SGDClassifier
+from sklearn.naive_bayes import BernoulliNB, MultinomialNB
+from sklearn.neighbors import KNeighborsClassifier, NearestCentroid
 from scipy.sparse.csr import csr_matrix
 from traits.api import HasTraits, Instance, Float, CInt, String, Dict
 from pandas import DataFrame
@@ -41,7 +43,11 @@ class TextClassifier(HasTraits):
             'LinearSVC':LinearSVC(),
             'Perceptron':Perceptron(),
             'RidgeClassifier':RidgeClassifier(),
-            'SGDClassifier':SGDClassifier()
+            'SGDClassifier':SGDClassifier(),
+            'BernoulliNB':BernoulliNB(),
+            'MultinomialNB':MultinomialNB(),
+            'KneighborsClassifier':KNeighborsClassifier(),
+            'NearestCentroid':NearestCentroid()
         }
     
     def select_classifier(self):
@@ -65,12 +71,13 @@ class TextClassifier(HasTraits):
     
     def text_vectorize(self):
         self.x_train = self.vectorizer.fit_transform(self.training_data)
-        self.x_test = self.vectorizer.transform(self.testing_data)
+        #self.x_test = self.vectorizer.transform(self.testing_data)
     
     def train_classifier(self):
         self.classifier.fit(self.x_train, self.train_targets)
     
     def test_classifier(self):
+        self.x_test = self.vectorizer.transform(self.testing_data)
         self.prediction = self.classifier.predict(self.x_test)
         self.classifier_score = self.classifier.score(self.x_test,
                                                       self.test_targets)
@@ -78,9 +85,20 @@ class TextClassifier(HasTraits):
     def save_classifier(self, pickle_filename):
         op = open(pickle_filename, 'w')
         pickle.dump(self.classifier, op)
+        pickle.dump(self.vectorizer, op)
         op.close()
     
     def load_classifier(self, pickle_filename):
         op = open(pickle_filename, 'r')
         self.classifier = pickle.load(op)
+        self.vectorizer = pickle.load(op)
         op.close()
+    
+    def make_prediction(self):
+        self.selection_handler.create_selection()
+        pred_data_index = self.selection_handler.selected_indices[0][1]
+        pred_column_name = self.data_frame.columns[pred_data_index]
+        self.testing_data = self.data_frame[pred_column_name]
+        self.x_test = self.vectorizer.transform(self.testing_data)
+        self.prediction = self.classifier.predict(self.x_test)
+        

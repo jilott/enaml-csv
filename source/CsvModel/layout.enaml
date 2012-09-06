@@ -627,7 +627,7 @@ enamldef Main(MainWindow):
                         constraints = [
                             hbox(simple_class_params,vbox(tfidf_pb,train_class_pb,
                                  test_class_pb, save_classifier_pb,
-                                 load_classifier_pb))
+                                 load_classifier_pb, make_prediction_pb))
                         ]
                         title = 'Text Classification'
                         Form:
@@ -713,3 +713,15 @@ enamldef Main(MainWindow):
                                 if dlg.result == 'accepted':
                                     text_class.load_classifier(dlg.path)
                                     stat_label.text = 'Classifier Loaded'
+                        PushButton:
+                            id: make_prediction_pb
+                            text = 'Make Prediction'
+                            clicked ::
+                                text_class.data_frame = model.data_frame
+                                text_class.selection_handler.current_selection = \
+                                    bsm.get_selection()
+                                
+                                text_class.make_prediction()
+                                model.data_frame['Prediction']= \
+                                    text_class.prediction
+                                model.redraw_tablemodel()
