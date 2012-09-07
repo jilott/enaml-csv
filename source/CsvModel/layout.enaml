@@ -527,29 +527,24 @@ enamldef Main(MainWindow):
                     ]
                     GroupBox:
                         id: sorting_ops
-                        title = 'Sort Rows / Columns'
+                        title = 'Sort Selection'
                         Container:
                             constraints = [
-                                hbox(vbox(row_col_sort_select,asc_desc_sort),
-                                          sort_button)
+                                hbox(asc_desc_sort, sort_button)
                             ]
                             RadioGroup:
-                                id: row_col_sort_select
-                                RadioButton:
-                                    text = 'Row'
-                                RadioButton:
-                                    text = 'Column'
-                            RadioGroup:
                                 id: asc_desc_sort
-                                RadioButton:
-                                    text = 'Ascending'
-                                RadioButton:
-                                    text = 'Descending'
+                                items = ['Ascending', 'Descending']
+
                             PushButton:
                                 id: sort_button
                                 text = 'Sort'
                                 clicked ::
-                                    pass
+                                    model.selection_handler.current_selection = \
+                                        bsm.get_selection()
+                                    model.sort_selection(
+                                        asc_desc_sort.selected_index
+                                    )
                     GroupBox:
                         id: other_other
                         Form:

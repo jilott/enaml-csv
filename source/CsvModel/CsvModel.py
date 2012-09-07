@@ -427,7 +427,34 @@ class CsvModel(HasTraits):
             self.data_frame = self.data_frame.reindex(columns = column_list)
             self.redraw_tablemodel()
         
-        self.selection_handler.flush()    
+        self.selection_handler.flush()
+    
+    def sort_selection(self, sort_type):
+        '''
+        Called to sort the selected column
+        '''
+        # currently works only for pandas dataframes
+        
+        if self.AS_PANDAS_DATAFRAME:
+            self.selection_handler.create_selection()
+            column_index = self.selection_handler.selected_indices[0][1]
+            column_name = self.data_frame.columns[column_index]
+            column = self.data_frame[column_name].copy()
+            if sort_type == 0:
+                column = column.order()
+                
+            else:
+                column = column.order(ascending=False)
+            
+            del self.data_frame[column_name]
+            self.data_frame[column_name] = list(column)
+                
+            
+        
+        self.redraw_tablemodel()
+        
+        self.selection_handler.flush()
+        
 
     
 def create_array(data, tuple_list):
