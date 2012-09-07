@@ -143,6 +143,13 @@ class CsvModel(HasTraits):
     # Icon with a down arrow
     down_icon = Instance(AbstractTkIcon)
     
+    # Delete icon
+    delete_icon = Instance(AbstractTkIcon)
+    
+    # Dict containing icons
+    icons_dict = Dict
+    
+    
     def __init__(self, data=None, AS_PANDAS_DATAFRAME=False):
         
         if AS_PANDAS_DATAFRAME:
@@ -157,16 +164,35 @@ class CsvModel(HasTraits):
         self.script_handler = ScriptHandler()
         self.workspace_handler = WorkspaceHandler({})
         self.selection_handler = SelectionHandler()
-        if 'qt' in os.environ['ETS_TOOLKIT']:
-            self.left_icon = QtIcon().from_file(
-                os.path.join('..','Icons','left.gif'))
-            self.right_icon = QtIcon().from_file(
-                os.path.join('..','Icons','right.gif'))
-        else:
-            self.left_icon = WXIcon().from_file(
-                os.path.join('..','Icons','left.gif'))
-            self.right_icon = WXIcon().from_file(
-                os.path.join('..','Icons','right.gif'))
+        
+        left_icon = QtIcon().from_file(
+            os.path.join('..','Icons','left.gif'))
+        self.icons_dict['left'] = left_icon
+        
+        right_icon = QtIcon().from_file(
+            os.path.join('..','Icons','right.gif'))
+        self.icons_dict['right'] = right_icon
+        
+        delete_icon = QtIcon().from_file(
+            os.path.join('..','Icons','cross.gif')
+        )
+        self.icons_dict['delete'] = delete_icon
+        
+        load_icon = QtIcon().from_file(
+            os.path.join('..','Icons','load.png')
+        )
+        self.icons_dict['load'] = load_icon
+        
+        save_icon = QtIcon().from_file(
+            os.path.join('..','Icons','save.png')
+        )
+        self.icons_dict['save'] = save_icon
+        
+        run_icon = QtIcon().from_file(
+            os.path.join('..','Icons','run.png')
+        )
+        self.icons_dict['run'] = run_icon
+        
         
     
     def _table_default(self):
@@ -430,6 +456,7 @@ class CsvModel(HasTraits):
         Called to shift a column to the left or to the right
         '''
         # currently works only for pandas dataframes
+        
         if self.AS_PANDAS_DATAFRAME:
             self.selection_handler.create_selection()
             column_list = list(self.data_frame.columns)

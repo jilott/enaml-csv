@@ -92,6 +92,7 @@ enamldef Loader(Container):
     PushButton:
         id: load_button
         text = 'Load'
+        icon = model.icons_dict['load']
         clicked::
             dlg = FileDialog(
                 title = 'Load file',
@@ -117,6 +118,7 @@ enamldef Loader(Container):
     PushButton:
         id: save_button
         text = 'Save as csv'
+        icon = model.icons_dict['save']
         clicked ::
             dlg = FileDialog(
                 title = 'Save file',
@@ -251,6 +253,7 @@ enamldef Main(MainWindow):
                             PushButton:
                                 id: remove_selected_plots
                                 text = 'Remove Selected Plots'
+                                icon = model.icons_dict['delete']
                                 clicked ::
                                     xyplot_handler.remove_selected_plots(
                                         bsm_plotlist.get_selection()
@@ -571,6 +574,7 @@ enamldef Main(MainWindow):
                     PushButton:
                         id: del_row_pb
                         text = 'Delete Row/Column'
+                        icon = model.icons_dict['delete']
                         clicked ::
                             model.selection_handler.current_selection = \
                                 bsm.get_selection()
@@ -581,7 +585,7 @@ enamldef Main(MainWindow):
                             id: shift_left_pb
                             constraints = [width==shift_right_pb.width]
                             text = 'Shift Column Left'
-                            icon = model.left_icon
+                            icon = model.icons_dict['left']
                             clicked ::
                                 model.selection_handler.current_selection = \
                                     bsm.get_selection()
@@ -589,7 +593,7 @@ enamldef Main(MainWindow):
                         PushButton:
                             id: shift_right_pb
                             text = 'Shift Column Right'
-                            icon = model.right_icon
+                            icon = model.icons_dict['right']
                             clicked ::
                                 model.selection_handler.current_selection = \
                                     bsm.get_selection()
@@ -611,6 +615,7 @@ enamldef Main(MainWindow):
                     PushButton:
                         id: script_run_pb
                         text = 'Run'
+                        icon = model.icons_dict['run']
                         clicked ::
                             model.script_handler.script = \
                                 text_editor.get_text()
@@ -704,6 +709,7 @@ enamldef Main(MainWindow):
                         PushButton:
                             id: save_classifier_pb
                             text = 'Save Classifier'
+                            icon = model.icons_dict['save']
                             clicked ::
                                 dlg = FileDialog(
                                     mode = 'save',
@@ -720,6 +726,7 @@ enamldef Main(MainWindow):
                         PushButton:
                             id: load_classifier_pb
                             text = 'Load Classifier'
+                            icon = model.icons_dict['load']
                             clicked ::
                                 dlg = FileDialog(
                                     mode = 'open',
