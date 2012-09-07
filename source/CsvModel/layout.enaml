@@ -76,67 +76,72 @@ enamldef EditPlotDialog(Dialog):
 enamldef Loader(Container):
     
     constraints = [
-        vbox(data_type_rb,hbox(lbl, fld, load_button, save_button,
-                               add_another_csv_pb)),
+        vbox(loader_form, tbar),
         width == 500
         ]
     
-    Label:
-        id: lbl
-        text = 'Filename'
-    
-    Field:
-        id: fld
-        value << model.filename
-    
-    PushButton:
-        id: load_button
+    Form:
+        id: loader_form
+        Label:
+            text = 'Filename'
         
-        icon = model.icons_dict['load']
-        clicked::
-            dlg = FileDialog(
-                title = 'Load file',
-                filters = ['CSV files (*.csv)'],
-                directory = os.path.dirname(
-                    os.path.join('..','..','datasets','sample.csv'))
-                
-            )
-            dlg.show()
-            if dlg.result == 'accepted':
-                model.filename = dlg.path
-                xyplot_handler.AS_PANDAS_DATAFRAME = model.AS_PANDAS_DATAFRAME
+        Field:
+            value << model.filename
     
-    RadioGroup:
-        id: data_type_rb
-        RadioButton:
-            id: as_pandas
-            text = 'As Pandas DataFrame'
-            checked := model.AS_PANDAS_DATAFRAME
-        RadioButton:
-            id: as_nparray
-            text = 'As numpy.ndarray'
-    PushButton:
-        id: save_button
-        icon = model.icons_dict['save']
-        clicked ::
-            dlg = FileDialog(
-                title = 'Save file',
-                mode = 'save',
-                filters = ['CSV (*.csv)'],
-                directory = os.path.dirname(
-                    os.path.join('..','..','datasets','sample.csv'))
+    ToolBar:
+        id: tbar
+        
+        RadioGroup:
+            id: data_type_rb
+            RadioButton:
+                id: as_pandas
+                text = 'As Pandas DataFrame'
+                checked := model.AS_PANDAS_DATAFRAME
+            RadioButton:
+                id: as_nparray
+                text = 'As numpy.ndarray'
+                
+        PushButton:
+            id: load_button
+            
+            icon = model.icons_dict['load']
+            clicked::
+                dlg = FileDialog(
+                    title = 'Load file',
+                    filters = ['CSV files (*.csv)'],
+                    directory = os.path.dirname(
+                        os.path.join('..','..','datasets','sample.csv'))
+                    
                 )
-            dlg.show()
-            if dlg.result == 'accepted':
-                model.save_filename = dlg.path
-                model.save_as()
-    PushButton:
-        id: add_another_csv_pb
-        constraints = [height==save_button.height,
-                       width == 30]
-        text = '+'
-        clicked ::
-            pass
+                dlg.show()
+                if dlg.result == 'accepted':
+                    model.filename = dlg.path
+                    xyplot_handler.AS_PANDAS_DATAFRAME = model.AS_PANDAS_DATAFRAME
+        PushButton:
+            id: save_button
+            icon = model.icons_dict['save']
+            clicked ::
+                dlg = FileDialog(
+                    title = 'Save file',
+                    mode = 'save',
+                    filters = ['CSV (*.csv)'],
+                    directory = os.path.dirname(
+                        os.path.join('..','..','datasets','sample.csv'))
+                    )
+                dlg.show()
+                if dlg.result == 'accepted':
+                    model.save_filename = dlg.path
+                    model.save_as()
+    
+        
+    
+        PushButton:
+            id: add_another_csv_pb
+            constraints = [height==save_button.height,
+                           width == 30]
+            text = '+'
+            clicked ::
+                pass
 
 
 enamldef ControlPanel(Container):
@@ -225,6 +230,22 @@ enamldef Main(MainWindow):
                                     RadioButton:
                                         id: plot_type_cont
                                         text = 'Continuous'
+
+                            CheckBox:
+                                id: grid_toggle
+                                text = 'Show Grid'
+                                checked = True
+                                toggled ::
+                                    xyplot_handler.grid_toggle(
+                                        grid_toggle.checked)
+                            RadioGroup:
+                                id: chaco_tools_rb
+                                RadioButton:
+                                    id: drag_zoom_cb
+                                    text = 'Drag Zoom'
+                                RadioButton:
+                                    id: pan_tool_cb
+                                    text = 'Pan Tool'
                             Form:
                                 id: plot_name_form
                                 Label:
@@ -287,23 +308,10 @@ enamldef Main(MainWindow):
                                     xyplot_handler.plot_list_view.keys())
                                 BaseSelectionModel:
                                     id: bsm_plotlist
-                            CheckBox:
-                                id: grid_toggle
-                                text = 'Show Grid'
-                                checked = True
-                                toggled ::
-                                    xyplot_handler.grid_toggle(
-                                        grid_toggle.checked)
                             
                             
-                            RadioGroup:
-                                id: chaco_tools_rb
-                                RadioButton:
-                                    id: drag_zoom_cb
-                                    text = 'Drag Zoom'
-                                RadioButton:
-                                    id: pan_tool_cb
-                                    text = 'Pan Tool'
+                            
+                            
                         
                     Tab:
                         title = 'Image Plot'
@@ -512,9 +520,10 @@ enamldef Main(MainWindow):
                 title = 'Other'
                 Container:
                     constraints = [
-                        vbox(hbox(sorting_ops,other_other),use_selection_other,
+                        vbox(shift_cols_form,
+                             hbox(sorting_ops,other_other),use_selection_other,
                              map_to_unique, norm_selection, del_row_pb,
-                             shift_cols_form)
+                             )
                     ]
                     GroupBox:
                         id: sorting_ops
@@ -605,7 +614,7 @@ enamldef Main(MainWindow):
                 title = 'Scripting'
                 Container:
                     constraints = [
-                        hbox(vbox(text_editor, script_control),
+                        hbox(vbox(text_editor, script_tbar),
                         workspace_view)
                     ]
                     TextEditor:
@@ -613,9 +622,11 @@ enamldef Main(MainWindow):
                     TableView:
                         id: workspace_view
                         item_model = model.workspace_handler
-                    Form:
-                        id: script_control
-                        
+                    ToolBar:
+                        id: script_tbar
+                        #Form:
+                        #    id: script_control
+                            
                         PushButton:
                             id: use_selection_script
                             text = 'Use Selection'
