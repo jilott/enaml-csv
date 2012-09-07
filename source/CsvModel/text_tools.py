@@ -19,7 +19,7 @@ class DataExtractor(HasTraits):
 class TextClassifier(HasTraits):
     
     # The text vectorizer from sklearn.feature_extraction.text
-    vectorizer = Instahce(TfidfVectorizer)
+    vectorizer = Instance(TfidfVectorizer)
     
     # The training data
     x_train = Instance(csr_matrix)
