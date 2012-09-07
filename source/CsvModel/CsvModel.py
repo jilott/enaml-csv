@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import os
 import numpy as np
 import csv
 from traits.api import (
@@ -8,6 +9,7 @@ from traits.api import (
 )
 from enaml.stdlib.table_model import TableModel
 from enaml.core.item_model import AbstractItemModel
+from enaml.noncomponents.abstract_icon import AbstractTkIcon
 from chaco.api import Plot, ArrayPlotData, marker_trait, OverlayPlotContainer
 from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
@@ -20,6 +22,7 @@ from pandas.io.parsers import read_csv
 from enaml_item_models import DataFrameModel
 from pandas import DataFrame
 from statsmodels.api import OLS
+from enaml.backends.qt.noncomponents.qt_icon import QtIcon
 
 
 class MyTableModel(AbstractItemModel):
@@ -126,6 +129,12 @@ class CsvModel(HasTraits):
     # If the file should be imported as a Pandas dataframe
     AS_PANDAS_DATAFRAME = Bool
     
+    # Simple icon with a right arrow
+    left_icon = Instance(AbstractTkIcon)
+    
+    # Simple icon with a left arrow
+    right_icon = Instance(AbstractTkIcon)
+    
     def __init__(self, data=None, AS_PANDAS_DATAFRAME=False):
         '''
         So far only the PCA objects and the XY plot container needs to be 'initialized'.
@@ -142,6 +151,11 @@ class CsvModel(HasTraits):
         self.script_handler = ScriptHandler()
         self.workspace_handler = WorkspaceHandler({})
         self.selection_handler = SelectionHandler()
+        self.left_icon = QtIcon().from_file(
+            os.path.join('..','Icons','left.gif'))
+        self.right_icon = QtIcon().from_file(
+            os.path.join('..','Icons','right.gif'))
+        
     
     def _table_default(self):
         '''
