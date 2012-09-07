@@ -370,11 +370,14 @@ enamldef Main(MainWindow):
                                     256<=height<=512,
                                 ]
                                 component << histplot_handler.container
-                            Slider:
+                            Form:
                                 id: nbins_slider
-                                minimum = 10
-                                maximum = 1000
-                                value >> histplot_handler.nbins
+                                Slider:
+                                    minimum = 10
+                                    maximum = 1000
+                                    value >> histplot_handler.nbins
+                                Label:
+                                    text << str(histplot_handler.nbins)
                             PushButton:
                                 id: draw_hist_pb
                                 text = 'Use Selection'

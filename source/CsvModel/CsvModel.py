@@ -62,16 +62,6 @@ class CsvModel(HasTraits):
     # The headers of the csv data
     headers = List
     
-    # An sklearn.decomposition.PCA object, required for the
-    # reduced-dimensionality plots
-    pca = Instance(PCA)
-    
-    # Default row to be plotted in the histogram
-    hist_row_index = Int(2)
-    
-    # Defulat number of bins for the histogram
-    hist_nbins = Int(10)
-    
     # The mean of the 2-D block of the array, represented by the current
     # selection
     selection_mean = Float
@@ -101,24 +91,6 @@ class CsvModel(HasTraits):
     # TableView
     table_model = Instance(TableModel,())
     
-    # chaco.api.ArrayPlotData instance for the image plot
-    img_plotdata = Instance(ArrayPlotData,())
-    
-    # chaco.api.plot instance for the image plot
-    image_plot = Instance(Plot,())
-    
-    # chaco.api.ArrayPlotData instance for the PCA plot
-    pca_plotdata = Instance(ArrayPlotData,())
-    
-    # chaco.api.plot instance for the pca plot
-    pca_plot = Instance(Plot,()) 
-    
-    # chaco.api.ArrayPlotData instance for the histogram
-    hist_plotdata = Instance(ArrayPlotData,())
-    
-    # chaco.api.plot instance for the histogram
-    hist_plot = Instance(Plot,())
-    
     # class for handling scripts
     script_handler = Instance(ScriptHandler())
     
@@ -130,21 +102,6 @@ class CsvModel(HasTraits):
     
     # If the file should be imported as a Pandas dataframe
     AS_PANDAS_DATAFRAME = Bool
-    
-    # Simple icon with a right arrow
-    left_icon = Instance(AbstractTkIcon)
-    
-    # Simple icon with a left arrow
-    right_icon = Instance(AbstractTkIcon)
-    
-    # Icon with an up arrow
-    up_icon = Instance(AbstractTkIcon)
-    
-    # Icon with a down arrow
-    down_icon = Instance(AbstractTkIcon)
-    
-    # Delete icon
-    delete_icon = Instance(AbstractTkIcon)
     
     # Dict containing icons
     icons_dict = Dict
