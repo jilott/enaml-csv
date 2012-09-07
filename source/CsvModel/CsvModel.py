@@ -10,6 +10,8 @@ from traits.api import (
 from enaml.stdlib.table_model import TableModel
 from enaml.core.item_model import AbstractItemModel
 from enaml.noncomponents.abstract_icon import AbstractTkIcon
+from enaml.backends.qt.noncomponents.qt_icon import QtIcon
+from enaml.backends.wx.noncomponents.wx_icon import WXIcon
 from chaco.api import Plot, ArrayPlotData, marker_trait, OverlayPlotContainer
 from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
@@ -22,7 +24,7 @@ from pandas.io.parsers import read_csv
 from enaml_item_models import DataFrameModel
 from pandas import DataFrame
 from statsmodels.api import OLS
-from enaml.backends.qt.noncomponents.qt_icon import QtIcon
+
 
 
 class MyTableModel(AbstractItemModel):
@@ -151,10 +153,16 @@ class CsvModel(HasTraits):
         self.script_handler = ScriptHandler()
         self.workspace_handler = WorkspaceHandler({})
         self.selection_handler = SelectionHandler()
-        self.left_icon = QtIcon().from_file(
-            os.path.join('..','Icons','left.gif'))
-        self.right_icon = QtIcon().from_file(
-            os.path.join('..','Icons','right.gif'))
+        if 'qt' in os.environ['ETS_TOOLKIT']:
+            self.left_icon = QtIcon().from_file(
+                os.path.join('..','Icons','left.gif'))
+            self.right_icon = QtIcon().from_file(
+                os.path.join('..','Icons','right.gif'))
+        else:
+            self.left_icon = WXIcon().from_file(
+                os.path.join('..','Icons','left.gif'))
+            self.right_icon = WXIcon().from_file(
+                os.path.join('..','Icons','right.gif'))
         
     
     def _table_default(self):
