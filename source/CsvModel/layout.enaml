@@ -91,7 +91,7 @@ enamldef Loader(Container):
     
     PushButton:
         id: load_button
-        text = 'Load'
+        
         icon = model.icons_dict['load']
         clicked::
             dlg = FileDialog(
@@ -117,7 +117,6 @@ enamldef Loader(Container):
             text = 'As numpy.ndarray'
     PushButton:
         id: save_button
-        text = 'Save as csv'
         icon = model.icons_dict['save']
         clicked ::
             dlg = FileDialog(
@@ -606,8 +605,7 @@ enamldef Main(MainWindow):
                 title = 'Scripting'
                 Container:
                     constraints = [
-                        hbox(vbox(text_editor, use_selection_script,
-                                  script_run_pb),
+                        hbox(vbox(text_editor, script_control),
                         workspace_view)
                     ]
                     TextEditor:
@@ -615,35 +613,39 @@ enamldef Main(MainWindow):
                     TableView:
                         id: workspace_view
                         item_model = model.workspace_handler
-                    PushButton:
-                        id: script_run_pb
-                        text = 'Run'
-                        icon = model.icons_dict['run']
-                        clicked ::
-                            model.script_handler.script = \
-                                text_editor.get_text()
-                            model.script_handler.exec_script()
-                            model.workspace_handler = WorkspaceHandler(
-                                model.script_handler.my_locals)
-                            workspace_view.item_model = model.workspace_handler
-                    PushButton:
-                        id: use_selection_script
-                        text = 'Use Selection'
-                        clicked ::
-                            model.selection_handler.current_selection = \
-                                bsm.get_selection()
-                            model.selection_handler.create_selection()
-                            script_selection.selection_list = \
-                                model.selection_handler.selected_indices
-                            script_selection.create_selection_dict()
-                            dlg = ConfigureSelection(
-                                config_workspace=script_selection
-                            )
-                            dlg.show()
-                            if dlg.result=='accepted':
-                                var_dict = script_selection.add_to_workspace()
-                                model.add_uservariables(var_dict)
-                                script_selection.flush()
+                    Form:
+                        id: script_control
+                        
+                        PushButton:
+                            id: use_selection_script
+                            text = 'Use Selection'
+                            clicked ::
+                                model.selection_handler.current_selection = \
+                                    bsm.get_selection()
+                                model.selection_handler.create_selection()
+                                script_selection.selection_list = \
+                                    model.selection_handler.selected_indices
+                                script_selection.create_selection_dict()
+                                dlg = ConfigureSelection(
+                                    config_workspace=script_selection
+                                )
+                                dlg.show()
+                                if dlg.result=='accepted':
+                                    var_dict = script_selection.add_to_workspace()
+                                    model.add_uservariables(var_dict)
+                                    script_selection.flush()
+                        PushButton:
+                            id: script_run_pb
+                            constraints = [height==use_selection_script.height,
+                                           width==use_selection_script.width]
+                            icon = model.icons_dict['run']
+                            clicked ::
+                                model.script_handler.script = \
+                                    text_editor.get_text()
+                                model.script_handler.exec_script()
+                                model.workspace_handler = WorkspaceHandler(
+                                    model.script_handler.my_locals)
+                                workspace_view.item_model = model.workspace_handler
             Tab:
                 title = 'Text Processing'
 
