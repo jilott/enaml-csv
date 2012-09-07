@@ -583,13 +583,17 @@ enamldef Main(MainWindow):
                             text = 'Shift Column Left'
                             icon = model.left_icon
                             clicked ::
-                                pass
+                                model.selection_handler.current_selection = \
+                                    bsm.get_selection()
+                                model.shift_selection('left')
                         PushButton:
                             id: shift_right_pb
                             text = 'Shift Column Right'
                             icon = model.right_icon
                             clicked ::
-                                pass
+                                model.selection_handler.current_selection = \
+                                    bsm.get_selection()
+                                model.shift_selection('right')
 
             Tab:
                 title = 'Scripting'
