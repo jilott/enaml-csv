@@ -137,10 +137,14 @@ class CsvModel(HasTraits):
     # Simple icon with a left arrow
     right_icon = Instance(AbstractTkIcon)
     
+    # Icon with an up arrow
+    up_icon = Instance(AbstractTkIcon)
+    
+    # Icon with a down arrow
+    down_icon = Instance(AbstractTkIcon)
+    
     def __init__(self, data=None, AS_PANDAS_DATAFRAME=False):
-        '''
-        So far only the PCA objects and the XY plot container needs to be 'initialized'.
-        '''
+        
         if AS_PANDAS_DATAFRAME:
             self.AS_PANDAS_DATAFRAME = AS_PANDAS_DATAFRAME
         if data is not None:
