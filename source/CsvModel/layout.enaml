@@ -590,7 +590,7 @@ enamldef Main(MainWindow):
                         PushButton:
                             id: shift_left_pb
                             constraints = [width==shift_right_pb.width]
-                            text = 'Shift Column Left'
+                            text = 'Move Column Left'
                             icon = model.icons_dict['left']
                             clicked ::
                                 model.selection_handler.current_selection = \
@@ -598,7 +598,7 @@ enamldef Main(MainWindow):
                                 model.shift_selection('left')
                         PushButton:
                             id: shift_right_pb
-                            text = 'Shift Column Right'
+                            text = 'Move Column Right'
                             icon = model.icons_dict['right']
                             clicked ::
                                 model.selection_handler.current_selection = \
