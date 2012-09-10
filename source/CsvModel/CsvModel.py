@@ -150,7 +150,15 @@ class CsvModel(HasTraits):
         )
         self.icons_dict['run'] = run_icon
         
+        up_icon = QtIcon().from_file(
+            os.path.join('..','Icons','up.png')
+        )
+        self.icons_dict['up'] = up_icon
         
+        down_icon = QtIcon().from_file(
+            os.path.join('..','Icons','down.png')
+        )
+        self.icons_dict['down'] = down_icon
     
     def _table_default(self):
         '''
