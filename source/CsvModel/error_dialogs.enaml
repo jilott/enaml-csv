@@ -1,0 +1,19 @@
+# Dialogs that popup in case of an error
+
+enamldef XYPlotDimensionsError(Dialog):
+    Label:
+        text = 'Selection not suitable for XY Plots'
+
+enamldef ClearHistoryWarning(Dialog):
+    Container:
+        Label:
+            text = 'Are you sure you want to clear the history?\nIt cannot be recovered.'
+        Form:
+            PushButton:
+                text = 'OK'
+                clicked ::
+                    accept()
+            PushButton:
+                text = 'Cancel'
+                clicked ::
+                    reject()
