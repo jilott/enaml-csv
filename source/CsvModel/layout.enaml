@@ -628,7 +628,7 @@ enamldef Main(MainWindow):
                 title = 'Scripting'
                 Container:
                     constraints = [
-                        hbox(vbox(text_editor, script_tbar),
+                        hbox(vbox(text_editor,cmd_line_form, script_tbar),
                         workspace_view)
                     ]
                     TextEditor:
@@ -636,6 +636,24 @@ enamldef Main(MainWindow):
                     TableView:
                         id: workspace_view
                         item_model = model.workspace_handler
+                    Form:
+                        id: cmd_line_form
+                        Label:
+                            text = 'Enter Command'
+                        Field:
+                            id: cmd_input
+                            return_pressed ::
+                                org_text = text_editor.get_text()
+                                text_editor.set_text(
+                                    org_text+cmd_input.value+'\n')
+                                model.script_handler.script = cmd_input.value
+                                model.script_handler.exec_script()
+                                model.workspace_handler = WorkspaceHandler(
+                                    model.script_handler.my_locals
+                                )
+                                workspace_view.item_model = model.workspace_handler
+                                cmd_input.value = ''
+
                     ToolBar:
                         id: script_tbar
                         #Form:
