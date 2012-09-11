@@ -22,8 +22,13 @@ from enable.api import ColorTrait
 from traitsui.api import View, Item
 from pandas.io.parsers import read_csv
 from enaml_item_models import DataFrameModel
+from enaml.styling.font import Font
 from pandas import DataFrame
 from statsmodels.api import OLS
+
+def my_font_func(a,b,c):
+    return Font().from_string('monospace 10')
+
 
 
 
@@ -173,7 +178,7 @@ class CsvModel(HasTraits):
         The default TableModel instance corresponding to the array of zeros
         '''
         
-        tblmodel =TableModel(self.table, editable=True)
+        tblmodel =TableModel(self.table, editable=True, font_func=my_font_func)
         return tblmodel
     
     def _image_plot_default(self):
@@ -489,15 +494,17 @@ class CsvModel(HasTraits):
         if selected_label == 'As Row':
             if self.AS_PANDAS_DATAFRAME:
                 if data.shape[1] == self.data_frame.shape[1]:
-                    pass
+                    self.data_frame = self.data_frame.append(data)
+                    print self.data_frame.shape
             else:
                 if data.shape[1] == self.table.shape[1]:
                     self.table = np.vstack((self.table, data))
         else :
-            print var_name
+            
             if self.AS_PANDAS_DATAFRAME:
                 if data.shape[0] == self.data_frame.shape[0]:
-                    pass
+                    self.data_frame[var_name] = data
+                    print self.data_frame.shape
             else:
                 if data.shape[0] == self.table.shape[0]:
                     self.table = np.hstack((self.table, data))

@@ -7,6 +7,9 @@ from enaml.stdlib.list_model import ListModel
 from error_dialogs import ClearHistoryWarning
 from selection_handler import ScriptSelection
 
+
+
+
 enamldef ConfigureSelection(Dialog):
     
     attr config_workspace
