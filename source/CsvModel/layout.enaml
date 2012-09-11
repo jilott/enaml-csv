@@ -162,6 +162,10 @@ enamldef Main(MainWindow):
     attr kmeans_plot
     attr text_class
     
+    
+    closed ::
+        model.script_handler.save_workspace()
+    
     Container:
         constraints = [
             
@@ -629,13 +633,27 @@ enamldef Main(MainWindow):
                 Container:
                     constraints = [
                         hbox(vbox(text_editor,cmd_line_form, script_tbar),
-                        workspace_view)
+                             vbox(workspace_view, cmd_hist_label,
+                                  command_hist_view))
                     ]
                     TextEditor:
                         id: text_editor
                     TableView:
                         id: workspace_view
                         item_model = model.workspace_handler
+                    Label:
+                        id: cmd_hist_label
+                        text = 'Command History'
+                    ListView:
+                        id: command_hist_view
+                        item_model = ListModel(
+                            model.script_handler.command_history
+                        )
+                        activated ::
+                            model.script_handler.exec_single_line(event)
+                            command_hist_view.item_model = ListModel(
+                                model.script_handler.command_history
+                            )
                     Form:
                         id: cmd_line_form
                         Label:
@@ -652,6 +670,12 @@ enamldef Main(MainWindow):
                                     model.script_handler.my_locals
                                 )
                                 workspace_view.item_model = model.workspace_handler
+                                model.script_handler.command_history.append(
+                                    cmd_input.value
+                                )
+                                command_hist_view.item_model = ListModel(
+                                    model.script_handler.command_history
+                                )
                                 cmd_input.value = ''
 
                     ToolBar:
@@ -689,6 +713,12 @@ enamldef Main(MainWindow):
                                 model.workspace_handler = WorkspaceHandler(
                                     model.script_handler.my_locals)
                                 workspace_view.item_model = model.workspace_handler
+                        PushButton:
+                            text = 'Clear History'
+                            icon = model.icons_dict['delete']
+                            clicked ::
+                                model.script_handler.clear_history()
+                                command_hist_view.item_model = ListModel([])
             
             Tab:
                 title = 'Machine Learning'
