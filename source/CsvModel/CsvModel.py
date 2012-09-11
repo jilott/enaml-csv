@@ -416,24 +416,40 @@ class CsvModel(HasTraits):
         self.redraw_tablemodel()
         self.selection_handler.flush()
     
-    def shift_selection(self, where):
+    def shift_selection(self, what, where):
         '''
         Called to shift a column to the left or to the right
         '''
         # currently works only for pandas dataframes
-        
         if self.AS_PANDAS_DATAFRAME:
-            self.selection_handler.create_selection()
-            column_list = list(self.data_frame.columns)
-            selected_column_index = self.selection_handler.selected_indices[0][1]
-            selected_column = column_list.pop(selected_column_index)
-            if where == 'left':
-                to_insert_index = selected_column_index - 1
-            else:
-                to_insert_index = selected_column_index + 1
-            column_list.insert(to_insert_index, selected_column)
-            self.data_frame = self.data_frame.reindex(columns = column_list)
-            self.redraw_tablemodel()
+            if what == 'column':
+            
+                self.selection_handler.create_selection()
+                column_list = list(self.data_frame.columns)
+                selected_column_index = self.selection_handler.selected_indices[0][1]
+                selected_column = column_list.pop(selected_column_index)
+                if where == 'left':
+                    to_insert_index = selected_column_index - 1
+                else:
+                    to_insert_index = selected_column_index + 1
+                column_list.insert(to_insert_index, selected_column)
+                self.data_frame = self.data_frame.reindex(columns = column_list)
+        
+        
+            elif what == 'row':
+        
+                self.selection_handler.create_selection()
+                index = self.selection_handler.selected_indices[0][0]
+                row_list = list(self.data_frame.index)
+                selected_row = row_list.pop(index)
+                if where == 'up':
+                    to_insert_index = index - 1
+                else:
+                    to_insert_index = index + 1
+                row_list.insert(to_insert_index, selected_row)
+                self.data_frame = self.data_frame.reindex(index=row_list)
+        
+            self.redraw_tablemodel()        
         
         self.selection_handler.flush()
     

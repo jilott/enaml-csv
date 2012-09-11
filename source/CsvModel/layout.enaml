@@ -595,7 +595,7 @@ enamldef Main(MainWindow):
                             clicked ::
                                 model.selection_handler.current_selection = \
                                     bsm.get_selection()
-                                model.shift_selection('left')
+                                model.shift_selection('column','left')
                         PushButton:
                             id: shift_right_pb
                             text = 'Move Column Right'
@@ -603,7 +603,7 @@ enamldef Main(MainWindow):
                             clicked ::
                                 model.selection_handler.current_selection = \
                                     bsm.get_selection()
-                                model.shift_selection('right')
+                                model.shift_selection('column','right')
                     Form:
                         id: shift_rows_form
                         PushButton:
@@ -611,13 +611,17 @@ enamldef Main(MainWindow):
                             text = 'Move Row Up'
                             icon = model.icons_dict['up']
                             clicked ::
-                                pass
+                                model.selection_handler.current_selection = \
+                                    bsm.get_selection()
+                                model.shift_selection('row', 'up')
                         PushButton:
                             constraints = [width==shift_right_pb.width]
                             text = 'Move Row Down'
                             icon = model.icons_dict['down']
                             clicked ::
-                                pass
+                                model.selection_handler.current_selection = \
+                                    bsm.get_selection()
+                                model.shift_selection('row', 'down')
                     
 
             Tab:
