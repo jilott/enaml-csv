@@ -4,7 +4,7 @@ import os
 from workspace_handler import WorkspaceHandler
 from enaml.stdlib.radio_group import RadioGroup
 from enaml.stdlib.list_model import ListModel
-
+from error_dialogs import ClearHistoryWarning
 from selection_handler import ScriptSelection
 
 enamldef ConfigureSelection(Dialog):
@@ -633,14 +633,31 @@ enamldef Main(MainWindow):
                 Container:
                     constraints = [
                         hbox(vbox(text_editor,cmd_line_form, script_tbar),
-                             vbox(workspace_view, cmd_hist_label,
-                                  command_hist_view))
+                             vbox(workspace_view, add_script_result,
+                                  cmd_hist_label, command_hist_view))
                     ]
                     TextEditor:
                         id: text_editor
                     TableView:
                         id: workspace_view
-                        item_model = model.workspace_handler
+                        item_model << model.workspace_handler
+                        BaseSelectionModel:
+                            id: wksp_bsm
+                            selection_mode = 'single'
+                            selection_behavior = 'items'
+                    Form:
+                        id: add_script_result
+                        
+                        RadioGroup:
+                            id: as_row_col
+                            items = ['As Row', 'As column']
+                            orientation = 'vertical'
+                        PushButton:
+                            text = 'Add to Table'
+                            clicked ::
+                                model.selection_handler.current_selection = \
+                                    wksp_bsm.get_selection()
+                                model.add_row_col(as_row_col.selected_label)
                     Label:
                         id: cmd_hist_label
                         text = 'Command History'
@@ -649,11 +666,14 @@ enamldef Main(MainWindow):
                         item_model = ListModel(
                             model.script_handler.command_history
                         )
+                        BaseSelectionModel:
+                            selection_mode = 'extended'
                         activated ::
                             model.script_handler.exec_single_line(event)
                             command_hist_view.item_model = ListModel(
                                 model.script_handler.command_history
                             )
+                            workspace_view.item_model = model.workspace_handler
                     Form:
                         id: cmd_line_form
                         Label:
@@ -700,7 +720,9 @@ enamldef Main(MainWindow):
                                 if dlg.result=='accepted':
                                     var_dict = script_selection.add_to_workspace()
                                     model.add_uservariables(var_dict)
+                                    workspace_view.item_model = model.workspace_handler
                                     script_selection.flush()
+                                    model.selection_handler.flush()
                         PushButton:
                             id: script_run_pb
                             constraints = [height==use_selection_script.height,
@@ -717,8 +739,11 @@ enamldef Main(MainWindow):
                             text = 'Clear History'
                             icon = model.icons_dict['delete']
                             clicked ::
-                                model.script_handler.clear_history()
-                                command_hist_view.item_model = ListModel([])
+                                dlg = ClearHistoryWarning()
+                                dlg.show()
+                                if dlg.result == 'accepted':
+                                    model.script_handler.clear_history()
+                                    command_hist_view.item_model = ListModel([])
             
             Tab:
                 title = 'Machine Learning'

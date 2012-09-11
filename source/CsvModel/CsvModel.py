@@ -478,7 +478,33 @@ class CsvModel(HasTraits):
         self.redraw_tablemodel()
         
         self.selection_handler.flush()
+    
+    def add_row_col(self, selected_label):
         
+        self.selection_handler.create_selection()
+        selected_index = self.selection_handler.selected_indices[0][0]
+        var_name = self.workspace_handler.workspace.keys()[selected_index]
+        data = self.workspace_handler.workspace[var_name]
+
+        if selected_label == 'As Row':
+            if self.AS_PANDAS_DATAFRAME:
+                if data.shape[1] == self.data_frame.shape[1]:
+                    pass
+            else:
+                if data.shape[1] == self.table.shape[1]:
+                    self.table = np.vstack((self.table, data))
+        else :
+            print var_name
+            if self.AS_PANDAS_DATAFRAME:
+                if data.shape[0] == self.data_frame.shape[0]:
+                    pass
+            else:
+                if data.shape[0] == self.table.shape[0]:
+                    self.table = np.hstack((self.table, data))
+        
+        self.headers.append(var_name)        
+        self.selection_handler.flush()
+        self.redraw_tablemodel()
 
     
 def create_array(data, tuple_list):
