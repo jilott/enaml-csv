@@ -164,6 +164,21 @@ class CsvModel(HasTraits):
             os.path.join('..','Icons','down.png')
         )
         self.icons_dict['down'] = down_icon
+        
+        bold_icon = QtIcon().from_file(
+            os.path.join('..','Icons','bold.png')
+        )
+        self.icons_dict['bold'] = bold_icon
+        
+        under_icon = QtIcon().from_file(
+            os.path.join('..','Icons','under.png')
+        )
+        self.icons_dict['under'] = under_icon
+        
+        italic_icon = QtIcon().from_file(
+            os.path.join('..','Icons','italic.png')
+        )
+        self.icons_dict['italic'] = italic_icon
     
     def _table_default(self):
         '''

@@ -153,6 +153,23 @@ enamldef ControlPanel(Container):
         id: loader
 
 
+enamldef FontPanel(Form):
+
+        Form:
+            Label:
+                text = 'Font:'
+            ToolBar:
+                PushButton:
+                    id: bold_font_pb
+                    icon = model.icons_dict['bold']
+                PushButton:
+                    id: italic_font_pb
+                    icon = model.icons_dict['italic']
+                PushButton:
+                    id: under_font_pb
+                    icon = model.icons_dict['under']
+        
+
 enamldef Main(MainWindow):
     id: main_window
     attr model
@@ -172,9 +189,12 @@ enamldef Main(MainWindow):
     Container:
         constraints = [
             
-                hbox(left_view,tab_parent),
+                hbox(vbox(font_properties,left_view),tab_parent),
                 
             ]
+        FontPanel:
+            id: font_properties
+            
         TabGroup:
             id: left_view
             Tab:
@@ -209,13 +229,13 @@ enamldef Main(MainWindow):
                                             pantool_toggle, zoomtool_toggle,
                                             dragzoom_toggle)),
                                     vbox(plot_properties_traits, plot_radiogroup,
-                                         plot_name_form,add_xyplot_pb,
+                                         add_xyplot_pb,
                                          plot_list_view, edit_plots_pb,
                                          remove_selected_plots
                                          )
                                 ),
                                 plot_radiogroup.width == plot_properties_traits.width,
-                                plot_name_form.width == plot_radiogroup.width
+                                #plot_name_form.width == plot_radiogroup.width
                             ]
                             EnableCanvas:
                                 id: x_vs_y_plot
@@ -239,14 +259,24 @@ enamldef Main(MainWindow):
                                     RadioButton:
                                         id: plot_type_cont
                                         text = 'Continuous'
+                                Label:
+                                    text = 'Tools'
+                                Container:
+                                    Form:
+                                        CheckBox:
+                                            text = 'Pan'
+                                        CheckBox:
+                                            text = 'Zoom'
+                                Label:
+                                    text = 'Plot Name'
+                                Field:
+                                    id: plot_name
+                                    value = ''
 
                             CheckBox:
                                 id: grid_toggle
                                 text = 'Show Grid'
                                 checked := xyplot_handler.show_grid
-                                #toggled ::
-                                #    xyplot_handler.grid_toggle(
-                                #        grid_toggle.checked)
                             CheckBox:
                                 id: pantool_toggle
                                 text = 'Pan Tool'
@@ -259,21 +289,6 @@ enamldef Main(MainWindow):
                                 id: dragzoom_toggle
                                 text = 'Drag/Select Zoom'
                                 checked := xyplot_handler.add_dragzoom
-                            #RadioGroup:
-                            #    id: chaco_tools_rb
-                            #    RadioButton:
-                            #        id: drag_zoom_cb
-                            #        text = 'Drag Zoom'
-                            #    RadioButton:
-                            #        id: pan_tool_cb
-                            #        text = 'Pan Tool'
-                            Form:
-                                id: plot_name_form
-                                Label:
-                                    text = 'Plot Name'
-                                Field:
-                                    id: plot_name
-                                    value = ''
                             PushButton:
                                 id: add_xyplot_pb
                                 text = 'Plot From Selection'
@@ -325,6 +340,7 @@ enamldef Main(MainWindow):
                                     
                             ListView:
                                 id: plot_list_view
+                                constraints = [height<=100]
                                 item_model = ListModel(
                                     xyplot_handler.plot_list_view.keys())
                                 BaseSelectionModel:
@@ -333,10 +349,6 @@ enamldef Main(MainWindow):
                                         xyplot_handler.selection_handler.current_selection = \
                                             bsm_plotlist.get_selection()
                                         xyplot_handler.reassign_current_plot()
-                            
-                            
-                            
-                            
                         
                     Tab:
                         title = 'Image Plot'
