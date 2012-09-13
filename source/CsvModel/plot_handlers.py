@@ -5,7 +5,7 @@ from chaco.api import (
     Plot, ArrayPlotData, OverlayPlotContainer, marker_trait, PlotGrid,
     Legend, ColorBar
 )
-from chaco.tools.api import ZoomTool, PanTool, BetterSelectingZoom
+from chaco.tools.api import ZoomTool, PanTool, BetterSelectingZoom, BroadcasterTool
 from chaco.tools.traits_tool import TraitsTool
 from chaco.example_support import COLOR_PALETTE
 from enable.api import ColorTrait
@@ -239,40 +239,46 @@ class XYPlotHandler(HasTraits):
         self.selection_handler.flush()
     
     def _add_pan_tool_changed(self):
-        if self.add_pan_tool:
-            self.plot.tools.append(PanTool(self.plot))
         
-        else:
-            for tool in self.plot.tools:
-                if isinstance(tool, PanTool):
-                    self.plot.tools.remove(tool)
-            
-        self.container.add(self.plot)
+        broadcaster = BroadcasterTool()
+        for plot in self.container.components:
+            if self.add_pan_tool:
+                pan = PanTool(plot)
+                broadcaster.tools.append(pan)
+                self.container.tools.append(broadcaster)
+            else:
+                for tool in self.container.tools:
+                    if isinstance(tool, BroadcasterTool):
+                        self.container.tools.remove(tool)
+        
+        
+
     
     def _add_zoom_tool_changed(self):
-        if self.add_zoom_tool:
-            self.plot.tools.append(ZoomTool(self.plot))
-        
-        else:
-            for tool in self.plot.tools:
-                if isinstance(tool, ZoomTool):
-                    self.plot.tools.remove(tool)
-        
-        self.container.add(self.plot)
+        broadcaster = BroadcasterTool()
+        for plot in self.container.components:
+            if self.add_zoom_tool:
+                pan = ZoomTool(plot)
+                broadcaster.tools.append(pan)
+                self.container.tools.append(broadcaster)
+            else:
+                for tool in self.container.tools:
+                    if isinstance(tool, BroadcasterTool):
+                        self.container.tools.remove(tool)
     
     def _add_dragzoom_changed(self):
-        if self.add_dragzoom:
-            zoomtool = BetterSelectingZoom(
-                self.plot, always_on=True, tool_mode='box', drag_button='left',
-                color='lightskyblue', alpha=0.4, border_color='dodgerblue'
-            )
-            self.plot.tools.append(zoomtool)
-        else:
-            for tool in self.plot.tools:
-                if isinstance(tool, BetterSelectingZoom):
-                    self.plot.tools.remove(tool)
-        
-        self.container.add(self.plot)
+        broadcaster = BroadcasterTool()
+        for plot in self.container.components:
+            if self.add_dragzoom:
+                pan = BetterSelectingZoom(plot, always_on=True, tool_mode='box',
+                                          drag_button='left',color='lightskyblue',
+                                          alpha=0.4, border_color='dodgerblue')
+                broadcaster.tools.append(pan)
+                self.container.tools.append(broadcaster)
+            else:
+                for tool in self.container.tools:
+                    if isinstance(tool, BroadcasterTool):
+                        self.container.tools.remove(tool)
     
     def _show_grid_changed(self):
         
