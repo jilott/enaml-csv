@@ -75,10 +75,18 @@ class XYPlotHandler(HasTraits):
     # The plot that is being edited.
     current_plot = Instance(Plot)
     
+    # Trait that defines whether tools are present.
+    add_pan_tool = Bool
+    add_zoom_tool = Bool
+    add_dragzoom = Bool
+    
     def __init__(self):
         self.selection_handler = SelectionHandler()
         self.container = OverlayPlotContainer()
         self.underlays = []
+        self.add_pan_tool = False
+        self.add_zoom_tool = False
+        self.add_dragzoom = False
     
     
     def add_xyplot_selection(self,plot_name):
@@ -122,9 +130,9 @@ class XYPlotHandler(HasTraits):
                 marker_size = self.marker_size
             )
             
-            plot.tools.append(PanTool(plot))
-            plot.tools.append(ZoomTool(plot))
-            plot.tools.append(TraitsTool(plot))
+            #plot.tools.append(PanTool(plot))
+            #plot.tools.append(ZoomTool(plot))
+            #plot.tools.append(TraitsTool(plot))
             
             self.plot = plot
             
@@ -223,6 +231,31 @@ class XYPlotHandler(HasTraits):
         self.container.request_redraw()
         
         self.selection_handler.flush()
+    
+    def _add_pan_tool_changed(self):
+        if self.add_pan_tool:
+            self.plot.tools.append(PanTool(self.plot))
+        
+        else:
+            for tool in self.plot.tools:
+                if isinstance(tool, PanTool):
+                    self.plot.tools.remove(tool)
+            
+        self.container.add(self.plot)
+    
+    def _add_zoom_tool_changed(self):
+        if self.add_zoom_tool:
+            self.plot.tools.append(ZoomTool(self.plot))
+        
+        else:
+            for tool in self.plot.tools:
+                if isinstance(tool, ZoomTool):
+                    self.plot.tools.remove(tool)
+        
+        self.container.add(self.plot)
+    
+    def _add_dragzoom_changed(self):
+        pass
 
 
 class ImagePlotHandler(HasTraits):
