@@ -153,7 +153,7 @@ enamldef ControlPanel(Container):
         id: loader
 
 
-enamldef FontPanel(Form):
+enamldef ToolsPanel(Form):
 
         Form:
             Label:
@@ -171,6 +171,10 @@ enamldef FontPanel(Form):
                     icon = model.icons_dict['copy']
                 PushButton:
                     icon = model.icons_dict['paste']
+                PushButton:
+                    icon = model.icons_dict['undo']
+                PushButton:
+                    icon = model.icons_dict['redo']
         
 
 enamldef Main(MainWindow):
@@ -192,11 +196,11 @@ enamldef Main(MainWindow):
     Container:
         constraints = [
             
-                hbox(vbox(font_properties,left_view),tab_parent),
+                hbox(vbox(tools_properties,left_view),tab_parent),
                 
             ]
-        FontPanel:
-            id: font_properties
+        ToolsPanel:
+            id: tools_properties
             
         TabGroup:
             id: left_view

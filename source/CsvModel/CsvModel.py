@@ -194,6 +194,16 @@ class CsvModel(HasTraits):
             os.path.join('..','Icons','paste.png')
         )
         self.icons_dict['paste'] = paste_icon
+        
+        undo_icon = QtIcon().from_file(
+            os.path.join('..','Icons','undo.png')
+        )
+        self.icons_dict['undo'] = undo_icon
+        
+        redo_icon = QtIcon().from_file(
+            os.path.join('..','Icons','redo.png')
+        )
+        self.icons_dict['redo'] = redo_icon
     
     def _table_default(self):
         '''
