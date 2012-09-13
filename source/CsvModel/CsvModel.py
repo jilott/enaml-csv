@@ -514,12 +514,4 @@ class CsvModel(HasTraits):
         self.redraw_tablemodel()
 
     
-def create_array(data, tuple_list):
-    '''
-    To be removed.
-    '''
-    x_ = np.empty((0,))
-    for index in tuple_list:
-        x = data[index[0]:index[2],index[1]:index[3]]
-        x_ = np.hstack((x_,x.reshape((1,x.size))))
-    return x_.var(), x_.std(), x_.sum(), x_.mean()
+
