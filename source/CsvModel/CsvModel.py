@@ -12,6 +12,7 @@ from enaml.core.item_model import AbstractItemModel
 from enaml.noncomponents.abstract_icon import AbstractTkIcon
 from enaml.backends.qt.noncomponents.qt_icon import QtIcon
 from enaml.backends.wx.noncomponents.wx_icon import WXIcon
+from enaml.core.item_model import ModelIndex
 from chaco.api import Plot, ArrayPlotData, marker_trait, OverlayPlotContainer
 from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
@@ -204,6 +205,11 @@ class CsvModel(HasTraits):
             os.path.join('..','Icons','redo.png')
         )
         self.icons_dict['redo'] = redo_icon
+        
+        navigator_icon = QtIcon().from_file(
+            os.path.join('..','Icons','navigator.png')
+        )
+        self.icons_dict['navigator'] = navigator_icon
     
     def _table_default(self):
         '''
@@ -557,6 +563,33 @@ class CsvModel(HasTraits):
         self.headers.append(var_name)        
         self.selection_handler.flush()
         self.redraw_tablemodel()
-
+        
     
-
+    def set_table_selection(self, row, col):
+        '''
+        
+        '''
+        none_types = [' ', 'None']
+        
+        
+        
+        if self.AS_PANDAS_DATAFRAME:
+            data = self.data_frame
+        else:
+            data = self.table
+        print row, col
+        if (row in none_types) and (col not in none_types):
+            top_left = (0, int(col))
+            bot_right = (data.shape[0], int(col))
+        elif (row not in none_types) and (col in none_types):
+            top_left = (int(row), 0)
+            bot_right = (int(row), data.shape[1])
+        
+        top_left_mi = self.table_model.create_index(row=top_left[0],
+                                                    column=top_left[1],
+                                                    context=None)
+        bot_right_mi = self.table_model.create_index(row=bot_right[0],
+                                                    column=bot_right[1],
+                                                    context=None)
+        
+        return [(top_left_mi, bot_right_mi)]

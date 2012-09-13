@@ -153,29 +153,58 @@ enamldef ControlPanel(Container):
         id: loader
 
 
-enamldef ToolsPanel(Form):
+enamldef NavigatorDialog(Dialog):
+    attr row = 'None'
+    attr col = 'None'
+    Form:
+        Label:
+            text = 'Column(s)'
+        Field:
+            value := col
+        Label:
+            text = 'Row(s)'
+        Field:
+            value := row
+        PushButton:
+            text = 'Ok'
+            clicked :: accept()
+        PushButton:
+            text = 'Cancel'
+            clicked :: reject()
 
-        Form:
-            Label:
-                text = 'Tools:'
-            ToolBar:
-                PushButton:
-                    icon = model.icons_dict['bold']
-                PushButton:
-                    icon = model.icons_dict['italic']
-                PushButton:
-                    icon = model.icons_dict['under']
-                PushButton:
-                    icon = model.icons_dict['cut']
-                PushButton:
-                    icon = model.icons_dict['copy']
-                PushButton:
-                    icon = model.icons_dict['paste']
-                PushButton:
-                    icon = model.icons_dict['undo']
-                PushButton:
-                    icon = model.icons_dict['redo']
-        
+
+enamldef ToolsPanel(Form):
+    attr table_view
+    attr selection_model
+    Form:
+        Label:
+            text = 'Tools:'
+        ToolBar:
+            PushButton:
+                icon = model.icons_dict['bold']
+            PushButton:
+                icon = model.icons_dict['italic']
+            PushButton:
+                icon = model.icons_dict['under']
+            PushButton:
+                icon = model.icons_dict['cut']
+            PushButton:
+                icon = model.icons_dict['copy']
+            PushButton:
+                icon = model.icons_dict['paste']
+            PushButton:
+                icon = model.icons_dict['undo']
+            PushButton:
+                icon = model.icons_dict['redo']
+            PushButton:
+                icon = model.icons_dict['navigator']
+                clicked ::
+                    dlg = NavigatorDialog()
+                    dlg.show()
+                    if dlg.result == 'accepted':
+                        selection = model.set_table_selection(dlg.row, dlg.col)
+                        selection_model.set_selection(selection)
+
 
 enamldef Main(MainWindow):
     id: main_window
@@ -200,7 +229,11 @@ enamldef Main(MainWindow):
                 
             ]
         ToolsPanel:
+            
             id: tools_properties
+            table_view := tv_area
+            selection_model := bsm
+          
             
         TabGroup:
             id: left_view
