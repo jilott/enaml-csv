@@ -329,6 +329,10 @@ enamldef Main(MainWindow):
                                     xyplot_handler.plot_list_view.keys())
                                 BaseSelectionModel:
                                     id: bsm_plotlist
+                                    selection_event ::
+                                        xyplot_handler.selection_handler.current_selection = \
+                                            bsm_plotlist.get_selection()
+                                        xyplot_handler.reassign_current_plot()
                             
                             
                             

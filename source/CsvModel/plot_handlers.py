@@ -72,8 +72,7 @@ class XYPlotHandler(HasTraits):
         Item('marker_size')
     )
     
-    # The plot that is being edited.
-    current_plot = Instance(Plot)
+    
     
     # Trait that defines whether tools are present.
     add_pan_tool = Bool
@@ -200,12 +199,12 @@ class XYPlotHandler(HasTraits):
         Plot' dialog.
         '''
         
-        self.selection_handler.create_selection()
-        index = self.selection_handler.selected_indices[0][0]
-        plot_name = self.plot_list_view.keys()[index]
+        #self.selection_handler.create_selection()
+        #index = self.selection_handler.selected_indices[0][0]
+        #plot_name = self.plot_list_view.keys()[index]
+        #plot = self.plot_list_view[plot_name]
         
-        plot = self.plot_list_view[plot_name]
-        self.container.remove(plot)
+        self.container.remove(self.plot)
         
         
         self.plot_type_disc = plot_type_disc
@@ -215,7 +214,7 @@ class XYPlotHandler(HasTraits):
         else:
             plot_type = 'line'
         
-        plot = Plot(plot.data)
+        plot = Plot(self.plot.data)
         plot.plot(
             ("x","y"),color=self.color, type = plot_type,
             marker = self.marker, marker_size = self.marker_size
@@ -251,9 +250,6 @@ class XYPlotHandler(HasTraits):
                     if isinstance(tool, BroadcasterTool):
                         self.container.tools.remove(tool)
         
-        
-
-    
     def _add_zoom_tool_changed(self):
         broadcaster = BroadcasterTool()
         for plot in self.container.components:
@@ -294,6 +290,13 @@ class XYPlotHandler(HasTraits):
                         plot.underlays.append(underlay)
         
         self.container.request_redraw()
+    
+    def reassign_current_plot(self):
+        self.selection_handler.create_selection()
+        plot_index = self.selection_handler.selected_indices[0][0]
+        plot_name = self.plot_list_view.keys()[plot_index]
+        self.plot = self.plot_list_view[plot_name]
+        self.selection_handler.flush()
 
 class ImagePlotHandler(HasTraits):
     
