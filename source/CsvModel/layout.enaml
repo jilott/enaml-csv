@@ -157,17 +157,20 @@ enamldef FontPanel(Form):
 
         Form:
             Label:
-                text = 'Font:'
+                text = 'Tools:'
             ToolBar:
                 PushButton:
-                    id: bold_font_pb
                     icon = model.icons_dict['bold']
                 PushButton:
-                    id: italic_font_pb
                     icon = model.icons_dict['italic']
                 PushButton:
-                    id: under_font_pb
                     icon = model.icons_dict['under']
+                PushButton:
+                    icon = model.icons_dict['cut']
+                PushButton:
+                    icon = model.icons_dict['copy']
+                PushButton:
+                    icon = model.icons_dict['paste']
         
 
 enamldef Main(MainWindow):

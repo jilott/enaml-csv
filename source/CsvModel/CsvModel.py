@@ -179,6 +179,21 @@ class CsvModel(HasTraits):
             os.path.join('..','Icons','italic.png')
         )
         self.icons_dict['italic'] = italic_icon
+        
+        cut_icon = QtIcon().from_file(
+            os.path.join('..','Icons','cut.png')
+        )
+        self.icons_dict['cut'] = cut_icon
+        
+        copy_icon = QtIcon().from_file(
+            os.path.join('..','Icons','copy.gif')
+        )
+        self.icons_dict['copy'] = copy_icon
+        
+        paste_icon = QtIcon().from_file(
+            os.path.join('..','Icons','paste.png')
+        )
+        self.icons_dict['paste'] = paste_icon
     
     def _table_default(self):
         '''
@@ -479,6 +494,8 @@ class CsvModel(HasTraits):
         '''
         # currently works only for pandas dataframes
         
+        self.table_model.begin_change_layout()
+        
         if self.AS_PANDAS_DATAFRAME:
             self.selection_handler.create_selection()
             column_index = self.selection_handler.selected_indices[0][1]
@@ -494,8 +511,11 @@ class CsvModel(HasTraits):
             self.data_frame[column_name] = list(column)
                 
             
+        self.table_model.end_change_layout()
         
         self.redraw_tablemodel()
+        
+        
         
         self.selection_handler.flush()
     
