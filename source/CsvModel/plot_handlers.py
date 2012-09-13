@@ -5,7 +5,7 @@ from chaco.api import (
     Plot, ArrayPlotData, OverlayPlotContainer, marker_trait, PlotGrid,
     Legend, ColorBar
 )
-from chaco.tools.api import ZoomTool, PanTool
+from chaco.tools.api import ZoomTool, PanTool, BetterSelectingZoom
 from chaco.tools.traits_tool import TraitsTool
 from chaco.example_support import COLOR_PALETTE
 from enable.api import ColorTrait
@@ -130,9 +130,6 @@ class XYPlotHandler(HasTraits):
                 marker_size = self.marker_size
             )
             
-            #plot.tools.append(PanTool(plot))
-            #plot.tools.append(ZoomTool(plot))
-            #plot.tools.append(TraitsTool(plot))
             
             self.plot = plot
             
@@ -255,7 +252,18 @@ class XYPlotHandler(HasTraits):
         self.container.add(self.plot)
     
     def _add_dragzoom_changed(self):
-        pass
+        if self.add_dragzoom:
+            zoomtool = BetterSelectingZoom(
+                self.plot, always_on=True, tool_mode='box', drag_button='left',
+                color='lightskyblue', alpha=0.4, border_color='dodgerblue'
+            )
+            self.plot.tools.append(zoomtool)
+        else:
+            for tool in self.plot.tools:
+                if isinstance(tool, BetterSelectingZoom):
+                    self.plot.tools.remove(tool)
+        
+        self.container.add(self.plot)
 
 
 class ImagePlotHandler(HasTraits):

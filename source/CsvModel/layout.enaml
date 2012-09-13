@@ -206,7 +206,8 @@ enamldef Main(MainWindow):
                             constraints = [
                                 hbox(
                                     vbox(x_vs_y_plot, hbox(grid_toggle,
-                                            pantool_toggle, zoomtool_toggle)),
+                                            pantool_toggle, zoomtool_toggle,
+                                            dragzoom_toggle)),
                                     vbox(plot_properties_traits, plot_radiogroup,
                                          plot_name_form,add_xyplot_pb,
                                          plot_list_view, edit_plots_pb,
@@ -254,6 +255,10 @@ enamldef Main(MainWindow):
                                 id: zoomtool_toggle
                                 text = 'Zoom Tool'
                                 checked := xyplot_handler.add_zoom_tool
+                            CheckBox:
+                                id: dragzoom_toggle
+                                text = 'Drag/Select Zoom'
+                                checked := xyplot_handler.add_dragzoom
                             #RadioGroup:
                             #    id: chaco_tools_rb
                             #    RadioButton:
