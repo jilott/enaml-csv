@@ -80,6 +80,10 @@ class XYPlotHandler(HasTraits):
     add_zoom_tool = Bool
     add_dragzoom = Bool
     
+    # Whether grids and axes are visible
+    show_grid = Bool
+    
+    
     def __init__(self):
         self.selection_handler = SelectionHandler()
         self.container = OverlayPlotContainer()
@@ -87,6 +91,7 @@ class XYPlotHandler(HasTraits):
         self.add_pan_tool = False
         self.add_zoom_tool = False
         self.add_dragzoom = False
+        self.show_grid = False
     
     
     def add_xyplot_selection(self,plot_name):
@@ -137,6 +142,10 @@ class XYPlotHandler(HasTraits):
                 if isinstance(underlay, PlotGrid):
                     if underlay not in self.grid_underlays:
                         self.grid_underlays.append(underlay)
+            
+            for underlay in self.grid_underlays:
+                if underlay in self.plot.underlays:
+                    self.plot.underlays.remove(underlay)
             
             if plot_name == '':
                 self.plot_list_view[
@@ -264,7 +273,21 @@ class XYPlotHandler(HasTraits):
                     self.plot.tools.remove(tool)
         
         self.container.add(self.plot)
-
+    
+    def _show_grid_changed(self):
+        
+        if not self.show_grid:
+            for plot in self.container.components:
+                for underlay in self.grid_underlays:
+                    if underlay in plot.underlays:
+                        plot.underlays.remove(underlay)
+        else:
+            for plot in self.container.components:
+                for underlay in self.grid_underlays:
+                    if underlay not in plot.underlays:
+                        plot.underlays.append(underlay)
+        
+        self.container.request_redraw()
 
 class ImagePlotHandler(HasTraits):
     

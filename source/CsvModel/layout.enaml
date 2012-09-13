@@ -243,10 +243,10 @@ enamldef Main(MainWindow):
                             CheckBox:
                                 id: grid_toggle
                                 text = 'Show Grid'
-                                checked = True
-                                toggled ::
-                                    xyplot_handler.grid_toggle(
-                                        grid_toggle.checked)
+                                checked := xyplot_handler.show_grid
+                                #toggled ::
+                                #    xyplot_handler.grid_toggle(
+                                #        grid_toggle.checked)
                             CheckBox:
                                 id: pantool_toggle
                                 text = 'Pan Tool'
