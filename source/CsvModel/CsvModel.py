@@ -210,6 +210,16 @@ class CsvModel(HasTraits):
             os.path.join('..','Icons','navigator.png')
         )
         self.icons_dict['navigator'] = navigator_icon
+        
+        indent_icon = QtIcon().from_file(
+            os.path.join('..','Icons','indent.png')
+        )
+        self.icons_dict['indent'] = indent_icon
+        
+        dedent_icon = QtIcon().from_file(
+            os.path.join('..','Icons','dedent.png')
+        )
+        self.icons_dict['dedent'] = dedent_icon
     
     def _table_default(self):
         '''
@@ -593,3 +603,15 @@ class CsvModel(HasTraits):
                                                     context=None)
         
         return [(top_left_mi, bot_right_mi)]
+    
+    def increase_indent(self, selection):
+        t = selection.split('\n')
+        indented = ''
+        for elem in t:
+            elem = '    '+elem+'\n'
+            indented = indented + elem
+        indented = indented.rstrip()
+        return indented
+    
+    def decrease_indent(self, selection):
+        pass

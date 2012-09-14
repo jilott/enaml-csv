@@ -817,6 +817,19 @@ enamldef Main(MainWindow):
                                 if dlg.result == 'accepted':
                                     model.script_handler.clear_history()
                                     command_hist_view.item_model = ListModel([])
+                        PushButton:
+                            icon = model.icons_dict['indent']
+                            clicked ::
+                                indented = model.increase_indent(
+                                    text_editor.selected_text)
+
+                                text_editor.insert(indented)
+                        PushButton:
+                            icon = model.icons_dict['dedent']
+                            clicked ::
+                                model.decrease_indent(
+                                    text_editor.selected_text
+                                )
             
             Tab:
                 title = 'Machine Learning'
