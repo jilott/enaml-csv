@@ -4,7 +4,7 @@ from sklearn.linear_model import Perceptron, RidgeClassifier, SGDClassifier
 from sklearn.naive_bayes import BernoulliNB, MultinomialNB
 from sklearn.neighbors import KNeighborsClassifier, NearestCentroid
 from scipy.sparse.csr import csr_matrix
-from traits.api import HasTraits, Instance, Float, CInt, String, Dict
+from traits.api import HasTraits, Instance, Float, CInt, String, Dict, List
 from pandas import DataFrame
 from selection_handler import SelectionHandler
 import pickle
@@ -141,3 +141,15 @@ class TextClassifier(HasTraits):
         self.testing_data = self.data_frame[pred_column_name]
         self.x_test = self.vectorizer.transform(self.testing_data)
         self.prediction = self.classifier.predict(self.x_test)
+
+class MLEvaluator(HasTraits):
+    
+    # List of linear sklearn estimators
+    linear_estimator_list = List
+    
+    def __init__(self):
+        self.linear_estimator_list = [
+            'Perceptron', 'SGDClassifier', 'LinearSVC', 'LogisticRegression',
+            'RandomizedLogisticRegression'
+        ]
+    
