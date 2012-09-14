@@ -6,6 +6,7 @@ from enaml.stdlib.radio_group import RadioGroup
 from enaml.stdlib.list_model import ListModel
 from error_dialogs import ClearHistoryWarning
 from selection_handler import ScriptSelection
+from enaml.stdlib.fields import IntField
 
 
 
@@ -809,6 +810,14 @@ enamldef Main(MainWindow):
                                 model.workspace_handler = WorkspaceHandler(
                                     model.script_handler.my_locals)
                                 workspace_view.item_model = model.workspace_handler
+                                t = text_editor.get_text().split('\n')
+                                for statement in t:
+                                    model.script_handler.command_history.append(
+                                        statement
+                                    )
+                                command_hist_view.item_model = ListModel(
+                                    model.script_handler.command_history
+                                )
                         PushButton:
                             text = 'Clear History'
                             icon = model.icons_dict['delete']
@@ -948,6 +957,7 @@ enamldef Main(MainWindow):
                     Tab:
                         title = 'Evaluation'
                         Container:
+                            constraints = [hbox(estimators_gb, sklearn_control)]
                             GroupBox:
                                 id: estimators_gb
                                 title = 'Sklearn Estimators'
@@ -957,3 +967,12 @@ enamldef Main(MainWindow):
                                     RadioGroup:
                                         orientation = 'vertical'
                                         items << ml_evaluator.linear_estimator_list
+                            GroupBox:
+                                id: sklearn_control
+                                title = 'Control Panel'
+                                Form:
+                                    Label:
+                                        text = 'Target Column(s)'
+                                    IntField:
+                                        id: target_col
+                                        value >> ml_evaluator.target_col

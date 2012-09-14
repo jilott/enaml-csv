@@ -147,6 +147,8 @@ class MLEvaluator(HasTraits):
     # List of linear sklearn estimators
     linear_estimator_list = List
     
+    target_col = CInt
+    
     def __init__(self):
         self.linear_estimator_list = [
             'Perceptron', 'SGDClassifier', 'LinearSVC', 'LogisticRegression',
