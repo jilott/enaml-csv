@@ -207,6 +207,11 @@ enamldef ToolsPanel(Form):
                         selection_model.set_selection(selection)
 
 
+enamldef WorkspaceViewer(Container):
+    attr work
+    TableView:
+        item_model << work
+
 enamldef Main(MainWindow):
     id: main_window
     attr model
@@ -253,8 +258,13 @@ enamldef Main(MainWindow):
                     BaseSelectionModel:
                         id: bsm
                         #selection_behavior = 'columns'
+                
                 ControlPanel:
                     id: control_panel
+            Tab:
+                WorkspaceViewer:
+                    id: workspace_area
+                    work << model.workspace_handler
         TabGroup:
             id: tab_parent
             Tab:
@@ -810,6 +820,8 @@ enamldef Main(MainWindow):
                                 model.workspace_handler = WorkspaceHandler(
                                     model.script_handler.my_locals)
                                 workspace_view.item_model = model.workspace_handler
+                                workspace_area.work = model.workspace_handler
+                                print workspace_area.work
                                 t = text_editor.get_text().split('\n')
                                 for statement in t:
                                     model.script_handler.command_history.append(
@@ -975,4 +987,4 @@ enamldef Main(MainWindow):
                                         text = 'Target Column(s)'
                                     IntField:
                                         id: target_col
-                                        value >> ml_evaluator.target_col
+                                        value := ml_evaluator.target_col
