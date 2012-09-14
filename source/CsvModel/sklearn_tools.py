@@ -10,10 +10,6 @@ from selection_handler import SelectionHandler
 import pickle
 
 
-class DataExtractor(HasTraits):
-    pass
-
-
 
 
 class TextClassifier(HasTraits):
@@ -145,4 +141,3 @@ class TextClassifier(HasTraits):
         self.testing_data = self.data_frame[pred_column_name]
         self.x_test = self.vectorizer.transform(self.testing_data)
         self.prediction = self.classifier.predict(self.x_test)
-        

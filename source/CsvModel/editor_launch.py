@@ -1,7 +1,7 @@
 from CsvModel import CsvModel
 from plot_handlers import (XYPlotHandler, ImagePlotHandler, PCPlotHandler,
 RegressionPlotHandler, HistogramPlotHandler, KMeansPlotHandler)
-from text_tools import TextClassifier
+from sklearn_tools import TextClassifier
 import os
 import pickle
 
