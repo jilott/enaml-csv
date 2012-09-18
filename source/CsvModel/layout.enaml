@@ -77,6 +77,9 @@ enamldef EditPlotDialog(Dialog):
                     reject()
 
 
+
+
+
 enamldef Loader(Container):
     
     constraints = [
@@ -209,8 +212,19 @@ enamldef ToolsPanel(Form):
 
 enamldef WorkspaceViewer(Container):
     attr work
+    attr icons_dict
+    constraints = [vbox(tv, tb)]
     TableView:
+        id: tv
         item_model << work
+    ToolBar:
+        id: tb
+        PushButton:
+            icon = icons_dict['save']
+            clicked :: pass
+        PushButton:
+            icon = icons_dict['load']
+            clicked :: pass
 
 enamldef Main(MainWindow):
     id: main_window
@@ -265,6 +279,7 @@ enamldef Main(MainWindow):
                 WorkspaceViewer:
                     id: workspace_area
                     work << model.workspace_handler
+                    icons_dict = model.icons_dict
         TabGroup:
             id: tab_parent
             Tab:
@@ -609,7 +624,7 @@ enamldef Main(MainWindow):
                 title = 'Other'
                 Container:
                     constraints = [
-                        vbox(shift_cols_form,shift_rows_form,
+                        vbox(shift_cols_form,shift_rows_form,merge_pb,
                              hbox(sorting_ops,other_other),use_selection_other,
                              map_to_unique, norm_selection, del_row_pb,
                              )
@@ -711,6 +726,9 @@ enamldef Main(MainWindow):
                                 model.selection_handler.current_selection = \
                                     bsm.get_selection()
                                 model.shift_selection('row', 'down')
+                    PushButton:
+                        id: merge_pb
+                        text = 'Merge Columns'
                     
 
             Tab:
