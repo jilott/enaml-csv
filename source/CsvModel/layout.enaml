@@ -211,7 +211,8 @@ enamldef ToolsPanel(Form):
 
 
 enamldef WorkspaceViewer(Container):
-    attr work
+
+    attr work << model.workspace_handler
     attr icons_dict
     constraints = [vbox(tv, tb)]
     TableView:
@@ -221,10 +222,33 @@ enamldef WorkspaceViewer(Container):
         id: tb
         PushButton:
             icon = icons_dict['save']
-            clicked :: pass
+            clicked ::
+                dlg = FileDialog(
+                    mode = 'save',
+                    title = 'Save .mat file',
+                    filters = ['MAT files (*.mat)'],
+                    directory = os.path.dirname(
+                        os.path.join('..','..','datasets','sample.csv')
+                ))
+                dlg.show()
+                if dlg.result == 'accepted':
+                    model.save_workspace(dlg.path)
         PushButton:
             icon = icons_dict['load']
-            clicked :: pass
+            clicked ::
+                dlg = FileDialog(
+                    mode = 'open',
+                    title = 'Load .mat file',
+                    filters = ['MAT files (*.mat)'],
+                    directory = os.path.dirname(
+                        os.path.join('..','..','datasets','sample.csv')
+                ))
+                dlg.show()
+                if dlg.result == 'accepted':
+                    model.load_workspace(dlg.path)
+                    tv.item_model = work
+        PushButton:
+            icon = icons_dict['delete']
 
 enamldef Main(MainWindow):
     id: main_window
@@ -839,7 +863,7 @@ enamldef Main(MainWindow):
                                     model.script_handler.my_locals)
                                 workspace_view.item_model = model.workspace_handler
                                 workspace_area.work = model.workspace_handler
-                                print workspace_area.work
+                                #print workspace_area.work
                                 t = text_editor.get_text().split('\n')
                                 for statement in t:
                                     model.script_handler.command_history.append(

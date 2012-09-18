@@ -26,6 +26,7 @@ from enaml_item_models import DataFrameModel
 from enaml.styling.font import Font
 from pandas import DataFrame
 from statsmodels.api import OLS
+from scipy.io import loadmat, savemat
 
 def my_font_func(a,b,c):
     return Font().from_string('monospace 10')
@@ -615,3 +616,22 @@ class CsvModel(HasTraits):
     
     def decrease_indent(self, selection):
         pass
+    
+    def remove_workspace_selection(self):
+        pass
+    
+    def save_workspace(self, file_path):
+        to_save = {}
+        for elem in self.workspace_handler.workspace:
+            obj = self.workspace_handler.workspace[elem]
+            if isinstance(obj, np.ndarray):
+                to_save[elem] = obj
+        if len(to_save)>0:
+            savemat(file_path, to_save)
+    
+    def load_workspace(self, file_path):
+        loaded_workspace = loadmat(file_path)
+        for elem in loaded_workspace:
+            self.workspace_handler.workspace[elem] = loaded_workspace[elem]
+        self.script_handler.my_locals = self.workspace_handler.workspace
+
