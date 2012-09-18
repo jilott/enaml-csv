@@ -360,7 +360,7 @@ class CsvModel(HasTraits):
             if self.AS_PANDAS_DATAFRAME:                
                 column_name = self.data_frame.columns[column]
                 self.column_length = len(self.data_frame[column_name])
-                self.unique_items_nos = len(self.data_frame[column_name].unique())
+                self.unique_items_nos = self.data_frame[column_name].nunique()
             else:
                 self.column_length = len(self.table[:,column])
                 self.unique_items_nos = len(np.unique(self.table[:,column]))

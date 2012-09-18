@@ -77,7 +77,20 @@ enamldef EditPlotDialog(Dialog):
                     reject()
 
 
-
+enamldef DateParseDialog(Dialog):
+    attr selection = None
+    Container:
+        RadioGroup:
+            orientation = 'vertical'
+            items = ['a','b','b']
+            selected_item >> selection
+        Form:
+            PushButton:
+                text = 'OK'
+                clicked :: accept()
+            PushButton:
+                text = 'Cancel'
+                clicked :: reject()
 
 
 enamldef Loader(Container):
@@ -300,6 +313,7 @@ enamldef Main(MainWindow):
                 ControlPanel:
                     id: control_panel
             Tab:
+                title = 'Workspace'
                 WorkspaceViewer:
                     id: workspace_area
                     work << model.workspace_handler
@@ -651,6 +665,7 @@ enamldef Main(MainWindow):
                         vbox(shift_cols_form,shift_rows_form,merge_pb,
                              hbox(sorting_ops,other_other),use_selection_other,
                              map_to_unique, norm_selection, del_row_pb,
+                             date_parsers
                              )
                     ]
                     GroupBox:
@@ -753,6 +768,14 @@ enamldef Main(MainWindow):
                     PushButton:
                         id: merge_pb
                         text = 'Merge Columns'
+                    PushButton:
+                        id: date_parsers
+                        text = 'DateTime Parsers'
+                        clicked ::
+                            dlg = DateParseDialog()
+                            dlg.show()
+                            if dlg.result == 'accepted':
+                                print dlg.selection
                     
 
             Tab:
@@ -760,18 +783,18 @@ enamldef Main(MainWindow):
                 Container:
                     constraints = [
                         hbox(vbox(text_editor,cmd_line_form, script_tbar),
-                             vbox(workspace_view, add_script_result,
+                             vbox(add_script_result,
                                   cmd_hist_label, command_hist_view))
                     ]
                     TextEditor:
                         id: text_editor
-                    TableView:
-                        id: workspace_view
-                        item_model << model.workspace_handler
-                        BaseSelectionModel:
-                            id: wksp_bsm
-                            selection_mode = 'single'
-                            selection_behavior = 'items'
+                    #TableView:
+                    #    id: workspace_view
+                    #    item_model << model.workspace_handler
+                    #    BaseSelectionModel:
+                    #        id: wksp_bsm
+                    #        selection_mode = 'single'
+                    #        selection_behavior = 'items'
                     Form:
                         id: add_script_result
                         
@@ -800,7 +823,7 @@ enamldef Main(MainWindow):
                             command_hist_view.item_model = ListModel(
                                 model.script_handler.command_history
                             )
-                            workspace_view.item_model = model.workspace_handler
+                            #workspace_view.item_model = model.workspace_handler
                     Form:
                         id: cmd_line_form
                         Label:
@@ -816,7 +839,7 @@ enamldef Main(MainWindow):
                                 model.workspace_handler = WorkspaceHandler(
                                     model.script_handler.my_locals
                                 )
-                                workspace_view.item_model = model.workspace_handler
+                               # workspace_view.item_model = model.workspace_handler
                                 model.script_handler.command_history.append(
                                     cmd_input.value
                                 )
@@ -847,7 +870,7 @@ enamldef Main(MainWindow):
                                 if dlg.result=='accepted':
                                     var_dict = script_selection.add_to_workspace()
                                     model.add_uservariables(var_dict)
-                                    workspace_view.item_model = model.workspace_handler
+                                    #workspace_view.item_model = model.workspace_handler
                                     script_selection.flush()
                                     model.selection_handler.flush()
                         PushButton:
@@ -861,7 +884,7 @@ enamldef Main(MainWindow):
                                 model.script_handler.exec_script()
                                 model.workspace_handler = WorkspaceHandler(
                                     model.script_handler.my_locals)
-                                workspace_view.item_model = model.workspace_handler
+                                #workspace_view.item_model = model.workspace_handler
                                 workspace_area.work = model.workspace_handler
                                 #print workspace_area.work
                                 t = text_editor.get_text().split('\n')
@@ -902,7 +925,8 @@ enamldef Main(MainWindow):
                                     title = 'Save Script',
                                     filters = ['Python files (*.py)'],
                                     directory = os.path.dirname(
-                                        os.path.join('..','..','datasets','sample.csv')
+                                        os.path.join(
+                                            '..','..','datasets','sample.csv')
                                 ))
                                 dlg.show()
                                 if dlg.result == 'accepted':
@@ -916,7 +940,8 @@ enamldef Main(MainWindow):
                                     title = 'Load Script',
                                     filters = ['Python files (*.py)'],
                                     directory = os.path.dirname(
-                                        os.path.join('..','..','datasets','sample.csv')
+                                        os.path.join(
+                                            '..','..','datasets','sample.csv')
                                 ))
                                 dlg.show()
                                 if dlg.result == 'accepted':
