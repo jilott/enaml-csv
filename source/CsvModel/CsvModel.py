@@ -379,23 +379,27 @@ class CsvModel(HasTraits):
             self.unique_map = {}
             column = self.selection_handler.selected_indices[0][1]
             column_name = self.data_frame.columns[column]
-            data = self.data_frame[column_name]
+            data = DataFrame(self.data_frame[column_name])
             m = 0
-            index = 0
-            for item in data:
-                if item not in self.unique_map.keys():
-                    self.unique_map[item]=m
-                    m+=1
-            for item in data:
-                self.data_frame[column_name][index]=self.unique_map[item]
-                index +=1
+            
+            gb = data.groupby([column_name])
+            
+            for key in gb.indices.keys():
+                self.unique_map[key] = m
+                m += 1
+            new_indices = data[column_name]
+            
+            for i in range(len(new_indices)):
+                key = new_indices[i]
+                new_indices[i] = self.unique_map[key]
+            self.data_frame[column_name] = new_indices
+            
             self.table_model = DataFrameModel(
                 self.data_frame,
                 editable=True,
                 horizontal_headers=self.data_frame.columns,
             )
-            
-            
+        
         self.selection_handler.flush()
     
     def save_as(self):
