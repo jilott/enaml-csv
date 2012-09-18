@@ -62,7 +62,7 @@ class WorkspaceHandler(AbstractItemModel):
         if index.column == 0:
             return ALIGN_LEFT
         return super(WorkspaceHandler, self).alignment(index)
-
+    
 
 class SelectionWorkspace(AbstractItemModel):
 
@@ -94,6 +94,9 @@ class SelectionWorkspace(AbstractItemModel):
     # The properties of each variable in the workspace
     def horizontal_header_data(self, section):
         return ['Type', 'Top Left', 'Bottom Right','Variable Name'][section]
+    
+    def size_hint(self, index):
+        return (10,10)
     
     # A function for the AbstractItemModel subclass to generate the data for
     # viewing

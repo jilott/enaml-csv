@@ -77,17 +77,23 @@ enamldef EditPlotDialog(Dialog):
                     reject()
 
 
-enamldef DateParseDialog(Dialog):
-    attr selection = None
+enamldef TimestampParserDialog(Dialog):
+    attr selection << ts_parse_options.selected_index
     Container:
+        Label:
+            text = 'Parse into:'
         RadioGroup:
-            orientation = 'vertical'
-            items = ['a','b','b']
-            selected_item >> selection
+            id: ts_parse_options
+            orientation = 'Vertical'
+            items = [
+                'matplotlib.dates objects',
+                'pandas.DatetimeIndex objects'
+            ]
         Form:
             PushButton:
                 text = 'OK'
-                clicked :: accept()
+                clicked ::
+                    accept()
             PushButton:
                 text = 'Cancel'
                 clicked :: reject()
@@ -276,6 +282,7 @@ enamldef Main(MainWindow):
     attr text_class
     attr ml_evaluator
     
+    #icon =  model.icons_dict['title']
     
     closed ::
         model.script_handler.save_workspace()
@@ -772,11 +779,13 @@ enamldef Main(MainWindow):
                         id: date_parsers
                         text = 'DateTime Parsers'
                         clicked ::
-                            dlg = DateParseDialog()
+                            dlg = TimestampParserDialog()
                             dlg.show()
                             if dlg.result == 'accepted':
-                                print dlg.selection
-                    
+                                model.selection_handler.current_selection = \
+                                    bsm.get_selection()
+                                model.parse_timestamps(dlg.selection)
+
 
             Tab:
                 title = 'Scripting'
@@ -788,13 +797,6 @@ enamldef Main(MainWindow):
                     ]
                     TextEditor:
                         id: text_editor
-                    #TableView:
-                    #    id: workspace_view
-                    #    item_model << model.workspace_handler
-                    #    BaseSelectionModel:
-                    #        id: wksp_bsm
-                    #        selection_mode = 'single'
-                    #        selection_behavior = 'items'
                     Form:
                         id: add_script_result
                         

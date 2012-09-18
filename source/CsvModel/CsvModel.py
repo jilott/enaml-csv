@@ -24,7 +24,7 @@ from traitsui.api import View, Item
 from pandas.io.parsers import read_csv
 from enaml_item_models import DataFrameModel
 from enaml.styling.font import Font
-from pandas import DataFrame
+from pandas import DataFrame, DatetimeIndex
 from statsmodels.api import OLS
 from scipy.io import loadmat, savemat
 
@@ -221,6 +221,11 @@ class CsvModel(HasTraits):
             os.path.join('..','Icons','dedent.png')
         )
         self.icons_dict['dedent'] = dedent_icon
+        
+        title_icon = QtIcon().from_file(
+            os.path.join('..','Icons','title.png')
+        )
+        self.icons_dict['title'] = title_icon
     
     def _table_default(self):
         '''
@@ -639,3 +644,12 @@ class CsvModel(HasTraits):
             self.workspace_handler.workspace[elem] = loaded_workspace[elem]
         self.script_handler.my_locals = self.workspace_handler.workspace
 
+    def parse_timestamps(self, selected_option):
+        self.selection_handler.create_selection()
+        column = self.selection_handler.selected_indices[0][1]
+        column_name = self.data_frame.columns[column]
+        data = self.data_frame[column_name]
+        if selected_option == 1:
+            index = DatetimeIndex(data)
+            self.data_frame[column_name] = index
+        self.selection_handler.flush()
