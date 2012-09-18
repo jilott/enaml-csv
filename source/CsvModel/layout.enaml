@@ -894,6 +894,35 @@ enamldef Main(MainWindow):
                                 model.decrease_indent(
                                     text_editor.selected_text
                                 )
+                        PushButton:
+                            icon = model.icons_dict['save']
+                            clicked ::
+                                dlg = FileDialog(
+                                    mode = 'save',
+                                    title = 'Save Script',
+                                    filters = ['Python files (*.py)'],
+                                    directory = os.path.dirname(
+                                        os.path.join('..','..','datasets','sample.csv')
+                                ))
+                                dlg.show()
+                                if dlg.result == 'accepted':
+                                    model.script_handler.save_script(
+                                        text_editor.get_text(),dlg.path)
+                        PushButton:
+                            icon = model.icons_dict['load']
+                            clicked ::
+                                dlg = FileDialog(
+                                    mode = 'open',
+                                    title = 'Load Script',
+                                    filters = ['Python files (*.py)'],
+                                    directory = os.path.dirname(
+                                        os.path.join('..','..','datasets','sample.csv')
+                                ))
+                                dlg.show()
+                                if dlg.result == 'accepted':
+                                    script = \
+                                    model.script_handler.load_script(dlg.path)
+                                    text_editor.set_text(script)
             
             Tab:
                 title = 'Machine Learning'

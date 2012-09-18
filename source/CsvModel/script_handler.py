@@ -72,3 +72,14 @@ class ScriptHandler(HasTraits):
             os.remove(command_history_file)
         
         self.command_history = []
+    
+    def save_script(self, script, file_path):
+        f = open(file_path, 'w')
+        f.write(script)
+        f.close()
+    
+    def load_script(self, file_path):
+        f = open(file_path, 'r')
+        script = f.read()
+        f.close()
+        return script
