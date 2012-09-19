@@ -455,20 +455,40 @@ class CsvModel(HasTraits):
         their user given names in the script.
         '''
         
-        for key in var_dict:
-            
-            top_left = var_dict[key][0]
-            exec('top_left='+top_left)
-            
-            
-            bot_right = var_dict[key][1]
-            exec('bot_right='+bot_right)
-            
-            
-            x = self.table[top_left[0]:bot_right[0]+1,
-                           top_left[1]:bot_right[1]+1]
-            
-            self.script_handler.my_locals[key] = x
+        if self.AS_PANDAS_DATAFRAME:
+            for key in var_dict:
+                
+                top_left = var_dict[key][0]
+                exec('top_left='+top_left)
+                
+                
+                bot_right = var_dict[key][1]
+                exec('bot_right='+bot_right)
+                
+                if top_left[1] == bot_right[1]:
+                    # currently works only for columns
+                    column = top_left[1]
+                    col_name = self.data_frame.columns[column]
+                    x = self.data_frame[col_name][top_left[0]:bot_right[0]]
+                    
+                    self.script_handler.my_locals[key] = x
+                    
+        
+        else:
+            for key in var_dict:
+                
+                top_left = var_dict[key][0]
+                exec('top_left='+top_left)
+                
+                
+                bot_right = var_dict[key][1]
+                exec('bot_right='+bot_right)
+                
+                
+                x = self.table[top_left[0]:bot_right[0]+1,
+                               top_left[1]:bot_right[1]+1]
+                
+                self.script_handler.my_locals[key] = x
             
     
     def delete_rowcol(self):

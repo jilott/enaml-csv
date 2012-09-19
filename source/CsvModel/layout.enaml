@@ -269,6 +269,7 @@ enamldef WorkspaceViewer(Container):
         PushButton:
             icon = icons_dict['delete']
 
+
 enamldef Main(MainWindow):
     id: main_window
     attr model
