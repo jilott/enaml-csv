@@ -1,9 +1,9 @@
 import numpy as np
-from traits.api import HasTraits, Bool, Instance, Int, Array, List,Dict, String
+from traits.api import HasTraits, Bool, Instance, Int, Array, List,Dict
 from traitsui.api import View, Item
 from chaco.api import (
     Plot, ArrayPlotData, OverlayPlotContainer, marker_trait, PlotGrid,
-    Legend, ColorBar
+    ColorBar
 )
 from chaco.tools.api import ZoomTool, PanTool, BetterSelectingZoom, BroadcasterTool
 from chaco.tools.traits_tool import TraitsTool
@@ -314,7 +314,7 @@ class ImagePlotHandler(HasTraits):
     
     def __init__(self):
         self.container = OverlayPlotContainer()
-        plot = ArrayPlotData(imagedata=self.table)
+        
         self.selection_handler = SelectionHandler()
         
     

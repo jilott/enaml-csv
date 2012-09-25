@@ -4,28 +4,21 @@ import os
 import numpy as np
 import csv
 from traits.api import (
-    File, HasTraits, Array, List, Instance, Function, Int, Float, Bool, Dict,
+    File, HasTraits, Array, List, Instance, Int, Float, Bool, Dict,
     String
 )
 from enaml.stdlib.table_model import TableModel
 from enaml.core.item_model import AbstractItemModel
-from enaml.noncomponents.abstract_icon import AbstractTkIcon
 from enaml.backends.qt.noncomponents.qt_icon import QtIcon
-from enaml.backends.wx.noncomponents.wx_icon import WXIcon
-from enaml.core.item_model import ModelIndex
-from chaco.api import Plot, ArrayPlotData, marker_trait, OverlayPlotContainer
+from chaco.api import Plot, ArrayPlotData
 from sklearn.decomposition import PCA
-from sklearn.cluster import KMeans
 from selection_handler import SelectionHandler
 from script_handler import ScriptHandler
 from workspace_handler import WorkspaceHandler
-from enable.api import ColorTrait
-from traitsui.api import View, Item
 from pandas.io.parsers import read_csv
 from enaml_item_models import DataFrameModel
 from enaml.styling.font import Font
 from pandas import DataFrame, DatetimeIndex
-from statsmodels.api import OLS
 from scipy.io import loadmat, savemat
 
 def my_font_func(a,b,c):
