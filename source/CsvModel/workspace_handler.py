@@ -65,7 +65,10 @@ class WorkspaceHandler(AbstractItemModel):
     
 
 class SelectionWorkspace(AbstractItemModel):
-
+    '''
+    Not used yet. Why was this made?
+    '''
+    
     
     workspace = Dict
     

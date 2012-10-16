@@ -2,8 +2,11 @@ from CsvModel import CsvModel
 from plot_handlers import (XYPlotHandler, ImagePlotHandler, PCPlotHandler,
 RegressionPlotHandler, HistogramPlotHandler, KMeansPlotHandler)
 from sklearn_tools import TextClassifier, MLEvaluator
+from pandas.io.parsers import read_csv
 import os
 import pickle
+import sys
+
 
 model = CsvModel()
 xyplot_handler = XYPlotHandler()
@@ -68,6 +71,12 @@ if os.path.isfile(command_history_file):
     model.script_handler.command_history = command_history
     f.close()
 
+if len(sys.argv)>1:
+    model.filename = sys.argv[1]
+    model.data_frame = read_csv(model.filename)
+
+
+    
 
 if __name__ == '__main__':
     import enaml

@@ -6,6 +6,12 @@ ITEM_IS_EDITABLE, ITEM_IS_ENABLED, ITEM_IS_SELECTABLE)
 
 class SelectionHandler(HasTraits):
     
+    '''
+    Class for managing selections in the editor, including selections made on the
+    list of plots, the tabular view, local workspace, etc.
+    '''
+    
+    
     # The list returned by the get_selection() method of BaseSelectionModel
     current_selection = List
     
@@ -29,6 +35,10 @@ class SelectionHandler(HasTraits):
     # Converts the output of the get_selection() function into a list of 4-tuples,
     # each containing the top left and bottom right indices.
     def create_selection(self):
+        '''
+        Creates a list of tuples from the enaml ModelIndex objects, each pair
+        corresponds to the top-left and bottom-right coordinates of a selection.
+        '''
         for elem in self.current_selection:
             self.selected_indices.append(
                 (elem[0].row,
@@ -46,6 +56,11 @@ class SelectionHandler(HasTraits):
     # Creates a dictionary for the current selection, useful for visualizing
     # the selected components in a tabular from.
     def create_selection_dict(self):
+        '''
+        Creates a dictionary out of the current selection, indicating the type,
+        size and a default name for each selection.
+        '''
+        
         m=0
         for index in self.selected_indices:
             mydict = {}
@@ -62,6 +77,10 @@ class SelectionHandler(HasTraits):
     
     # Used for checking if the current selection is suitable for XY plotting
     def xyplot_check(self):
+        '''
+        Returns true if only two vectors of identical dimensions are selected.
+        '''
+        
         if len(self.selected_indices)>2:
             return False
         else:

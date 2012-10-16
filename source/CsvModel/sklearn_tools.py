@@ -13,6 +13,9 @@ import pickle
 
 
 class TextClassifier(HasTraits):
+    '''
+    Class for implementing sklean text classifiers in the editor.
+    '''
     
     # The text vectorizer from sklearn.feature_extraction.text
     vectorizer = Instance(TfidfVectorizer)

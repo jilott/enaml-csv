@@ -45,13 +45,18 @@ class ScriptHandler(HasTraits):
         return []
     
     def exec_single_line(self, clicked_event):
+        '''
+        'Exec'utes a single line entered in the command window of the editor.
+        '''
         command_index = clicked_event.new.row
         exec(self.command_history[command_index]) in self.my_globals, \
             self.my_locals
         self.command_history.append(self.command_history[command_index])
     
     def save_workspace(self):
-        
+        '''
+        Saves the local workspace as a pickle file.
+        '''
         this_path = os.path.abspath(__file__)
         model_dir = os.path.dirname(this_path)
         command_history_file = os.path.join(model_dir, 'command_history.pkl')
@@ -63,6 +68,9 @@ class ScriptHandler(HasTraits):
         f.close()
     
     def clear_history(self):
+        '''
+        Removes the pickle file containing the command history.
+        '''
         
         this_path = os.path.abspath(__file__)
         model_dir = os.path.dirname(this_path)
@@ -74,11 +82,17 @@ class ScriptHandler(HasTraits):
         self.command_history = []
     
     def save_script(self, script, file_path):
+        '''
+        Saves the script in the editor as a python file.
+        '''
         f = open(file_path, 'w')
         f.write(script)
         f.close()
     
     def load_script(self, file_path):
+        '''
+        Loads a script from a python file.
+        '''
         f = open(file_path, 'r')
         script = f.read()
         f.close()

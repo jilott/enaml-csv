@@ -1,0 +1,7 @@
+enamldef Main(MainWindow):
+    Container:
+        Field:
+            id: some_field
+            return_pressed ::
+                print some_field.value
+                some_field.value = ''

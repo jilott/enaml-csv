@@ -1,0 +1,21 @@
+i = 0
+from enaml.components.check_box import CheckBox
+
+
+class MyCheckBox(CheckBox):
+    pass
+
+enamldef Main(MainWindow):
+    attr component_list = []
+
+    Container:
+        #constraints = [vbox(pb, cbs.components)]
+        PushButton:
+            id: pb
+            text = 'Add Another'
+            clicked ::
+                component_list.append('added')
+                cbs.components = [MyCheckBox(text=txt) for txt in component_list]
+        Include:
+            id: cbs
+            components = component_list

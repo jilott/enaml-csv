@@ -1,0 +1,20 @@
+from enaml.stdlib.list_model import ListModel
+import os
+
+this_path = os.path.abspath(__file__)
+print os.path.dirname(this_path)
+
+enamldef Main(MainWindow):
+    attr L = range(10)
+
+    Container:
+        ListView:
+            id: lv
+            item_model = ListModel(L)
+        Field:
+            id: field
+            return_pressed ::
+                L.append(field.value)
+                lv.item_model = ListModel(L)
+                field.value = ''
+

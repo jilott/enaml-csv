@@ -238,6 +238,10 @@ class XYPlotHandler(HasTraits):
         self.selection_handler.flush()
     
     def _add_pan_tool_changed(self):
+        '''
+        Method called when the Pan Tool checkbox is checked or unchecked.
+        Adds the Pan Tool to the plot container if it isn't there and vice versa.
+        '''
         
         broadcaster = BroadcasterTool()
         for plot in self.container.components:
@@ -251,6 +255,11 @@ class XYPlotHandler(HasTraits):
                         self.container.tools.remove(tool)
         
     def _add_zoom_tool_changed(self):
+        '''
+        Method called when the Zoom Tool checkbox is checked or unchecked.
+        Adds the Zoom Tool to the plot container if it isn't there and vice versa.        
+        '''
+        
         broadcaster = BroadcasterTool()
         for plot in self.container.components:
             if self.add_zoom_tool:
@@ -263,6 +272,11 @@ class XYPlotHandler(HasTraits):
                         self.container.tools.remove(tool)
     
     def _add_dragzoom_changed(self):
+        '''
+        Method called when the Pan Tool checkbox is checked or unchecked.
+        Adds the Pan Tool to the plot container if it isn't there and vice versa.
+        '''
+    
         broadcaster = BroadcasterTool()
         for plot in self.container.components:
             if self.add_dragzoom:
@@ -277,6 +291,10 @@ class XYPlotHandler(HasTraits):
                         self.container.tools.remove(tool)
     
     def _show_grid_changed(self):
+        '''
+        Called when the Show grid checkbox is checked or unchecked. Adds a grid
+        if one is not present and removes if present.
+        '''
         
         if not self.show_grid:
             for plot in self.container.components:
@@ -292,6 +310,10 @@ class XYPlotHandler(HasTraits):
         self.container.request_redraw()
     
     def reassign_current_plot(self):
+        '''
+        Reassigns the currently selected plot. 
+        '''
+        
         self.selection_handler.create_selection()
         plot_index = self.selection_handler.selected_indices[0][0]
         plot_name = self.plot_list_view.keys()[plot_index]
@@ -299,6 +321,9 @@ class XYPlotHandler(HasTraits):
         self.selection_handler.flush()
 
 class ImagePlotHandler(HasTraits):
+    '''
+    Class for handling image plots.
+    '''
     
     # the overlay container for the plot
     container = Instance(OverlayPlotContainer)
@@ -378,6 +403,9 @@ class ImagePlotHandler(HasTraits):
 
 
 class PCPlotHandler(HasTraits):
+    '''
+    Class for handling principal component plots.
+    '''
     
     # The container for the plot.
     container = OverlayPlotContainer()
@@ -423,6 +451,9 @@ class PCPlotHandler(HasTraits):
 
 
 class RegressionPlotHandler(HasTraits):
+    '''
+    Class for handling regression plots
+    '''
     
     # The input data from the csv file
     data = Array
@@ -489,6 +520,9 @@ class RegressionPlotHandler(HasTraits):
         self.container.request_redraw()
 
 class HistogramPlotHandler(HasTraits):
+    '''
+    Class for handling the histograms.
+    '''
     
     # Index for the histogram plot
     index = Array
@@ -545,6 +579,11 @@ class HistogramPlotHandler(HasTraits):
         self.selection_handler.flush()
 
 class KMeansPlotHandler(HasTraits):
+    '''
+    Class for plotting the k-means clusters.
+    
+    '''
+    
     
     # the data to cluster
     data = Array
@@ -573,6 +612,10 @@ class KMeansPlotHandler(HasTraits):
         self.container = OverlayPlotContainer()
     
     def create_dataset(self):
+        '''
+        Creates a numpy array from the current selection to pass to the 
+        sklearn.cluster.kmeans object.
+        '''
         
         if self.to_omit:
             if len(self.to_omit)>0:
@@ -597,6 +640,10 @@ class KMeansPlotHandler(HasTraits):
     
 
     def plot_clusters(self):
+        '''
+        Plots the clusters after calling the .fit method of the sklearn kmeans 
+        estimator.
+        '''
         
         self.kmeans.n_clusters = self.n_clusters
         self.kmeans.fit(self.dataset)

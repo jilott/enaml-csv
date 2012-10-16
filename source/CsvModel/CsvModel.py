@@ -278,6 +278,11 @@ class CsvModel(HasTraits):
     
     
     def redraw_tablemodel(self):
+        '''
+        Called when the tabular view needs to be redrawn when the changes to the
+        table are programmatic, not through the UI.
+        '''
+        
         if self.AS_PANDAS_DATAFRAME:
             self.table_model = DataFrameModel(
                 self.data_frame, editable= True,
@@ -569,6 +574,10 @@ class CsvModel(HasTraits):
         self.selection_handler.flush()
     
     def add_row_col(self, selected_label):
+        '''
+        Adds a selected variable from the local workspace to the table view as
+        a row or as a column.
+        '''
         
         self.selection_handler.create_selection()
         selected_index = self.selection_handler.selected_indices[0][0]
@@ -600,7 +609,7 @@ class CsvModel(HasTraits):
     
     def set_table_selection(self, row, col):
         '''
-        
+        Sets a selection on the table view.
         '''
         none_types = [' ', 'None']
         
@@ -628,6 +637,10 @@ class CsvModel(HasTraits):
         return [(top_left_mi, bot_right_mi)]
     
     def increase_indent(self, selection):
+        '''
+        Increasing the indent by four spaces in the text editor.
+        '''
+        
         t = selection.split('\n')
         indented = ''
         for elem in t:
@@ -643,6 +656,11 @@ class CsvModel(HasTraits):
         pass
     
     def save_workspace(self, file_path):
+        '''
+        Saves the local workspace as a .mat file. (All variables must be
+        arrays or strings.)
+        '''
+        
         to_save = {}
         for elem in self.workspace_handler.workspace:
             obj = self.workspace_handler.workspace[elem]
@@ -652,12 +670,21 @@ class CsvModel(HasTraits):
             savemat(file_path, to_save)
     
     def load_workspace(self, file_path):
+        '''
+        Loading a .mat file into the workspace.
+        '''
+        
         loaded_workspace = loadmat(file_path)
         for elem in loaded_workspace:
             self.workspace_handler.workspace[elem] = loaded_workspace[elem]
         self.script_handler.my_locals = self.workspace_handler.workspace
 
     def parse_timestamps(self, selected_option):
+        '''
+        Parse timestamps from the pandas dataframe into Pandas DatetimIndex
+        objects or standard datetime objects.
+        '''
+        
         self.selection_handler.create_selection()
         column = self.selection_handler.selected_indices[0][1]
         column_name = self.data_frame.columns[column]

@@ -1,0 +1,8 @@
+enamldef Main(MainWindow):
+    Container:
+        Field:
+            id: field
+            value := ' '
+        PushButton:
+            text = 'OK'
+            clicked :: print len(field.value)

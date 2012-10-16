@@ -1,0 +1,19 @@
+from enaml.widgets.api import ( MainWindow, DockPane, Container, Label, PushButton,
+Notebook, Page)
+from enaml.widgets.dock_area import DockArea
+
+enamldef Main(MainWindow):
+    Notebook:
+        Page:
+            Container:
+
+                DockArea:
+                    DockPane:
+                        Container:
+                            Label:
+                                text = 'some_label'
+        Page:
+            Container:
+                PushButton:
+                    text = 'pb'
+                    clicked :: pass
