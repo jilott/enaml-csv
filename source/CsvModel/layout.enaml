@@ -2,6 +2,7 @@
 from selection_handler import ScriptSelection
 from ui_layout import MainUI
 
+
 enamldef Main(MainWindow):
     
     attr model
