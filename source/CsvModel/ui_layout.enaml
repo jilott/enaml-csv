@@ -1,0 +1,1071 @@
+
+from error_dialogs import ClearHistoryWarning
+from workspace_handler import WorkspaceHandler
+from enaml.stdlib.radio_group import RadioGroup
+from enaml.stdlib.fields import IntField
+from enaml.stdlib.list_model import ListModel
+import os
+
+
+enamldef NavigatorDialog(Dialog):
+    attr row = 'None'
+    attr col = 'None'
+    Form:
+        Label:
+            text = 'Column(s)'
+        Field:
+            value := col
+        Label:
+            text = 'Row(s)'
+        Field:
+            value := row
+        PushButton:
+            text = 'Ok'
+            clicked :: accept()
+        PushButton:
+            text = 'Cancel'
+            clicked :: reject()
+
+
+enamldef TimestampParserDialog(Dialog):
+    attr selection << ts_parse_options.selected_index
+    Container:
+        Label:
+            text = 'Parse into:'
+        RadioGroup:
+            id: ts_parse_options
+            orientation = 'Vertical'
+            items = [
+                'matplotlib.dates objects',
+                'pandas.DatetimeIndex objects'
+            ]
+        Form:
+            PushButton:
+                text = 'OK'
+                clicked ::
+                    accept()
+            PushButton:
+                text = 'Cancel'
+                clicked :: reject()
+
+enamldef ConfigureSelection(Dialog):
+    
+    attr config_workspace
+    title = 'Configure Selection'
+    
+    Container:
+        
+        TableView:
+            item_model = config_workspace
+        
+        Form:
+            PushButton:
+                text = 'OK'
+                clicked ::
+                    accept()
+            PushButton:
+                text = 'Cancel'
+                clicked ::
+                    reject()
+
+
+enamldef EditPlotDialog(Dialog):
+    
+    attr xyplot_handler
+    attr show_grid
+    attr plot_visible
+    attr plot_type_disc_
+    
+    Container:
+        constraints = [vbox(edit_plot_traits,edit_plot_form)]
+        TraitsUIItem:
+            id: edit_plot_traits
+            model := xyplot_handler
+        
+        Form:
+            id: edit_plot_form
+            
+            CheckBox:
+                id: show_grid_toggle
+                text = 'Show Grid'
+                checked := show_grid
+            CheckBox:
+                id: plot_visible_toggle
+                text = 'Plot Visible'
+                checked := plot_visible
+            Label:
+                text = 'Plot Type'
+            RadioGroup:
+                id: plot_type_radio
+                RadioButton:
+                    id: plot_type_disc
+                    text = 'Discrete'
+                    checked := plot_type_disc_
+                RadioButton:
+                    id: plot_type_cont
+                    text = 'Continuous'
+            PushButton:
+                text = 'Ok'
+                clicked ::
+                    accept()
+            PushButton:
+                text = 'Cancel'
+                clicked ::
+                    reject()
+
+enamldef WorkspaceViewer(Container):
+
+    attr work << model.workspace_handler
+    attr icons_dict
+    constraints = [vbox(tv, tb)]
+    TableView:
+        id: tv
+        item_model << work
+    ToolBar:
+        id: tb
+        PushButton:
+            icon = icons_dict['save']
+            clicked ::
+                dlg = FileDialog(
+                    mode = 'save',
+                    title = 'Save .mat file',
+                    filters = ['MAT files (*.mat)'],
+                    directory = os.path.dirname(
+                        os.path.join('..','..','datasets','sample.csv')
+                ))
+                dlg.show()
+                if dlg.result == 'accepted':
+                    model.save_workspace(dlg.path)
+        PushButton:
+            icon = icons_dict['load']
+            clicked ::
+                dlg = FileDialog(
+                    mode = 'open',
+                    title = 'Load .mat file',
+                    filters = ['MAT files (*.mat)'],
+                    directory = os.path.dirname(
+                        os.path.join('..','..','datasets','sample.csv')
+                ))
+                dlg.show()
+                if dlg.result == 'accepted':
+                    model.load_workspace(dlg.path)
+                    tv.item_model = work
+        PushButton:
+            icon = icons_dict['delete']
+
+enamldef Loader(Container):
+    
+    constraints = [
+        vbox(loader_form, tbar),
+        width == 500
+        ]
+    
+    Form:
+        id: loader_form
+        Label:
+            text = 'Filename'
+        
+        Field:
+            value << model.filename
+    
+    ToolBar:
+        id: tbar
+        
+        RadioGroup:
+            id: data_type_rb
+            RadioButton:
+                id: as_pandas
+                text = 'As Pandas DataFrame'
+                checked := model.AS_PANDAS_DATAFRAME
+            RadioButton:
+                id: as_nparray
+                text = 'As numpy.ndarray'
+                
+        PushButton:
+            id: load_button
+            
+            icon = model.icons_dict['load']
+            clicked::
+                dlg = FileDialog(
+                    title = 'Load file',
+                    filters = ['CSV files (*.csv)'],
+                    directory = os.path.dirname(
+                        os.path.join('..','..','datasets','sample.csv'))
+                    
+                )
+                dlg.show()
+                if dlg.result == 'accepted':
+                    model.filename = dlg.path
+                    xyplot_handler.AS_PANDAS_DATAFRAME = model.AS_PANDAS_DATAFRAME
+        PushButton:
+            id: save_button
+            icon = model.icons_dict['save']
+            clicked ::
+                dlg = FileDialog(
+                    title = 'Save file',
+                    mode = 'save',
+                    filters = ['CSV (*.csv)'],
+                    directory = os.path.dirname(
+                        os.path.join('..','..','datasets','sample.csv'))
+                    )
+                dlg.show()
+                if dlg.result == 'accepted':
+                    model.save_filename = dlg.path
+                    model.save_as()
+    
+        
+    
+        PushButton:
+            id: add_another_csv_pb
+            constraints = [height==save_button.height,
+                           width == 30]
+            text = '+'
+            clicked ::
+                pass
+
+
+enamldef ControlPanel(Container):
+    
+    Loader:
+        id: loader
+
+enamldef ToolsPanel(Form):
+    attr table_view
+    attr selection_model
+    Form:
+        Label:
+            text = 'Tools:'
+        ToolBar:
+            PushButton:
+                icon = model.icons_dict['bold']
+            PushButton:
+                icon = model.icons_dict['italic']
+            PushButton:
+                icon = model.icons_dict['under']
+            PushButton:
+                icon = model.icons_dict['cut']
+            PushButton:
+                icon = model.icons_dict['copy']
+            PushButton:
+                icon = model.icons_dict['paste']
+            PushButton:
+                icon = model.icons_dict['undo']
+            PushButton:
+                icon = model.icons_dict['redo']
+            PushButton:
+                icon = model.icons_dict['navigator']
+                clicked ::
+                    dlg = NavigatorDialog()
+                    dlg.show()
+                    if dlg.result == 'accepted':
+                        selection = model.set_table_selection(dlg.row, dlg.col)
+                        selection_model.set_selection(selection)
+
+enamldef MainUI(Container):
+    #id: main_window
+    
+    
+    #icon =  model.icons_dict['title']
+    
+    #closed ::
+    #    model.script_handler.save_workspace()
+    
+    Container:
+        constraints = [
+            
+                hbox(vbox(tools_properties,left_view),tab_parent),
+                
+            ]
+        ToolsPanel:
+            
+            id: tools_properties
+            table_view := tv_area
+            selection_model := bsm
+          
+            
+        TabGroup:
+            id: left_view
+            Tab:
+                title << model.filename.split('/')[len(model.filename.split('/'))-1]
+                constraints = [
+                    vbox(tv_area,control_panel),
+                    512>=tv_area.height >= 200,
+                    512>=tv_area.width >= 200,
+                    control_panel.width == tv_area.width,               
+                ]
+                TableView:
+                    id: tv_area
+                    item_model << model.table_model
+                    BaseSelectionModel:
+                        id: bsm
+                        #selection_behavior = 'columns'
+                
+                ControlPanel:
+                    id: control_panel
+            Tab:
+                title = 'Workspace'
+                WorkspaceViewer:
+                    id: workspace_area
+                    work << model.workspace_handler
+                    icons_dict = model.icons_dict
+        TabGroup:
+            id: tab_parent
+            Tab:
+                id: data_viz
+                title = 'Data Visualization'
+                TabGroup:
+                    Tab:
+                        id: x_vs_y
+                        title = 'X vs Y'
+                        Container:
+                            constraints = [
+                                hbox(
+                                    vbox(x_vs_y_plot, hbox(grid_toggle,
+                                            pantool_toggle, zoomtool_toggle,
+                                            dragzoom_toggle)),
+                                    vbox(plot_properties_traits, plot_radiogroup,
+                                         add_xyplot_pb,
+                                         plot_list_view, edit_plots_pb,
+                                         remove_selected_plots
+                                         )
+                                ),
+                                plot_radiogroup.width == plot_properties_traits.width,
+                                #plot_name_form.width == plot_radiogroup.width
+                            ]
+                            EnableCanvas:
+                                id: x_vs_y_plot
+                                constraints = [
+                                    256<=height<=512, 256<=width<=512
+                                    ]
+                                
+                                component << xyplot_handler.container
+                            TraitsUIItem:
+                                id: plot_properties_traits
+                                model = xyplot_handler
+                            Form:
+                                id: plot_radiogroup
+                                Label:
+                                    text = 'Plot Type'
+                                RadioGroup:                                
+                                    RadioButton:
+                                        id: plot_type_disc
+                                        text = 'Discrete'
+                                        checked := xyplot_handler.plot_type_disc
+                                    RadioButton:
+                                        id: plot_type_cont
+                                        text = 'Continuous'
+                                Label:
+                                    text = 'Tools'
+                                Container:
+                                    Form:
+                                        CheckBox:
+                                            text = 'Pan'
+                                        CheckBox:
+                                            text = 'Zoom'
+                                Label:
+                                    text = 'Plot Name'
+                                Field:
+                                    id: plot_name
+                                    value = ''
+
+                            CheckBox:
+                                id: grid_toggle
+                                text = 'Show Grid'
+                                checked := xyplot_handler.show_grid
+                            CheckBox:
+                                id: pantool_toggle
+                                text = 'Pan Tool'
+                                checked := xyplot_handler.add_pan_tool
+                            CheckBox:
+                                id: zoomtool_toggle
+                                text = 'Zoom Tool'
+                                checked := xyplot_handler.add_zoom_tool
+                            CheckBox:
+                                id: dragzoom_toggle
+                                text = 'Drag/Select Zoom'
+                                checked := xyplot_handler.add_dragzoom
+                            PushButton:
+                                id: add_xyplot_pb
+                                text = 'Plot From Selection'
+                                clicked ::
+                                    if xyplot_handler.AS_PANDAS_DATAFRAME:
+                                        xyplot_handler.data_frame = \
+                                        model.data_frame
+                                    else:
+                                        xyplot_handler.table = model.table
+                                    xyplot_handler.selection_handler.current_selection \
+                                    = bsm.get_selection()
+                                    
+                                    
+                                    xyplot_handler.add_xyplot_selection(
+                                        plot_name.value)
+                                    plot_list_view.item_model = ListModel(
+                                        xyplot_handler.plot_list_view.keys())
+                            PushButton:
+                                id: remove_selected_plots
+                                text = 'Remove Selected Plots'
+                                icon = model.icons_dict['delete']
+                                clicked ::
+                                    xyplot_handler.remove_selected_plots(
+                                        bsm_plotlist.get_selection()
+                                    )
+                                    plot_list_view.item_model = ListModel(
+                                        xyplot_handler.plot_list_view.keys())
+                            PushButton:
+                                id: edit_plots_pb
+                                text = 'Edit Plot Traits'
+                                clicked ::
+                                    xyplot_handler.selection_handler.current_selection = \
+                                        bsm_plotlist.get_selection()
+                                    dlg = EditPlotDialog(
+                                        xyplot_handler = xyplot_handler,
+                                        show_grid = True,
+                                        plot_visible = True,
+                                        plot_type_disc_ = \
+                                            xyplot_handler.plot_type_disc
+                                    )
+                                    dlg.show()
+                                    if dlg.result == 'accepted':
+                                        xyplot_handler.edit_selection(
+                                            dlg.show_grid, dlg.plot_visible,
+                                            dlg.plot_type_disc_
+                                        )
+                                    
+                                    
+                                    
+                            ListView:
+                                id: plot_list_view
+                                constraints = [height<=100]
+                                item_model = ListModel(
+                                    xyplot_handler.plot_list_view.keys())
+                                BaseSelectionModel:
+                                    id: bsm_plotlist
+                                    selection_event ::
+                                        xyplot_handler.selection_handler.current_selection = \
+                                            bsm_plotlist.get_selection()
+                                        xyplot_handler.reassign_current_plot()
+                        
+                    Tab:
+                        title = 'Image Plot'
+                        Container:
+                            constraints = [
+                                hbox(image_plot, imageplot_pb)
+                            ]
+                            EnableCanvas:
+                                id: image_plot
+                                constraints = [
+                                    height == 512,
+                                    width == 512
+                                ]
+                                component << imageplot_handler.container
+                            PushButton:
+                                id: imageplot_pb
+                                text = 'Use Selection'
+                                clicked ::
+                                    imageplot_handler.table = model.table
+                                    imageplot_handler.selection_handler.current_selection = \
+                                        bsm.get_selection()
+                                    imageplot_handler.selection_handler.create_selection()
+                                    
+                                    imageplot_handler.draw_image_plot()
+                                    imageplot_handler.selection_handler.flush()
+
+                    Tab:
+                        
+                        title = 'PC Plot'
+                        Container:
+        
+                            constraints = [
+                                hbox(pca_plot_canvas, pcaplot_pb)
+                            ]
+                            
+                            EnableCanvas:
+                                id: pca_plot_canvas
+                                constraints = [height==512, width==512]
+                                component << pcaplot_handler.container
+                            
+                            PushButton:
+                                id: pcaplot_pb
+                                text = 'Use Selection'
+                                clicked ::
+                                    pcaplot_handler.table = model.table
+                                    pcaplot_handler.selection_handler.current_selection = \
+                                        bsm.get_selection()
+                                    pcaplot_handler.draw_pc_plot()
+                                    pcaplot_handler.selection_handler.flush()
+                    Tab:
+                        title = 'Histogram'
+                        Container:
+                            id: hist_container
+
+                            constraints = [
+                                vbox(hist_plot_container,
+                                     nbins_slider, draw_hist_pb)
+                            ]
+                            EnableCanvas:
+                                id: hist_plot_container
+                                constraints = [
+                                    256<=width<=512,
+                                    256<=height<=512,
+                                ]
+                                component << histplot_handler.container
+                            Form:
+                                id: nbins_slider
+                                Slider:
+                                    minimum = 10
+                                    maximum = 1000
+                                    value >> histplot_handler.nbins
+                                Label:
+                                    text << str(histplot_handler.nbins)
+                            PushButton:
+                                id: draw_hist_pb
+                                text = 'Use Selection'
+                                clicked ::
+                                    histplot_handler.AS_PANDAS_DATAFRAME = \
+                                        model.AS_PANDAS_DATAFRAME
+                                    if histplot_handler.AS_PANDAS_DATAFRAME:
+                                        histplot_handler.data = model.data_frame
+                                    else:
+                                        histplot_handler.data = model.table
+                                    histplot_handler.selection_handler.current_selection = \
+                                        bsm.get_selection()
+                                    histplot_handler.draw_histogram()
+            Tab:
+                id: data_analysis
+                title = 'Data Analysis'
+                TabGroup:
+                    Tab:
+                        title = 'Descriptive Stats'
+                        Container:
+                            constraints = [vbox(params_form,params_pb)]
+                            GroupBox:
+                                id: params_form
+                                Form:
+                                    Label:
+                                        text = 'Sum'
+                                    Label:
+                                        text << str(model.selection_sum)
+                                    Label:
+                                        text = 'Mean'
+                                    Label:
+                                        text << str(model.selection_mean)
+                                    Label:
+                                        text = 'Variance'
+                                    Label:
+                                        text << str(model.selection_var)
+                                    Label:
+                                        text = 'Standard Deviation'
+                                    Label:
+                                        text << str(model.selection_std)
+                                    Label:
+                                        text = 'Maximum'
+                                    Label:
+                                        text << str(model.selection_max)
+                                    Label:
+                                        text = 'Minimum'
+                                    Label:
+                                        text << str(model.selection_min)
+                                    Label:
+                                        text = 'Covariance'
+                                    Label:
+                                        text << str(model.selection_cov)
+                            PushButton:
+                                id: params_pb
+                                text = 'Use Selection'
+                                clicked ::
+                                    model.selection_handler.current_selection \
+                                    = bsm.get_selection()
+                                    model.calculate_selection_params()
+                    Tab:
+                        title = 'Regression'
+                        Container:
+                            constraints = [vbox(regression_plot,
+                                                regress_plot_pb)]
+                            EnableCanvas:
+                                id: regression_plot
+                                constraints = [
+                                    256<=height<=512, 256<=width<=512
+                                ]
+                                component << regressplot.container
+                            PushButton:
+                                id: regress_plot_pb
+                                text = 'Use Selection'
+                                clicked ::
+                                    if model.AS_PANDAS_DATAFRAME:
+                                        regressplot.data = model.data_frame
+                                    else:
+                                        regressplot.data = model.table
+                                    regressplot.selection_handler.current_selection = \
+                                        bsm.get_selection()
+                                    regressplot.fit_selection()
+                                    regressplot.plot_fits()
+                                
+                    Tab:
+                        title = 'K-means Clustering'
+                        Container:
+                            constraints = [
+                                vbox(kmeans_plot_canvas,
+                                     kmeans_params_form, kmeans_pb 
+                                     )
+                            ]
+                            EnableCanvas:
+                                id: kmeans_plot_canvas
+                                constraints = [
+                                    256<=height<=512, 256<=width<=512
+                                ]
+                                component << kmeans_plot.container
+                            Form:
+                                id: kmeans_params_form
+                                Label:
+                                    text = 'No. of Clusters'
+                                Slider:
+                                    id: n_clusters_slider
+                                    minimum = 2
+                                    maximum = 10
+                                Label:
+                                    text = 'No. of Iterations'
+                                Slider:
+                                    id: max_iter_slider
+                                    minimum = 10
+                                    maximum = 500
+                                Label:
+                                    text = 'Columns to omit'
+                                Field:
+                                    id: kmeans_col_omit
+                                    
+                            PushButton:
+                                id: kmeans_pb
+                                text = 'Plot Clusters'
+                                clicked ::
+                                    to_omit = str(kmeans_col_omit.value)
+                                    to_omit = to_omit.split(',')
+                                    kmeans_plot.to_omit = to_omit
+                                    kmeans_plot.n_clusters = n_clusters_slider.value
+                                    if not model.AS_PANDAS_DATAFRAME:
+                                        kmeans_plot.data = model.table
+                                        kmeans_plot.create_dataset()
+                                        kmeans_plot.plot_clusters()
+                                
+
+            Tab:
+                id: other_ops_tab
+                title = 'Other'
+                Container:
+                    constraints = [
+                        vbox(shift_cols_form,shift_rows_form,merge_pb,
+                             hbox(sorting_ops,other_other),use_selection_other,
+                             map_to_unique, norm_selection, del_row_pb,
+                             date_parsers
+                             )
+                    ]
+                    GroupBox:
+                        id: sorting_ops
+                        title = 'Sort Selection'
+                        Container:
+                            constraints = [
+                                hbox(asc_desc_sort, sort_button)
+                            ]
+                            RadioGroup:
+                                id: asc_desc_sort
+                                items = ['Ascending', 'Descending']
+
+                            PushButton:
+                                id: sort_button
+                                text = 'Sort'
+                                clicked ::
+                                    model.selection_handler.current_selection = \
+                                        bsm.get_selection()
+                                    model.sort_selection(
+                                        asc_desc_sort.selected_index
+                                    )
+                    GroupBox:
+                        id: other_other
+                        Form:
+                            Label:
+                                text = 'No. of Items'
+                            Label:
+                                text << str(model.column_length)
+                            Label:
+                                text = 'Unique Items'
+                            Label:
+                                text << str(model.unique_items_nos)
+                    PushButton:
+                        id: use_selection_other
+                        text = 'Use Selection'
+                        clicked ::
+                            model.selection_handler.current_selection = \
+                                bsm.get_selection()
+                            model.string_ops()
+                    PushButton:
+                        id: map_to_unique
+                        text = 'Map to Integers'
+                        clicked ::
+                            model.selection_handler.current_selection = \
+                                bsm.get_selection()
+                            model.map_to_unique()
+                    PushButton:
+                        id: norm_selection
+                        text = 'Normalize Selection'
+                        clicked ::
+                            model.selection_handler.current_selection\
+                                = bsm.get_selection()
+                            model.normalize_selection()
+                    PushButton:
+                        id: del_row_pb
+                        text = 'Delete Row/Column'
+                        icon = model.icons_dict['delete']
+                        clicked ::
+                            model.selection_handler.current_selection = \
+                                bsm.get_selection()
+                            model.delete_rowcol()
+                    Form:
+                        id: shift_cols_form
+                        PushButton:
+                            id: shift_left_pb
+                            constraints = [width==shift_right_pb.width]
+                            text = 'Move Column Left'
+                            icon = model.icons_dict['left']
+                            clicked ::
+                                model.selection_handler.current_selection = \
+                                    bsm.get_selection()
+                                model.shift_selection('column','left')
+                        PushButton:
+                            id: shift_right_pb
+                            text = 'Move Column Right'
+                            icon = model.icons_dict['right']
+                            clicked ::
+                                model.selection_handler.current_selection = \
+                                    bsm.get_selection()
+                                model.shift_selection('column','right')
+                    Form:
+                        id: shift_rows_form
+                        PushButton:
+                            constraints = [width==shift_right_pb.width]
+                            text = 'Move Row Up'
+                            icon = model.icons_dict['up']
+                            clicked ::
+                                model.selection_handler.current_selection = \
+                                    bsm.get_selection()
+                                model.shift_selection('row', 'up')
+                        PushButton:
+                            constraints = [width==shift_right_pb.width]
+                            text = 'Move Row Down'
+                            icon = model.icons_dict['down']
+                            clicked ::
+                                model.selection_handler.current_selection = \
+                                    bsm.get_selection()
+                                model.shift_selection('row', 'down')
+                    PushButton:
+                        id: merge_pb
+                        text = 'Merge Columns'
+                    PushButton:
+                        id: date_parsers
+                        text = 'DateTime Parsers'
+                        clicked ::
+                            dlg = TimestampParserDialog()
+                            dlg.show()
+                            if dlg.result == 'accepted':
+                                model.selection_handler.current_selection = \
+                                    bsm.get_selection()
+                                model.parse_timestamps(dlg.selection)
+
+
+            Tab:
+                title = 'Scripting'
+                Container:
+                    constraints = [
+                        hbox(vbox(text_editor,cmd_line_form, script_tbar),
+                             vbox(add_script_result,
+                                  cmd_hist_label, command_hist_view))
+                    ]
+                    TextEditor:
+                        id: text_editor
+                    Form:
+                        id: add_script_result
+                        
+                        RadioGroup:
+                            id: as_row_col
+                            items = ['As Row', 'As column']
+                            orientation = 'vertical'
+                        PushButton:
+                            text = 'Add to Table'
+                            clicked ::
+                                model.selection_handler.current_selection = \
+                                    wksp_bsm.get_selection()
+                                model.add_row_col(as_row_col.selected_label)
+                    Label:
+                        id: cmd_hist_label
+                        text = 'Command History'
+                    ListView:
+                        id: command_hist_view
+                        item_model = ListModel(
+                            model.script_handler.command_history
+                        )
+                        BaseSelectionModel:
+                            selection_mode = 'extended'
+                        activated ::
+                            model.script_handler.exec_single_line(event)
+                            command_hist_view.item_model = ListModel(
+                                model.script_handler.command_history
+                            )
+                            #workspace_view.item_model = model.workspace_handler
+                    Form:
+                        id: cmd_line_form
+                        Label:
+                            text = 'Enter Command'
+                        Field:
+                            id: cmd_input
+                            return_pressed ::
+                                org_text = text_editor.get_text()
+                                text_editor.set_text(
+                                    org_text+cmd_input.value+'\n')
+                                model.script_handler.script = cmd_input.value
+                                model.script_handler.exec_script()
+                                model.workspace_handler = WorkspaceHandler(
+                                    model.script_handler.my_locals
+                                )
+                               # workspace_view.item_model = model.workspace_handler
+                                model.script_handler.command_history.append(
+                                    cmd_input.value
+                                )
+                                command_hist_view.item_model = ListModel(
+                                    model.script_handler.command_history
+                                )
+                                cmd_input.value = ''
+
+                    ToolBar:
+                        id: script_tbar
+                        #Form:
+                        #    id: script_control
+                            
+                        PushButton:
+                            id: use_selection_script
+                            text = 'Use Selection'
+                            clicked ::
+                                model.selection_handler.current_selection = \
+                                    bsm.get_selection()
+                                model.selection_handler.create_selection()
+                                script_selection.selection_list = \
+                                    model.selection_handler.selected_indices
+                                script_selection.create_selection_dict()
+                                dlg = ConfigureSelection(
+                                    config_workspace=script_selection
+                                )
+                                dlg.show()
+                                if dlg.result=='accepted':
+                                    var_dict = script_selection.add_to_workspace()
+                                    model.add_uservariables(var_dict)
+                                    #workspace_view.item_model = model.workspace_handler
+                                    script_selection.flush()
+                                    model.selection_handler.flush()
+                        PushButton:
+                            id: script_run_pb
+                            constraints = [height==use_selection_script.height,
+                                           width==use_selection_script.width]
+                            icon = model.icons_dict['run']
+                            clicked ::
+                                model.script_handler.script = \
+                                    text_editor.get_text()
+                                model.script_handler.exec_script()
+                                model.workspace_handler = WorkspaceHandler(
+                                    model.script_handler.my_locals)
+                                #workspace_view.item_model = model.workspace_handler
+                                workspace_area.work = model.workspace_handler
+                                #print workspace_area.work
+                                t = text_editor.get_text().split('\n')
+                                for statement in t:
+                                    model.script_handler.command_history.append(
+                                        statement
+                                    )
+                                command_hist_view.item_model = ListModel(
+                                    model.script_handler.command_history
+                                )
+                        PushButton:
+                            text = 'Clear History'
+                            icon = model.icons_dict['delete']
+                            clicked ::
+                                dlg = ClearHistoryWarning()
+                                dlg.show()
+                                if dlg.result == 'accepted':
+                                    model.script_handler.clear_history()
+                                    command_hist_view.item_model = ListModel([])
+                        PushButton:
+                            icon = model.icons_dict['indent']
+                            clicked ::
+                                indented = model.increase_indent(
+                                    text_editor.selected_text)
+
+                                text_editor.insert(indented)
+                        PushButton:
+                            icon = model.icons_dict['dedent']
+                            clicked ::
+                                model.decrease_indent(
+                                    text_editor.selected_text
+                                )
+                        PushButton:
+                            icon = model.icons_dict['save']
+                            clicked ::
+                                dlg = FileDialog(
+                                    mode = 'save',
+                                    title = 'Save Script',
+                                    filters = ['Python files (*.py)'],
+                                    directory = os.path.dirname(
+                                        os.path.join(
+                                            '..','..','datasets','sample.csv')
+                                ))
+                                dlg.show()
+                                if dlg.result == 'accepted':
+                                    model.script_handler.save_script(
+                                        text_editor.get_text(),dlg.path)
+                        PushButton:
+                            icon = model.icons_dict['load']
+                            clicked ::
+                                dlg = FileDialog(
+                                    mode = 'open',
+                                    title = 'Load Script',
+                                    filters = ['Python files (*.py)'],
+                                    directory = os.path.dirname(
+                                        os.path.join(
+                                            '..','..','datasets','sample.csv')
+                                ))
+                                dlg.show()
+                                if dlg.result == 'accepted':
+                                    script = \
+                                    model.script_handler.load_script(dlg.path)
+                                    text_editor.set_text(script)
+            
+            Tab:
+                title = 'Machine Learning'
+                TabGroup:
+                    Tab:
+                        title = 'Text Processing'
+        
+                        Container:
+                            
+                            GroupBox:
+                                id: text_class_gb
+                                constraints = [
+                                    hbox(simple_class_params,vbox(tfidf_pb,train_class_pb,
+                                         test_class_pb, save_classifier_pb,
+                                         load_classifier_pb, make_prediction_pb))
+                                ]
+                                title = 'Text Classification'
+                                Form:
+                                    id: simple_class_params
+                                    constraints = [
+                                        width <= 300
+                                    ]
+                                    Label:
+                                        text = 'Select Classifier'
+                                    ComboBox:
+                                        id: classifier_select_list
+                                        items = text_class.classifier_dict.keys()
+                                        value >> text_class.classifier_select
+                                    Label:
+                                        text = 'Training Data Length'
+                                    Field:
+                                        value := text_class.train_length
+                                    Label:
+                                        text = 'Target Column'
+                                    Field:
+                                        value := text_class.target_col_no
+                                    Label:
+                                        text = 'Classifier Score'
+                                    Label:
+                                        #constraints = [width==classifier_select_list.width]
+                                        text << str(text_class.classifier_score)
+                                    Label:
+                                        text = 'Status'
+                                    Label:
+                                        id: stat_label
+                                PushButton:
+                                    id: tfidf_pb
+                                    text = 'Tokenize - Bag of Words'
+                                    clicked ::
+                                        text_class.selection_handler.current_selection = \
+                                            bsm.get_selection()
+                                        text_class.data_frame = model.data_frame
+                                        text_class.create_dataset()
+                                        text_class.text_vectorize()
+                                        stat_label.text = 'Data vectorized'
+            
+                                PushButton:
+                                    id: train_class_pb
+                                    text = 'Train Classifier'
+                                    clicked ::
+                                        text_class.select_classifier()
+                                        text_class.train_classifier()
+                                        stat_label.text = 'Classifier Trained'
+                                PushButton:
+                                    id: test_class_pb
+                                    text = 'Test Classifier'
+                                    clicked ::
+                                        text_class.test_classifier()
+                                        stat_label.text = 'Classifier Tested'
+                                PushButton:
+                                    id: save_classifier_pb
+                                    text = 'Save Classifier'
+                                    icon = model.icons_dict['save']
+                                    clicked ::
+                                        dlg = FileDialog(
+                                            mode = 'save',
+                                            title = 'Save Classifier',
+                                            filters = ['Pickle files (*.pkl)'],
+                                            directory = os.path.dirname(
+                                            os.path.join('..','..','datasets','sample.csv'))
+                                        )
+                                        dlg.show()
+                                        if dlg.result == 'accepted':
+                                            text_class.save_classifier(dlg.path)
+                                            stat_label.text = 'Classifier Saved'
+                                        
+                                PushButton:
+                                    id: load_classifier_pb
+                                    text = 'Load Classifier'
+                                    icon = model.icons_dict['load']
+                                    clicked ::
+                                        dlg = FileDialog(
+                                            mode = 'open',
+                                            title = 'Load Classifier',
+                                            filters = ['Pickle files (*.pkl)'],
+                                            directory = os.path.dirname(
+                                            os.path.join('..','..','datasets','sample.csv'))
+                                        )
+                                        dlg.show()
+                                        if dlg.result == 'accepted':
+                                            text_class.load_classifier(dlg.path)
+                                            stat_label.text = 'Classifier Loaded'
+                                PushButton:
+                                    id: make_prediction_pb
+                                    text = 'Make Prediction'
+                                    clicked ::
+                                        text_class.data_frame = model.data_frame
+                                        text_class.selection_handler.current_selection = \
+                                            bsm.get_selection()
+                                        
+                                        text_class.make_prediction()
+                                        model.data_frame['Prediction']= \
+                                            text_class.prediction
+                                        model.redraw_tablemodel()
+                    Tab:
+                        title = 'Evaluation'
+                        Container:
+                            constraints = [hbox(estimators_gb, sklearn_control)]
+                            GroupBox:
+                                id: estimators_gb
+                                title = 'Sklearn Estimators'
+                                GroupBox:
+                                    id: linear_estimators_gb
+                                    title = 'Linear Estimators'
+                                    RadioGroup:
+                                        orientation = 'vertical'
+                                        items << ml_evaluator.linear_estimator_list
+                            GroupBox:
+                                id: sklearn_control
+                                title = 'Control Panel'
+                                Form:
+                                    Label:
+                                        text = 'Target Column(s)'
+                                    IntField:
+                                        id: target_col
+                                        value := ml_evaluator.target_col
