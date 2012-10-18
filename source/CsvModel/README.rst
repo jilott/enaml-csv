@@ -5,6 +5,8 @@ http://www.github.com/jaidevd/enam-csv
 
 **Description of the UI**
 
+    .. image:: https://raw.github.com/jaidevd/enaml-csv/master/source/Icons/screenshot.png
+
 Clone the repository and cd into the /source/CsvModel directory. Then run the
 editor_launch.py file. At first sight, you should be able to see a UI with a table
 on the left and a set of tabbed regions on the right. The table on the left initially
