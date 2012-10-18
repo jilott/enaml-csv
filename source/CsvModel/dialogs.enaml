@@ -105,3 +105,29 @@ enamldef EditPlotDialog(Dialog):
                 text = 'Cancel'
                 clicked ::
                     reject()
+
+enamldef ClearHistoryWarning(Dialog):
+    '''
+    Dialog for issuing warning before clearing the history
+    '''
+    
+    Container:
+        Label:
+            text = 'Are you sure you want to clear the history?\nIt cannot be recovered.'
+        Form:
+            PushButton:
+                text = 'OK'
+                clicked ::
+                    accept()
+            PushButton:
+                text = 'Cancel'
+                clicked ::
+                    reject()
+
+enamldef XYPlotDimensionsError(Dialog):
+    '''
+    Dialog that pops up when arrays selected for X-Y plotting aren't compatible
+    in dimension.
+    '''
+    Label:
+        text = 'Selection not suitable for XY Plots'
