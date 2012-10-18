@@ -1,4 +1,6 @@
 from enaml.stdlib.radio_group import RadioGroup
+from dialogs import NavigatorDialog
+import os
 
 enamldef WorkspaceViewer(Container):
 

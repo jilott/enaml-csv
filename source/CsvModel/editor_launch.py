@@ -1,4 +1,4 @@
-from CsvModel import CsvModel
+from csv_model import CsvModel
 from plot_handlers import (XYPlotHandler, ImagePlotHandler, PCPlotHandler,
 RegressionPlotHandler, HistogramPlotHandler, KMeansPlotHandler)
 from sklearn_tools import TextClassifier, MLEvaluator

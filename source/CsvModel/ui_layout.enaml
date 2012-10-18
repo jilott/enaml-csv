@@ -1,5 +1,5 @@
 from dialogs import (
-    NavigatorDialog, TimestampParserDialog, ConfigureSelection,
+    TimestampParserDialog, ConfigureSelection,
     EditPlotDialog, ClearHistoryWarning
 )
 from csv_widgets import (
@@ -14,10 +14,6 @@ import os
 
 
 
-
-
-
-
 enamldef ControlPanel(Container):
     
     Loader:
@@ -27,7 +23,6 @@ enamldef ControlPanel(Container):
 
 enamldef MainUI(Container):
     #id: main_window
-    
     
     #icon =  model.icons_dict['title']
     

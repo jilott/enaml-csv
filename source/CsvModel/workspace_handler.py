@@ -10,9 +10,8 @@ class WorkspaceHandler(AbstractItemModel):
     '''
     
     # The workspace, which maps the name of a variable to an object
-    workspace = Dict
+    workspace = {}
     
-    # Initialize atleast with an empty dict.
     def __init__(self, workspace):
         self.workspace = workspace
         
