@@ -1,0 +1,47 @@
+from plot_handlers import HistogramPlotHandler
+from csv_model import CsvModel
+
+enamldef HistogramPlotter(Container):
+    attr plot_handler
+    attr plot_model
+    attr sel_model
+    Container:
+
+        constraints = [
+            vbox(hist_plot_container,
+                 nbins_slider, draw_hist_pb)
+        ]
+        
+        EnableCanvas:
+            id: hist_plot_container
+            constraints = [
+                256<=width<=512,
+                256<=height<=512,
+            ]
+            component << plot_handler.container
+        Form:
+            id: nbins_slider
+            Slider:
+                minimum = 10
+                maximum = 1000
+                value >> plot_handler.nbins
+            Label:
+                text << str(plot_handler.nbins)
+        PushButton:
+            id: draw_hist_pb
+            text = 'Use Selection'
+            clicked ::
+                plot_handler.AS_PANDAS_DATAFRAME = \
+                    plot_model.AS_PANDAS_DATAFRAME
+                if plot_handler.AS_PANDAS_DATAFRAME:
+                    plot_handler.data = plot_model.data_frame
+                else:
+                    plot_handler.data = plot_model.table
+                plot_handler.selection_handler.current_selection = \
+                    sel_model.get_selection()
+                plot_handler.draw_histogram()
+
+enamldef Main(MainWindow):
+    HistogramPlotter:
+        plot_handler = HistogramPlotHandler()
+        plot_model = CsvModel()

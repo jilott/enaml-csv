@@ -7,6 +7,7 @@ from csv_widgets import (
 from viz_widgets.image_plotter import ImagePlotter
 from viz_widgets.xy_plotter import XYPlotter
 from viz_widgets.pc_plotter import PCPlotter
+from viz_widgets.histogram_plotter import HistogramPlotter
 from workspace_handler import WorkspaceHandler
 from enaml.stdlib.radio_group import RadioGroup
 from enaml.stdlib.fields import IntField
@@ -87,41 +88,11 @@ enamldef MainUI(Container):
 
                     Tab:
                         title = 'Histogram'
-                        Container:
-                            id: hist_container
+                        HistogramPlotter:
+                            plot_handler = histplot_handler
+                            plot_model = model
+                            sel_model = bsm
 
-                            constraints = [
-                                vbox(hist_plot_container,
-                                     nbins_slider, draw_hist_pb)
-                            ]
-                            EnableCanvas:
-                                id: hist_plot_container
-                                constraints = [
-                                    256<=width<=512,
-                                    256<=height<=512,
-                                ]
-                                component << histplot_handler.container
-                            Form:
-                                id: nbins_slider
-                                Slider:
-                                    minimum = 10
-                                    maximum = 1000
-                                    value >> histplot_handler.nbins
-                                Label:
-                                    text << str(histplot_handler.nbins)
-                            PushButton:
-                                id: draw_hist_pb
-                                text = 'Use Selection'
-                                clicked ::
-                                    histplot_handler.AS_PANDAS_DATAFRAME = \
-                                        model.AS_PANDAS_DATAFRAME
-                                    if histplot_handler.AS_PANDAS_DATAFRAME:
-                                        histplot_handler.data = model.data_frame
-                                    else:
-                                        histplot_handler.data = model.table
-                                    histplot_handler.selection_handler.current_selection = \
-                                        bsm.get_selection()
-                                    histplot_handler.draw_histogram()
             Tab:
                 id: data_analysis
                 title = 'Data Analysis'
