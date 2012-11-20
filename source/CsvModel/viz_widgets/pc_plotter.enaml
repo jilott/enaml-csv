@@ -1,0 +1,31 @@
+from csv_model import CsvModel
+from plot_handlers import PCPlotHandler
+
+enamldef PCPlotter(Container):
+    attr plot_handler
+    attr plot_model
+    attr sel_model
+    Container:
+        constraints = [
+            hbox(pca_plot_canvas, pcaplot_pb)
+        ]
+        
+        EnableCanvas:
+            id: pca_plot_canvas
+            constraints = [height==512, width==512]
+            component << plot_handler.container
+        
+        PushButton:
+            id: pcaplot_pb
+            text = 'Use Selection'
+            clicked ::
+                plot_handler.table = plot_model.table
+                plot_handler.selection_handler.current_selection = \
+                    sel_model.get_selection()
+                plot_handler.draw_pc_plot()
+                plot_handler.selection_handler.flush()
+
+enamldef Main(MainWindow):
+    PCPlotter:
+        plot_handler = PCPlotHandler()
+        plot_model = CsvModel()
