@@ -1,0 +1,33 @@
+from plot_handlers import ImagePlotHandler
+
+
+
+enamldef ImagePlotter(Container):
+    attr plot_handler
+    attr sel_model
+    Container:
+        constraints = [
+            hbox(image_plot, imageplot_pb)
+        ]
+        EnableCanvas:
+            id: image_plot
+            constraints = [
+                height == 512,
+                width == 512
+            ]
+            component << imageplot_handler.container
+        PushButton:
+            id: imageplot_pb
+            text = 'Use Selection'
+            clicked ::
+                imageplot_handler.table = model.table
+                imageplot_handler.selection_handler.current_selection = \
+                    sel_model.get_selection()
+                imageplot_handler.selection_handler.create_selection()
+                
+                imageplot_handler.draw_image_plot()
+                imageplot_handler.selection_handler.flush()
+
+enamldef Main(MainWindow):
+    ImagePlotter:
+        plot_handler = ImagePlotHandler()

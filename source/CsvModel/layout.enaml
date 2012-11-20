@@ -22,3 +22,4 @@ enamldef Main(MainWindow):
     
     MainUI:
         id: main_window
+        

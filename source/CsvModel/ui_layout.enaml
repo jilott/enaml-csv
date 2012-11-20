@@ -5,7 +5,7 @@ from dialogs import (
 from csv_widgets import (
     WorkspaceViewer, Loader, ToolsPanel
 )
-
+from viz_widgets.image_plotter import ImagePlotter
 from workspace_handler import WorkspaceHandler
 from enaml.stdlib.radio_group import RadioGroup
 from enaml.stdlib.fields import IntField
@@ -14,20 +14,9 @@ import os
 
 
 
-enamldef ControlPanel(Container):
-    
-    Loader:
-        id: loader
-
-
-
 enamldef MainUI(Container):
-    #id: main_window
-    
-    #icon =  model.icons_dict['title']
-    
-    #closed ::
-    #    model.script_handler.save_workspace()
+
+
     
     Container:
         constraints = [
@@ -59,7 +48,7 @@ enamldef MainUI(Container):
                         id: bsm
                         #selection_behavior = 'columns'
                 
-                ControlPanel:
+                Loader:
                     id: control_panel
             Tab:
                 title = 'Workspace'
@@ -206,28 +195,9 @@ enamldef MainUI(Container):
                         
                     Tab:
                         title = 'Image Plot'
-                        Container:
-                            constraints = [
-                                hbox(image_plot, imageplot_pb)
-                            ]
-                            EnableCanvas:
-                                id: image_plot
-                                constraints = [
-                                    height == 512,
-                                    width == 512
-                                ]
-                                component << imageplot_handler.container
-                            PushButton:
-                                id: imageplot_pb
-                                text = 'Use Selection'
-                                clicked ::
-                                    imageplot_handler.table = model.table
-                                    imageplot_handler.selection_handler.current_selection = \
-                                        bsm.get_selection()
-                                    imageplot_handler.selection_handler.create_selection()
-                                    
-                                    imageplot_handler.draw_image_plot()
-                                    imageplot_handler.selection_handler.flush()
+                        ImagePlotter:
+                            plot_handler = imageplot_handler
+                            sel_model = bsm
 
                     Tab:
                         
