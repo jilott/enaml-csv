@@ -12,6 +12,7 @@ from viz_widgets.stat_moments import StatsCalculator
 from viz_widgets.regression_plotter import RegressionPlotter
 from viz_widgets.kmeans_plotter import KMeansPlotter
 from viz_widgets.spreadsheet_ops import SpreadsheetOps
+from viz_widgets.script_widget import ScriptingTool
 from workspace_handler import WorkspaceHandler
 from enaml.stdlib.radio_group import RadioGroup
 from enaml.stdlib.fields import IntField
@@ -64,6 +65,7 @@ enamldef MainUI(Container):
                     icons_dict = model.icons_dict
         TabGroup:
             id: tab_parent
+
             Tab:
                 id: data_viz
                 title = 'Data Visualization'
@@ -120,7 +122,6 @@ enamldef MainUI(Container):
                             plot_handler = kmeans_plot
                             plot_model = model
 
-
             Tab:
                 id: other_ops_tab
                 title = 'Other'
@@ -130,167 +131,172 @@ enamldef MainUI(Container):
                 
             Tab:
                 title = 'Scripting'
-                Container:
-                    constraints = [
-                        hbox(vbox(text_editor,cmd_line_form, script_tbar),
-                             vbox(add_script_result,
-                                  cmd_hist_label, command_hist_view))
-                    ]
-                    TextEditor:
-                        id: text_editor
-                    Form:
-                        id: add_script_result
-                        
-                        RadioGroup:
-                            id: as_row_col
-                            items = ['As Row', 'As column']
-                            orientation = 'vertical'
-                        PushButton:
-                            text = 'Add to Table'
-                            clicked ::
-                                model.selection_handler.current_selection = \
-                                    wksp_bsm.get_selection()
-                                model.add_row_col(as_row_col.selected_label)
-                    Label:
-                        id: cmd_hist_label
-                        text = 'Command History'
-                    ListView:
-                        id: command_hist_view
-                        item_model = ListModel(
-                            model.script_handler.command_history
-                        )
-                        BaseSelectionModel:
-                            selection_mode = 'extended'
-                        activated ::
-                            model.script_handler.exec_single_line(event)
-                            command_hist_view.item_model = ListModel(
-                                model.script_handler.command_history
-                            )
-                            #workspace_view.item_model = model.workspace_handler
-                    Form:
-                        id: cmd_line_form
-                        Label:
-                            text = 'Enter Command'
-                        Field:
-                            id: cmd_input
-                            return_pressed ::
-                                org_text = text_editor.get_text()
-                                text_editor.set_text(
-                                    org_text+cmd_input.value+'\n')
-                                model.script_handler.script = cmd_input.value
-                                model.script_handler.exec_script()
-                                model.workspace_handler = WorkspaceHandler(
-                                    model.script_handler.my_locals
-                                )
-                               # workspace_view.item_model = model.workspace_handler
-                                model.script_handler.command_history.append(
-                                    cmd_input.value
-                                )
-                                command_hist_view.item_model = ListModel(
-                                    model.script_handler.command_history
-                                )
-                                cmd_input.value = ''
-
-                    ToolBar:
-                        id: script_tbar
-                        #Form:
-                        #    id: script_control
-                            
-                        PushButton:
-                            id: use_selection_script
-                            text = 'Use Selection'
-                            clicked ::
-                                model.selection_handler.current_selection = \
-                                    bsm.get_selection()
-                                model.selection_handler.create_selection()
-                                script_selection.selection_list = \
-                                    model.selection_handler.selected_indices
-                                script_selection.create_selection_dict()
-                                dlg = ConfigureSelection(
-                                    config_workspace=script_selection
-                                )
-                                dlg.show()
-                                if dlg.result=='accepted':
-                                    var_dict = script_selection.add_to_workspace()
-                                    model.add_uservariables(var_dict)
-                                    #workspace_view.item_model = model.workspace_handler
-                                    script_selection.flush()
-                                    model.selection_handler.flush()
-                        PushButton:
-                            id: script_run_pb
-                            constraints = [height==use_selection_script.height,
-                                           width==use_selection_script.width]
-                            icon = model.icons_dict['run']
-                            clicked ::
-                                model.script_handler.script = \
-                                    text_editor.get_text()
-                                model.script_handler.exec_script()
-                                model.workspace_handler = WorkspaceHandler(
-                                    model.script_handler.my_locals)
-                                #workspace_view.item_model = model.workspace_handler
-                                workspace_area.work = model.workspace_handler
-                                #print workspace_area.work
-                                t = text_editor.get_text().split('\n')
-                                for statement in t:
-                                    model.script_handler.command_history.append(
-                                        statement
-                                    )
-                                command_hist_view.item_model = ListModel(
-                                    model.script_handler.command_history
-                                )
-                        PushButton:
-                            text = 'Clear History'
-                            icon = model.icons_dict['delete']
-                            clicked ::
-                                dlg = ClearHistoryWarning()
-                                dlg.show()
-                                if dlg.result == 'accepted':
-                                    model.script_handler.clear_history()
-                                    command_hist_view.item_model = ListModel([])
-                        PushButton:
-                            icon = model.icons_dict['indent']
-                            clicked ::
-                                indented = model.increase_indent(
-                                    text_editor.selected_text)
-
-                                text_editor.insert(indented)
-                        PushButton:
-                            icon = model.icons_dict['dedent']
-                            clicked ::
-                                model.decrease_indent(
-                                    text_editor.selected_text
-                                )
-                        PushButton:
-                            icon = model.icons_dict['save']
-                            clicked ::
-                                dlg = FileDialog(
-                                    mode = 'save',
-                                    title = 'Save Script',
-                                    filters = ['Python files (*.py)'],
-                                    directory = os.path.dirname(
-                                        os.path.join(
-                                            '..','..','datasets','sample.csv')
-                                ))
-                                dlg.show()
-                                if dlg.result == 'accepted':
-                                    model.script_handler.save_script(
-                                        text_editor.get_text(),dlg.path)
-                        PushButton:
-                            icon = model.icons_dict['load']
-                            clicked ::
-                                dlg = FileDialog(
-                                    mode = 'open',
-                                    title = 'Load Script',
-                                    filters = ['Python files (*.py)'],
-                                    directory = os.path.dirname(
-                                        os.path.join(
-                                            '..','..','datasets','sample.csv')
-                                ))
-                                dlg.show()
-                                if dlg.result == 'accepted':
-                                    script = \
-                                    model.script_handler.load_script(dlg.path)
-                                    text_editor.set_text(script)
+                ScriptingTool:
+                    data_model = model
+                    sel_model_table = bsm
+                    work_area = workspace_area
+                #    sel_model_wksp = wksp_bsm
+                #Container:
+                #    constraints = [
+                #        hbox(vbox(text_editor,cmd_line_form, script_tbar),
+                #             vbox(add_script_result,
+                #                  cmd_hist_label, command_hist_view))
+                #    ]
+                #    TextEditor:
+                #        id: text_editor
+                #    Form:
+                #        id: add_script_result
+                #        
+                #        RadioGroup:
+                #            id: as_row_col
+                #            items = ['As Row', 'As column']
+                #            orientation = 'vertical'
+                #        PushButton:
+                #            text = 'Add to Table'
+                #            clicked ::
+                #                model.selection_handler.current_selection = \
+                #                    wksp_bsm.get_selection()
+                #                model.add_row_col(as_row_col.selected_label)
+                #    Label:
+                #        id: cmd_hist_label
+                #        text = 'Command History'
+                #    ListView:
+                #        id: command_hist_view
+                #        item_model = ListModel(
+                #            model.script_handler.command_history
+                #        )
+                #        BaseSelectionModel:
+                #            selection_mode = 'extended'
+                #        activated ::
+                #            model.script_handler.exec_single_line(event)
+                #            command_hist_view.item_model = ListModel(
+                #                model.script_handler.command_history
+                #            )
+                #            #workspace_view.item_model = model.workspace_handler
+                #    Form:
+                #        id: cmd_line_form
+                #        Label:
+                #            text = 'Enter Command'
+                #        Field:
+                #            id: cmd_input
+                #            return_pressed ::
+                #                org_text = text_editor.get_text()
+                #                text_editor.set_text(
+                #                    org_text+cmd_input.value+'\n')
+                #                model.script_handler.script = cmd_input.value
+                #                model.script_handler.exec_script()
+                #                model.workspace_handler = WorkspaceHandler(
+                #                    model.script_handler.my_locals
+                #                )
+                #               # workspace_view.item_model = model.workspace_handler
+                #                model.script_handler.command_history.append(
+                #                    cmd_input.value
+                #                )
+                #                command_hist_view.item_model = ListModel(
+                #                    model.script_handler.command_history
+                #                )
+                #                cmd_input.value = ''
+                #
+                #    ToolBar:
+                #        id: script_tbar
+                #        #Form:
+                #        #    id: script_control
+                #            
+                #        PushButton:
+                #            id: use_selection_script
+                #            text = 'Use Selection'
+                #            clicked ::
+                #                model.selection_handler.current_selection = \
+                #                    bsm.get_selection()
+                #                model.selection_handler.create_selection()
+                #                script_selection.selection_list = \
+                #                    model.selection_handler.selected_indices
+                #                script_selection.create_selection_dict()
+                #                dlg = ConfigureSelection(
+                #                    config_workspace=script_selection
+                #                )
+                #                dlg.show()
+                #                if dlg.result=='accepted':
+                #                    var_dict = script_selection.add_to_workspace()
+                #                    model.add_uservariables(var_dict)
+                #                    #workspace_view.item_model = model.workspace_handler
+                #                    script_selection.flush()
+                #                    model.selection_handler.flush()
+                #        PushButton:
+                #            id: script_run_pb
+                #            constraints = [height==use_selection_script.height,
+                #                           width==use_selection_script.width]
+                #            icon = model.icons_dict['run']
+                #            clicked ::
+                #                model.script_handler.script = \
+                #                    text_editor.get_text()
+                #                model.script_handler.exec_script()
+                #                model.workspace_handler = WorkspaceHandler(
+                #                    model.script_handler.my_locals)
+                #                #workspace_view.item_model = model.workspace_handler
+                #                workspace_area.work = model.workspace_handler
+                #                #print workspace_area.work
+                #                t = text_editor.get_text().split('\n')
+                #                for statement in t:
+                #                    model.script_handler.command_history.append(
+                #                        statement
+                #                    )
+                #                command_hist_view.item_model = ListModel(
+                #                    model.script_handler.command_history
+                #                )
+                #        PushButton:
+                #            text = 'Clear History'
+                #            icon = model.icons_dict['delete']
+                #            clicked ::
+                #                dlg = ClearHistoryWarning()
+                #                dlg.show()
+                #                if dlg.result == 'accepted':
+                #                    model.script_handler.clear_history()
+                #                    command_hist_view.item_model = ListModel([])
+                #        PushButton:
+                #            icon = model.icons_dict['indent']
+                #            clicked ::
+                #                indented = model.increase_indent(
+                #                    text_editor.selected_text)
+                #
+                #                text_editor.insert(indented)
+                #        PushButton:
+                #            icon = model.icons_dict['dedent']
+                #            clicked ::
+                #                model.decrease_indent(
+                #                    text_editor.selected_text
+                #                )
+                #        PushButton:
+                #            icon = model.icons_dict['save']
+                #            clicked ::
+                #                dlg = FileDialog(
+                #                    mode = 'save',
+                #                    title = 'Save Script',
+                #                    filters = ['Python files (*.py)'],
+                #                    directory = os.path.dirname(
+                #                        os.path.join(
+                #                            '..','..','datasets','sample.csv')
+                #                ))
+                #                dlg.show()
+                #                if dlg.result == 'accepted':
+                #                    model.script_handler.save_script(
+                #                        text_editor.get_text(),dlg.path)
+                #        PushButton:
+                #            icon = model.icons_dict['load']
+                #            clicked ::
+                #                dlg = FileDialog(
+                #                    mode = 'open',
+                #                    title = 'Load Script',
+                #                    filters = ['Python files (*.py)'],
+                #                    directory = os.path.dirname(
+                #                        os.path.join(
+                #                            '..','..','datasets','sample.csv')
+                #                ))
+                #                dlg.show()
+                #                if dlg.result == 'accepted':
+                #                    script = \
+                #                    model.script_handler.load_script(dlg.path)
+                #                    text_editor.set_text(script)
             
             Tab:
                 title = 'Machine Learning'
