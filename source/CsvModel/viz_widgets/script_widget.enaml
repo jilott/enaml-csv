@@ -3,6 +3,7 @@ from enaml.stdlib.radio_group import RadioGroup
 from enaml.stdlib.list_model import ListModel
 from workspace_handler import WorkspaceHandler
 from dialogs import ClearHistoryWarning
+import os
 
 enamldef ScriptingTool(Container):
     
