@@ -11,6 +11,7 @@ from viz_widgets.histogram_plotter import HistogramPlotter
 from viz_widgets.stat_moments import StatsCalculator
 from viz_widgets.regression_plotter import RegressionPlotter
 from viz_widgets.kmeans_plotter import KMeansPlotter
+from viz_widgets.spreadsheet_ops import SpreadsheetOps
 from workspace_handler import WorkspaceHandler
 from enaml.stdlib.radio_group import RadioGroup
 from enaml.stdlib.fields import IntField
@@ -123,126 +124,10 @@ enamldef MainUI(Container):
             Tab:
                 id: other_ops_tab
                 title = 'Other'
-                Container:
-                    constraints = [
-                        vbox(shift_cols_form,shift_rows_form,merge_pb,
-                             hbox(sorting_ops,other_other),use_selection_other,
-                             map_to_unique, norm_selection, del_row_pb,
-                             date_parsers
-                             )
-                    ]
-                    GroupBox:
-                        id: sorting_ops
-                        title = 'Sort Selection'
-                        Container:
-                            constraints = [
-                                hbox(asc_desc_sort, sort_button)
-                            ]
-                            RadioGroup:
-                                id: asc_desc_sort
-                                items = ['Ascending', 'Descending']
-
-                            PushButton:
-                                id: sort_button
-                                text = 'Sort'
-                                clicked ::
-                                    model.selection_handler.current_selection = \
-                                        bsm.get_selection()
-                                    model.sort_selection(
-                                        asc_desc_sort.selected_index
-                                    )
-                    GroupBox:
-                        id: other_other
-                        Form:
-                            Label:
-                                text = 'No. of Items'
-                            Label:
-                                text << str(model.column_length)
-                            Label:
-                                text = 'Unique Items'
-                            Label:
-                                text << str(model.unique_items_nos)
-                    PushButton:
-                        id: use_selection_other
-                        text = 'Use Selection'
-                        clicked ::
-                            model.selection_handler.current_selection = \
-                                bsm.get_selection()
-                            model.string_ops()
-                    PushButton:
-                        id: map_to_unique
-                        text = 'Map to Integers'
-                        clicked ::
-                            model.selection_handler.current_selection = \
-                                bsm.get_selection()
-                            model.map_to_unique()
-                    PushButton:
-                        id: norm_selection
-                        text = 'Normalize Selection'
-                        clicked ::
-                            model.selection_handler.current_selection\
-                                = bsm.get_selection()
-                            model.normalize_selection()
-                    PushButton:
-                        id: del_row_pb
-                        text = 'Delete Row/Column'
-                        icon = model.icons_dict['delete']
-                        clicked ::
-                            model.selection_handler.current_selection = \
-                                bsm.get_selection()
-                            model.delete_rowcol()
-                    Form:
-                        id: shift_cols_form
-                        PushButton:
-                            id: shift_left_pb
-                            constraints = [width==shift_right_pb.width]
-                            text = 'Move Column Left'
-                            icon = model.icons_dict['left']
-                            clicked ::
-                                model.selection_handler.current_selection = \
-                                    bsm.get_selection()
-                                model.shift_selection('column','left')
-                        PushButton:
-                            id: shift_right_pb
-                            text = 'Move Column Right'
-                            icon = model.icons_dict['right']
-                            clicked ::
-                                model.selection_handler.current_selection = \
-                                    bsm.get_selection()
-                                model.shift_selection('column','right')
-                    Form:
-                        id: shift_rows_form
-                        PushButton:
-                            constraints = [width==shift_right_pb.width]
-                            text = 'Move Row Up'
-                            icon = model.icons_dict['up']
-                            clicked ::
-                                model.selection_handler.current_selection = \
-                                    bsm.get_selection()
-                                model.shift_selection('row', 'up')
-                        PushButton:
-                            constraints = [width==shift_right_pb.width]
-                            text = 'Move Row Down'
-                            icon = model.icons_dict['down']
-                            clicked ::
-                                model.selection_handler.current_selection = \
-                                    bsm.get_selection()
-                                model.shift_selection('row', 'down')
-                    PushButton:
-                        id: merge_pb
-                        text = 'Merge Columns'
-                    PushButton:
-                        id: date_parsers
-                        text = 'DateTime Parsers'
-                        clicked ::
-                            dlg = TimestampParserDialog()
-                            dlg.show()
-                            if dlg.result == 'accepted':
-                                model.selection_handler.current_selection = \
-                                    bsm.get_selection()
-                                model.parse_timestamps(dlg.selection)
-
-
+                SpreadsheetOps:
+                    sample_model = model
+                    sel_model = bsm
+                
             Tab:
                 title = 'Scripting'
                 Container:

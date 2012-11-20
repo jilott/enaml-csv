@@ -1,0 +1,131 @@
+from dialogs import TimestampParserDialog
+from csv_model import CsvModel
+from enaml.stdlib.radio_group import RadioGroup
+from enaml.backends.qt.noncomponents.qt_icon import QtIcon
+import os
+
+enamldef SpreadsheetOps(Container):
+    attr sample_model
+    attr sel_model
+    Container:
+        constraints = [
+            vbox(shift_cols_form,shift_rows_form,merge_pb,
+                 hbox(sorting_ops,other_other),use_selection_other,
+                 map_to_unique, norm_selection, del_row_pb,
+                 date_parsers
+                 )
+        ]
+        GroupBox:
+            id: sorting_ops
+            title = 'Sort Selection'
+            Container:
+                constraints = [
+                    hbox(asc_desc_sort, sort_button)
+                ]
+                RadioGroup:
+                    id: asc_desc_sort
+                    items = ['Ascending', 'Descending']
+
+                PushButton:
+                    id: sort_button
+                    text = 'Sort'
+                    clicked ::
+                        sample_model.selection_handler.current_selection = \
+                            sel_model.get_selection()
+                        sample_model.sort_selection(
+                            asc_desc_sort.selected_index
+                        )
+        GroupBox:
+            id: other_other
+            Form:
+                Label:
+                    text = 'No. of Items'
+                Label:
+                    text << str(sample_model.column_length)
+                Label:
+                    text = 'Unique Items'
+                Label:
+                    text << str(sample_model.unique_items_nos)
+        PushButton:
+            id: use_selection_other
+            text = 'Use Selection'
+            clicked ::
+                sample_model.selection_handler.current_selection = \
+                    sel_model.get_selection()
+                sample_model.string_ops()
+        PushButton:
+            id: map_to_unique
+            text = 'Map to Integers'
+            clicked ::
+                sample_model.selection_handler.current_selection = \
+                    sel_model.get_selection()
+                sample_model.map_to_unique()
+        PushButton:
+            id: norm_selection
+            text = 'Normalize Selection'
+            clicked ::
+                sample_model.selection_handler.current_selection\
+                    = sel_model.get_selection()
+                sample_model.normalize_selection()
+        PushButton:
+            id: del_row_pb
+            text = 'Delete Row/Column'
+            icon = QtIcon().from_file(os.path.join('..','Icons','cross.gif'))
+            clicked ::
+                sample_model.selection_handler.current_selection = \
+                    sel_model.get_selection()
+                sample_model.delete_rowcol()
+        Form:
+            id: shift_cols_form
+            PushButton:
+                id: shift_left_pb
+                constraints = [width==shift_right_pb.width]
+                text = 'Move Column Left'
+                icon = QtIcon().from_file(os.path.join('..','Icons','left.gif'))
+                clicked ::
+                    sample_model.selection_handler.current_selection = \
+                        sel_model.get_selection()
+                    sample_model.shift_selection('column','left')
+            PushButton:
+                id: shift_right_pb
+                text = 'Move Column Right'
+                icon = QtIcon().from_file(os.path.join('..','Icons','right.gif'))
+                clicked ::
+                    sample_model.selection_handler.current_selection = \
+                        sel_model.get_selection()
+                    sample_model.shift_selection('column','right')
+        Form:
+            id: shift_rows_form
+            PushButton:
+                constraints = [width==shift_right_pb.width]
+                text = 'Move Row Up'
+                icon = QtIcon().from_file(os.path.join('..','Icons','up.png'))
+                clicked ::
+                    sample_model.selection_handler.current_selection = \
+                        sel_model.get_selection()
+                    sample_model.shift_selection('row', 'up')
+            PushButton:
+                constraints = [width==shift_right_pb.width]
+                text = 'Move Row Down'
+                icon = QtIcon().from_file(os.path.join('..','Icons','down.png'))
+                clicked ::
+                    sample_model.selection_handler.current_selection = \
+                        sel_model.get_selection()
+                    sample_model.shift_selection('row', 'down')
+        PushButton:
+            id: merge_pb
+            text = 'Merge Columns'
+        PushButton:
+            id: date_parsers
+            text = 'DateTime Parsers'
+            clicked ::
+                dlg = TimestampParserDialog()
+                dlg.show()
+                if dlg.result == 'accepted':
+                    sample_model.selection_handler.current_selection = \
+                        sel_model.get_selection()
+                    sample_model.parse_timestamps(dlg.selection)
+
+enamldef Main(MainWindow):
+    SpreadsheetOps:
+        sample_model = CsvModel()
