@@ -1,0 +1,49 @@
+from csv_model import CsvModel
+
+enamldef StatsCalculator(Container):
+    attr sample_model
+    attr sel_model
+    Container:
+        constraints = [vbox(params_form,params_pb)]
+        GroupBox:
+            id: params_form
+            Form:
+                Label:
+                    text = 'Sum'
+                Label:
+                    text << str(sample_model.selection_sum)
+                Label:
+                    text = 'Mean'
+                Label:
+                    text << str(sample_model.selection_mean)
+                Label:
+                    text = 'Variance'
+                Label:
+                    text << str(sample_model.selection_var)
+                Label:
+                    text = 'Standard Deviation'
+                Label:
+                    text << str(sample_model.selection_std)
+                Label:
+                    text = 'Maximum'
+                Label:
+                    text << str(sample_model.selection_max)
+                Label:
+                    text = 'Minimum'
+                Label:
+                    text << str(sample_model.selection_min)
+                Label:
+                    text = 'Covariance'
+                Label:
+                    text << str(sample_model.selection_cov)
+        PushButton:
+            id: params_pb
+            text = 'Use Selection'
+            clicked ::
+                sample_model.selection_handler.current_selection \
+                = sel_model.get_selection()
+                sample_model.calculate_selection_params()
+
+enamldef Main(MainWindow):
+    StatsCalculator:
+        sample_model = CsvModel()

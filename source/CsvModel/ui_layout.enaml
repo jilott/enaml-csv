@@ -8,6 +8,7 @@ from viz_widgets.image_plotter import ImagePlotter
 from viz_widgets.xy_plotter import XYPlotter
 from viz_widgets.pc_plotter import PCPlotter
 from viz_widgets.histogram_plotter import HistogramPlotter
+from viz_widgets.stat_moments import StatsCalculator
 from workspace_handler import WorkspaceHandler
 from enaml.stdlib.radio_group import RadioGroup
 from enaml.stdlib.fields import IntField
@@ -99,46 +100,10 @@ enamldef MainUI(Container):
                 TabGroup:
                     Tab:
                         title = 'Descriptive Stats'
-                        Container:
-                            constraints = [vbox(params_form,params_pb)]
-                            GroupBox:
-                                id: params_form
-                                Form:
-                                    Label:
-                                        text = 'Sum'
-                                    Label:
-                                        text << str(model.selection_sum)
-                                    Label:
-                                        text = 'Mean'
-                                    Label:
-                                        text << str(model.selection_mean)
-                                    Label:
-                                        text = 'Variance'
-                                    Label:
-                                        text << str(model.selection_var)
-                                    Label:
-                                        text = 'Standard Deviation'
-                                    Label:
-                                        text << str(model.selection_std)
-                                    Label:
-                                        text = 'Maximum'
-                                    Label:
-                                        text << str(model.selection_max)
-                                    Label:
-                                        text = 'Minimum'
-                                    Label:
-                                        text << str(model.selection_min)
-                                    Label:
-                                        text = 'Covariance'
-                                    Label:
-                                        text << str(model.selection_cov)
-                            PushButton:
-                                id: params_pb
-                                text = 'Use Selection'
-                                clicked ::
-                                    model.selection_handler.current_selection \
-                                    = bsm.get_selection()
-                                    model.calculate_selection_params()
+                        StatsCalculator:
+                            sample_model = model
+                            sel_model = bsm
+
                     Tab:
                         title = 'Regression'
                         Container:
