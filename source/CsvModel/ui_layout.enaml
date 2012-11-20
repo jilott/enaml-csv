@@ -6,6 +6,7 @@ from csv_widgets import (
     WorkspaceViewer, Loader, ToolsPanel
 )
 from viz_widgets.image_plotter import ImagePlotter
+from viz_widgets.xy_plotter import XYPlotter
 from workspace_handler import WorkspaceHandler
 from enaml.stdlib.radio_group import RadioGroup
 from enaml.stdlib.fields import IntField
@@ -65,133 +66,137 @@ enamldef MainUI(Container):
                     Tab:
                         id: x_vs_y
                         title = 'X vs Y'
-                        Container:
-                            constraints = [
-                                hbox(
-                                    vbox(x_vs_y_plot, hbox(grid_toggle,
-                                            pantool_toggle, zoomtool_toggle,
-                                            dragzoom_toggle)),
-                                    vbox(plot_properties_traits, plot_radiogroup,
-                                         add_xyplot_pb,
-                                         plot_list_view, edit_plots_pb,
-                                         remove_selected_plots
-                                         )
-                                ),
-                                plot_radiogroup.width == plot_properties_traits.width,
-                                #plot_name_form.width == plot_radiogroup.width
-                            ]
-                            EnableCanvas:
-                                id: x_vs_y_plot
-                                constraints = [
-                                    256<=height<=512, 256<=width<=512
-                                    ]
-                                
-                                component << xyplot_handler.container
-                            TraitsUIItem:
-                                id: plot_properties_traits
-                                model = xyplot_handler
-                            Form:
-                                id: plot_radiogroup
-                                Label:
-                                    text = 'Plot Type'
-                                RadioGroup:                                
-                                    RadioButton:
-                                        id: plot_type_disc
-                                        text = 'Discrete'
-                                        checked := xyplot_handler.plot_type_disc
-                                    RadioButton:
-                                        id: plot_type_cont
-                                        text = 'Continuous'
-                                Label:
-                                    text = 'Tools'
-                                Container:
-                                    Form:
-                                        CheckBox:
-                                            text = 'Pan'
-                                        CheckBox:
-                                            text = 'Zoom'
-                                Label:
-                                    text = 'Plot Name'
-                                Field:
-                                    id: plot_name
-                                    value = ''
-
-                            CheckBox:
-                                id: grid_toggle
-                                text = 'Show Grid'
-                                checked := xyplot_handler.show_grid
-                            CheckBox:
-                                id: pantool_toggle
-                                text = 'Pan Tool'
-                                checked := xyplot_handler.add_pan_tool
-                            CheckBox:
-                                id: zoomtool_toggle
-                                text = 'Zoom Tool'
-                                checked := xyplot_handler.add_zoom_tool
-                            CheckBox:
-                                id: dragzoom_toggle
-                                text = 'Drag/Select Zoom'
-                                checked := xyplot_handler.add_dragzoom
-                            PushButton:
-                                id: add_xyplot_pb
-                                text = 'Plot From Selection'
-                                clicked ::
-                                    if xyplot_handler.AS_PANDAS_DATAFRAME:
-                                        xyplot_handler.data_frame = \
-                                        model.data_frame
-                                    else:
-                                        xyplot_handler.table = model.table
-                                    xyplot_handler.selection_handler.current_selection \
-                                    = bsm.get_selection()
-                                    
-                                    
-                                    xyplot_handler.add_xyplot_selection(
-                                        plot_name.value)
-                                    plot_list_view.item_model = ListModel(
-                                        xyplot_handler.plot_list_view.keys())
-                            PushButton:
-                                id: remove_selected_plots
-                                text = 'Remove Selected Plots'
-                                icon = model.icons_dict['delete']
-                                clicked ::
-                                    xyplot_handler.remove_selected_plots(
-                                        bsm_plotlist.get_selection()
-                                    )
-                                    plot_list_view.item_model = ListModel(
-                                        xyplot_handler.plot_list_view.keys())
-                            PushButton:
-                                id: edit_plots_pb
-                                text = 'Edit Plot Traits'
-                                clicked ::
-                                    xyplot_handler.selection_handler.current_selection = \
-                                        bsm_plotlist.get_selection()
-                                    dlg = EditPlotDialog(
-                                        xyplot_handler = xyplot_handler,
-                                        show_grid = True,
-                                        plot_visible = True,
-                                        plot_type_disc_ = \
-                                            xyplot_handler.plot_type_disc
-                                    )
-                                    dlg.show()
-                                    if dlg.result == 'accepted':
-                                        xyplot_handler.edit_selection(
-                                            dlg.show_grid, dlg.plot_visible,
-                                            dlg.plot_type_disc_
-                                        )
-                                    
-                                    
-                                    
-                            ListView:
-                                id: plot_list_view
-                                constraints = [height<=100]
-                                item_model = ListModel(
-                                    xyplot_handler.plot_list_view.keys())
-                                BaseSelectionModel:
-                                    id: bsm_plotlist
-                                    selection_event ::
-                                        xyplot_handler.selection_handler.current_selection = \
-                                            bsm_plotlist.get_selection()
-                                        xyplot_handler.reassign_current_plot()
+                        XYPlotter:
+                            plot_model = model
+                            plot_handler = xyplot_handler
+                            sel_model = bsm
+                        #Container:
+                        #    constraints = [
+                        #        hbox(
+                        #            vbox(x_vs_y_plot, hbox(grid_toggle,
+                        #                    pantool_toggle, zoomtool_toggle,
+                        #                    dragzoom_toggle)),
+                        #            vbox(plot_properties_traits, plot_radiogroup,
+                        #                 add_xyplot_pb,
+                        #                 plot_list_view, edit_plots_pb,
+                        #                 remove_selected_plots
+                        #                 )
+                        #        ),
+                        #        plot_radiogroup.width == plot_properties_traits.width,
+                        #        #plot_name_form.width == plot_radiogroup.width
+                        #    ]
+                        #    EnableCanvas:
+                        #        id: x_vs_y_plot
+                        #        constraints = [
+                        #            256<=height<=512, 256<=width<=512
+                        #            ]
+                        #        
+                        #        component << xyplot_handler.container
+                        #    TraitsUIItem:
+                        #        id: plot_properties_traits
+                        #        model = xyplot_handler
+                        #    Form:
+                        #        id: plot_radiogroup
+                        #        Label:
+                        #            text = 'Plot Type'
+                        #        RadioGroup:                                
+                        #            RadioButton:
+                        #                id: plot_type_disc
+                        #                text = 'Discrete'
+                        #                checked := xyplot_handler.plot_type_disc
+                        #            RadioButton:
+                        #                id: plot_type_cont
+                        #                text = 'Continuous'
+                        #        Label:
+                        #            text = 'Tools'
+                        #        Container:
+                        #            Form:
+                        #                CheckBox:
+                        #                    text = 'Pan'
+                        #                CheckBox:
+                        #                    text = 'Zoom'
+                        #        Label:
+                        #            text = 'Plot Name'
+                        #        Field:
+                        #            id: plot_name
+                        #            value = ''
+                        #
+                        #    CheckBox:
+                        #        id: grid_toggle
+                        #        text = 'Show Grid'
+                        #        checked := xyplot_handler.show_grid
+                        #    CheckBox:
+                        #        id: pantool_toggle
+                        #        text = 'Pan Tool'
+                        #        checked := xyplot_handler.add_pan_tool
+                        #    CheckBox:
+                        #        id: zoomtool_toggle
+                        #        text = 'Zoom Tool'
+                        #        checked := xyplot_handler.add_zoom_tool
+                        #    CheckBox:
+                        #        id: dragzoom_toggle
+                        #        text = 'Drag/Select Zoom'
+                        #        checked := xyplot_handler.add_dragzoom
+                        #    PushButton:
+                        #        id: add_xyplot_pb
+                        #        text = 'Plot From Selection'
+                        #        clicked ::
+                        #            if xyplot_handler.AS_PANDAS_DATAFRAME:
+                        #                xyplot_handler.data_frame = \
+                        #                model.data_frame
+                        #            else:
+                        #                xyplot_handler.table = model.table
+                        #            xyplot_handler.selection_handler.current_selection \
+                        #            = bsm.get_selection()
+                        #            
+                        #            
+                        #            xyplot_handler.add_xyplot_selection(
+                        #                plot_name.value)
+                        #            plot_list_view.item_model = ListModel(
+                        #                xyplot_handler.plot_list_view.keys())
+                        #    PushButton:
+                        #        id: remove_selected_plots
+                        #        text = 'Remove Selected Plots'
+                        #        icon = model.icons_dict['delete']
+                        #        clicked ::
+                        #            xyplot_handler.remove_selected_plots(
+                        #                bsm_plotlist.get_selection()
+                        #            )
+                        #            plot_list_view.item_model = ListModel(
+                        #                xyplot_handler.plot_list_view.keys())
+                        #    PushButton:
+                        #        id: edit_plots_pb
+                        #        text = 'Edit Plot Traits'
+                        #        clicked ::
+                        #            xyplot_handler.selection_handler.current_selection = \
+                        #                bsm_plotlist.get_selection()
+                        #            dlg = EditPlotDialog(
+                        #                xyplot_handler = xyplot_handler,
+                        #                show_grid = True,
+                        #                plot_visible = True,
+                        #                plot_type_disc_ = \
+                        #                    xyplot_handler.plot_type_disc
+                        #            )
+                        #            dlg.show()
+                        #            if dlg.result == 'accepted':
+                        #                xyplot_handler.edit_selection(
+                        #                    dlg.show_grid, dlg.plot_visible,
+                        #                    dlg.plot_type_disc_
+                        #                )
+                        #            
+                        #            
+                        #            
+                        #    ListView:
+                        #        id: plot_list_view
+                        #        constraints = [height<=100]
+                        #        item_model = ListModel(
+                        #            xyplot_handler.plot_list_view.keys())
+                        #        BaseSelectionModel:
+                        #            id: bsm_plotlist
+                        #            selection_event ::
+                        #                xyplot_handler.selection_handler.current_selection = \
+                        #                    bsm_plotlist.get_selection()
+                        #                xyplot_handler.reassign_current_plot()
                         
                     Tab:
                         title = 'Image Plot'
