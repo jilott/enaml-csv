@@ -1,0 +1,56 @@
+from plot_handlers import KMeansPlotHandler
+from csv_model import CsvModel
+
+enamldef KMeansPlotter(Container):
+    
+    attr plot_handler
+    attr plot_model
+    
+    Container:
+        constraints = [
+            vbox(plot_handler_canvas,
+                 kmeans_params_form, kmeans_pb 
+                 )
+        ]
+        EnableCanvas:
+            id: plot_handler_canvas
+            constraints = [
+                256<=height<=512, 256<=width<=512
+            ]
+            component << plot_handler.container
+        Form:
+            id: kmeans_params_form
+            Label:
+                text = 'No. of Clusters'
+            Slider:
+                id: n_clusters_slider
+                minimum = 2
+                maximum = 10
+            Label:
+                text = 'No. of Iterations'
+            Slider:
+                id: max_iter_slider
+                minimum = 10
+                maximum = 500
+            Label:
+                text = 'Columns to omit'
+            Field:
+                id: kmeans_col_omit
+                
+        PushButton:
+            id: kmeans_pb
+            text = 'Plot Clusters'
+            clicked ::
+                to_omit = str(kmeans_col_omit.value)
+                to_omit = to_omit.split(',')
+                plot_handler.to_omit = to_omit
+                plot_handler.n_clusters = n_clusters_slider.value
+                if not plot_model.AS_PANDAS_DATAFRAME:
+                    plot_handler.data = plot_model.table
+                    plot_handler.create_dataset()
+                    plot_handler.plot_clusters()
+
+enamldef Main(MainWindow):
+    KMeansPlotter:
+        plot_handler = KMeansPlotHandler()
+        plot_model = CsvModel()

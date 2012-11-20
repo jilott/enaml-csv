@@ -10,6 +10,7 @@ from viz_widgets.pc_plotter import PCPlotter
 from viz_widgets.histogram_plotter import HistogramPlotter
 from viz_widgets.stat_moments import StatsCalculator
 from viz_widgets.regression_plotter import RegressionPlotter
+from viz_widgets.kmeans_plotter import KMeansPlotter
 from workspace_handler import WorkspaceHandler
 from enaml.stdlib.radio_group import RadioGroup
 from enaml.stdlib.fields import IntField
@@ -114,50 +115,10 @@ enamldef MainUI(Container):
 
                     Tab:
                         title = 'K-means Clustering'
-                        Container:
-                            constraints = [
-                                vbox(kmeans_plot_canvas,
-                                     kmeans_params_form, kmeans_pb 
-                                     )
-                            ]
-                            EnableCanvas:
-                                id: kmeans_plot_canvas
-                                constraints = [
-                                    256<=height<=512, 256<=width<=512
-                                ]
-                                component << kmeans_plot.container
-                            Form:
-                                id: kmeans_params_form
-                                Label:
-                                    text = 'No. of Clusters'
-                                Slider:
-                                    id: n_clusters_slider
-                                    minimum = 2
-                                    maximum = 10
-                                Label:
-                                    text = 'No. of Iterations'
-                                Slider:
-                                    id: max_iter_slider
-                                    minimum = 10
-                                    maximum = 500
-                                Label:
-                                    text = 'Columns to omit'
-                                Field:
-                                    id: kmeans_col_omit
-                                    
-                            PushButton:
-                                id: kmeans_pb
-                                text = 'Plot Clusters'
-                                clicked ::
-                                    to_omit = str(kmeans_col_omit.value)
-                                    to_omit = to_omit.split(',')
-                                    kmeans_plot.to_omit = to_omit
-                                    kmeans_plot.n_clusters = n_clusters_slider.value
-                                    if not model.AS_PANDAS_DATAFRAME:
-                                        kmeans_plot.data = model.table
-                                        kmeans_plot.create_dataset()
-                                        kmeans_plot.plot_clusters()
-                                
+                        KMeansPlotter:
+                            plot_handler = kmeans_plot
+                            plot_model = model
+
 
             Tab:
                 id: other_ops_tab
