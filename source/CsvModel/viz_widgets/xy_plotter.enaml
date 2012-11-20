@@ -1,3 +1,4 @@
+from dialogs import EditPlotDialog
 from enaml.stdlib.radio_group import RadioGroup
 from enaml.stdlib.list_model import ListModel
 from enaml.backends.qt.noncomponents.qt_icon import QtIcon

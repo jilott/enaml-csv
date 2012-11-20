@@ -1,6 +1,5 @@
-from dialogs import (
-    TimestampParserDialog, ConfigureSelection,
-    EditPlotDialog, ClearHistoryWarning
+from ..dialogs import (
+    TimestampParserDialog, ConfigureSelection, ClearHistoryWarning
 )
 from csv_widgets import (
     WorkspaceViewer, Loader, ToolsPanel

@@ -1,0 +1,133 @@
+from enaml.stdlib.radio_group import RadioGroup
+
+enamldef NavigatorDialog(Dialog):
+    attr row = 'None'
+    attr col = 'None'
+    Form:
+        Label:
+            text = 'Column(s)'
+        Field:
+            value := col
+        Label:
+            text = 'Row(s)'
+        Field:
+            value := row
+        PushButton:
+            text = 'Ok'
+            clicked :: accept()
+        PushButton:
+            text = 'Cancel'
+            clicked :: reject()
+
+
+enamldef TimestampParserDialog(Dialog):
+    attr selection << ts_parse_options.selected_index
+    Container:
+        Label:
+            text = 'Parse into:'
+        RadioGroup:
+            id: ts_parse_options
+            orientation = 'Vertical'
+            items = [
+                'matplotlib.dates objects',
+                'pandas.DatetimeIndex objects'
+            ]
+        Form:
+            PushButton:
+                text = 'OK'
+                clicked ::
+                    accept()
+            PushButton:
+                text = 'Cancel'
+                clicked :: reject()
+
+enamldef ConfigureSelection(Dialog):
+    
+    attr config_workspace
+    title = 'Configure Selection'
+    
+    Container:
+        
+        TableView:
+            item_model = config_workspace
+        
+        Form:
+            PushButton:
+                text = 'OK'
+                clicked ::
+                    accept()
+            PushButton:
+                text = 'Cancel'
+                clicked ::
+                    reject()
+
+
+enamldef EditPlotDialog(Dialog):
+    
+    attr xyplot_handler
+    attr show_grid
+    attr plot_visible
+    attr plot_type_disc_
+    
+    Container:
+        constraints = [vbox(edit_plot_traits,edit_plot_form)]
+        TraitsUIItem:
+            id: edit_plot_traits
+            model := xyplot_handler
+        
+        Form:
+            id: edit_plot_form
+            
+            CheckBox:
+                id: show_grid_toggle
+                text = 'Show Grid'
+                checked := show_grid
+            CheckBox:
+                id: plot_visible_toggle
+                text = 'Plot Visible'
+                checked := plot_visible
+            Label:
+                text = 'Plot Type'
+            RadioGroup:
+                id: plot_type_radio
+                RadioButton:
+                    id: plot_type_disc
+                    text = 'Discrete'
+                    checked := plot_type_disc_
+                RadioButton:
+                    id: plot_type_cont
+                    text = 'Continuous'
+            PushButton:
+                text = 'Ok'
+                clicked ::
+                    accept()
+            PushButton:
+                text = 'Cancel'
+                clicked ::
+                    reject()
+
+enamldef ClearHistoryWarning(Dialog):
+    '''
+    Dialog for issuing warning before clearing the history
+    '''
+    
+    Container:
+        Label:
+            text = 'Are you sure you want to clear the history?\nIt cannot be recovered.'
+        Form:
+            PushButton:
+                text = 'OK'
+                clicked ::
+                    accept()
+            PushButton:
+                text = 'Cancel'
+                clicked ::
+                    reject()
+
+enamldef XYPlotDimensionsError(Dialog):
+    '''
+    Dialog that pops up when arrays selected for X-Y plotting aren't compatible
+    in dimension.
+    '''
+    Label:
+        text = 'Selection not suitable for XY Plots'
