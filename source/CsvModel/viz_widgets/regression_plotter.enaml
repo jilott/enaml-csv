@@ -1,0 +1,34 @@
+from plot_handlers import RegressionPlotHandler
+from csv_model import CsvModel
+
+
+enamldef RegressionPlotter(Container):
+    attr plot_handler
+    attr plot_model
+    attr sel_model
+    Container:
+        constraints = [vbox(regression_plot,
+                            regress_plot_pb)]
+        EnableCanvas:
+            id: regression_plot
+            constraints = [
+                256<=height<=512, 256<=width<=512
+            ]
+            component << plot_handler.container
+        PushButton:
+            id: regress_plot_pb
+            text = 'Use Selection'
+            clicked ::
+                if plot_model.AS_PANDAS_DATAFRAME:
+                    plot_handler.data = plot_model.data_frame
+                else:
+                    plot_handler.data = plot_model.table
+                plot_handler.selection_handler.current_selection = \
+                    sel_model.get_selection()
+                plot_handler.fit_selection()
+                plot_handler.plot_fits()
+
+enamldef Main(MainWindow):
+    RegressionPlotter:
+        plot_handler = RegressionPlotHandler()
+        plot_model = CsvModel()

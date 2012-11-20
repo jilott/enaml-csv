@@ -9,6 +9,7 @@ from viz_widgets.xy_plotter import XYPlotter
 from viz_widgets.pc_plotter import PCPlotter
 from viz_widgets.histogram_plotter import HistogramPlotter
 from viz_widgets.stat_moments import StatsCalculator
+from viz_widgets.regression_plotter import RegressionPlotter
 from workspace_handler import WorkspaceHandler
 from enaml.stdlib.radio_group import RadioGroup
 from enaml.stdlib.fields import IntField
@@ -106,28 +107,11 @@ enamldef MainUI(Container):
 
                     Tab:
                         title = 'Regression'
-                        Container:
-                            constraints = [vbox(regression_plot,
-                                                regress_plot_pb)]
-                            EnableCanvas:
-                                id: regression_plot
-                                constraints = [
-                                    256<=height<=512, 256<=width<=512
-                                ]
-                                component << regressplot.container
-                            PushButton:
-                                id: regress_plot_pb
-                                text = 'Use Selection'
-                                clicked ::
-                                    if model.AS_PANDAS_DATAFRAME:
-                                        regressplot.data = model.data_frame
-                                    else:
-                                        regressplot.data = model.table
-                                    regressplot.selection_handler.current_selection = \
-                                        bsm.get_selection()
-                                    regressplot.fit_selection()
-                                    regressplot.plot_fits()
-                                
+                        RegressionPlotter:
+                            plot_handler = regressplot
+                            plot_model = model
+                            sel_model = bsm
+
                     Tab:
                         title = 'K-means Clustering'
                         Container:
