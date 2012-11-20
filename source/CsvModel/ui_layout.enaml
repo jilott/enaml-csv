@@ -1,4 +1,4 @@
-from ..dialogs import (
+from viz_widgets.dialogs import (
     TimestampParserDialog, ConfigureSelection, ClearHistoryWarning
 )
 from csv_widgets import (
