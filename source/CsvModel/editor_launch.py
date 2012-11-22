@@ -1,7 +1,8 @@
 from viz_widgets.csv_model import CsvModel
 from viz_widgets.plot_handlers import (XYPlotHandler, ImagePlotHandler, PCPlotHandler,
 RegressionPlotHandler, HistogramPlotHandler, KMeansPlotHandler)
-from viz_widgets.sklearn_tools import TextClassifier, MLEvaluator
+from sklearn_widgets.sklearn_tools import TextClassifier
+from viz_widgets.sklearn_tools import MLEvaluator
 from pandas.io.parsers import read_csv
 import os
 import pickle
@@ -15,7 +16,7 @@ pcplot_handler = PCPlotHandler()
 regressplot = RegressionPlotHandler()
 histplot_handler = HistogramPlotHandler()
 kmeans_plot = KMeansPlotHandler()
-text_class = TextClassifier()
+text_classifier = TextClassifier()
 ml_evaluator = MLEvaluator()
 
 
@@ -55,7 +56,7 @@ def enaml_editor_launch(x, AS_PANDAS=False):
             regressplot = regressplot,
             histplot_handler=histplot_handler,
             kmeans_plot = kmeans_plot,
-            text_class = text_class,
+            text_classifier = text_classifier,
             ml_evaluator = ml_evaluator
         )
         view.show()
@@ -89,6 +90,6 @@ if __name__ == '__main__':
                     regressplot = regressplot,
                     histplot_handler=histplot_handler,
                     kmeans_plot = kmeans_plot,
-                    text_class = text_class,
+                    text_classifier = text_classifier,
                     ml_evaluator = ml_evaluator)
         view.show()

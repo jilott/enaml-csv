@@ -14,7 +14,7 @@ enamldef Main(MainWindow):
     attr regressplot
     attr histplot_handler
     attr kmeans_plot
-    attr text_class
+    attr text_classifier
     attr ml_evaluator
     
     closed ::

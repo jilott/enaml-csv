@@ -1,0 +1,121 @@
+from sklearn_tools import TextClassifier
+from csv_model import CsvModel
+
+enamldef TextClassifierWidget(Container):
+
+    attr text_class
+    attr sel_model
+    attr data_model
+
+    Container:
+        
+        GroupBox:
+            id: text_class_gb
+            constraints = [
+                hbox(simple_class_params,vbox(tfidf_pb,train_class_pb,
+                     test_class_pb, save_classifier_pb,
+                     load_classifier_pb, make_prediction_pb))
+            ]
+            title = 'Text Classification'
+            Form:
+                id: simple_class_params
+                constraints = [
+                    width <= 300
+                ]
+                Label:
+                    text = 'Select Classifier'
+                ComboBox:
+                    id: classifier_select_list
+                    items = text_class.classifier_dict.keys()
+                    value >> text_class.classifier_select
+                Label:
+                    text = 'Training Data Length'
+                Field:
+                    value := text_class.train_length
+                Label:
+                    text = 'Target Column'
+                Field:
+                    value := text_class.target_col_no
+                Label:
+                    text = 'Classifier Score'
+                Label:
+                    #constraints = [width==classifier_select_list.width]
+                    text << str(text_class.classifier_score)
+                Label:
+                    text = 'Status'
+                Label:
+                    id: stat_label
+            PushButton:
+                id: tfidf_pb
+                text = 'Tokenize - Bag of Words'
+                clicked ::
+                    text_class.selection_handler.current_selection = \
+                        sel_model.get_selection()
+                    text_class.data_frame = data_model.data_frame
+                    text_class.create_dataset()
+                    text_class.text_vectorize()
+                    stat_label.text = 'Data vectorized'
+
+            PushButton:
+                id: train_class_pb
+                text = 'Train Classifier'
+                clicked ::
+                    text_class.select_classifier()
+                    text_class.train_classifier()
+                    stat_label.text = 'Classifier Trained'
+            PushButton:
+                id: test_class_pb
+                text = 'Test Classifier'
+                clicked ::
+                    text_class.test_classifier()
+                    stat_label.text = 'Classifier Tested'
+            PushButton:
+                id: save_classifier_pb
+                text = 'Save Classifier'
+                icon = data_model.icons_dict['save']
+                clicked ::
+                    dlg = FileDialog(
+                        mode = 'save',
+                        title = 'Save Classifier',
+                        filters = ['Pickle files (*.pkl)'],
+                        directory = os.path.dirname(
+                        os.path.join('..','..','datasets','sample.csv'))
+                    )
+                    dlg.show()
+                    if dlg.result == 'accepted':
+                        text_class.save_classifier(dlg.path)
+                        stat_label.text = 'Classifier Saved'
+                    
+            PushButton:
+                id: load_classifier_pb
+                text = 'Load Classifier'
+                icon = data_model.icons_dict['load']
+                clicked ::
+                    dlg = FileDialog(
+                        mode = 'open',
+                        title = 'Load Classifier',
+                        filters = ['Pickle files (*.pkl)'],
+                        directory = os.path.dirname(
+                        os.path.join('..','..','datasets','sample.csv'))
+                    )
+                    dlg.show()
+                    if dlg.result == 'accepted':
+                        text_class.load_classifier(dlg.path)
+                        stat_label.text = 'Classifier Loaded'
+            PushButton:
+                id: make_prediction_pb
+                text = 'Make Prediction'
+                clicked ::
+                    text_class.data_frame = data_model.data_frame
+                    text_class.selection_handler.current_selection = \
+                        sel_model.get_selection()
+                    
+                    text_class.make_prediction()
+                    data_model.data_frame['Prediction']= \
+                        text_class.prediction
+                    data_model.redraw_tablemodel()
+
+enamldef Main(MainWindow):
+    TextClassifierWidget:
+        text_class = TextClassifier()
+        data_model = CsvModel()
