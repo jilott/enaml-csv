@@ -13,7 +13,7 @@ from viz_widgets.regression_plotter import RegressionPlotter
 from viz_widgets.kmeans_plotter import KMeansPlotter
 from viz_widgets.spreadsheet_ops import SpreadsheetOps
 from viz_widgets.script_widget import ScriptingTool
-from workspace_handler import WorkspaceHandler
+from viz_widgets.workspace_handler import WorkspaceHandler
 from enaml.stdlib.radio_group import RadioGroup
 from enaml.stdlib.fields import IntField
 from enaml.stdlib.list_model import ListModel

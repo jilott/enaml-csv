@@ -1,0 +1,32 @@
+ccopy_reg
+_reconstructor
+p0
+(ctraits.trait_handlers
+TraitListObject
+p1
+c__builtin__
+list
+p2
+(lp3
+Vfrom pylab import imshow, show
+p4
+aVimport numpy as np
+p5
+aVx = np.random.random((100,100))
+p6
+aVimshow(x)
+p7
+aVshow()
+p8
+atp9
+Rp10
+(dp11
+S'name_items'
+p12
+S'command_history_items'
+p13
+sS'name'
+p14
+S'command_history'
+p15
+sb.
