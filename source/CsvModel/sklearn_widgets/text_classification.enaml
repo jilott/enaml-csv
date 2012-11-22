@@ -1,5 +1,7 @@
 from sklearn_tools import TextClassifier
 from csv_model import CsvModel
+from enaml.backends.qt.noncomponents.qt_icon import QtIcon
+import os
 
 enamldef TextClassifierWidget(Container):
 
@@ -72,7 +74,9 @@ enamldef TextClassifierWidget(Container):
             PushButton:
                 id: save_classifier_pb
                 text = 'Save Classifier'
-                icon = data_model.icons_dict['save']
+                icon = QtIcon().from_file(
+                    os.path.join('viz_widgets', 'Icons', 'save.png')
+                )
                 clicked ::
                     dlg = FileDialog(
                         mode = 'save',
@@ -89,7 +93,9 @@ enamldef TextClassifierWidget(Container):
             PushButton:
                 id: load_classifier_pb
                 text = 'Load Classifier'
-                icon = data_model.icons_dict['load']
+                icon = QtIcon().from_file(
+                    os.path.join('viz_widgets', 'Icons', 'load.png')
+                )
                 clicked ::
                     dlg = FileDialog(
                         mode = 'open',

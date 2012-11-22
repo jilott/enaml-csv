@@ -70,7 +70,7 @@ enamldef SpreadsheetOps(Container):
         PushButton:
             id: del_row_pb
             text = 'Delete Row/Column'
-            icon = QtIcon().from_file(os.path.join('..','Icons','cross.gif'))
+            icon = QtIcon().from_file(os.path.join('viz_widgets','Icons','cross.gif'))
             clicked ::
                 sample_model.selection_handler.current_selection = \
                     sel_model.get_selection()
@@ -81,7 +81,7 @@ enamldef SpreadsheetOps(Container):
                 id: shift_left_pb
                 constraints = [width==shift_right_pb.width]
                 text = 'Move Column Left'
-                icon = QtIcon().from_file(os.path.join('..','Icons','left.gif'))
+                icon = QtIcon().from_file(os.path.join('viz_widgets','Icons','left.gif'))
                 clicked ::
                     sample_model.selection_handler.current_selection = \
                         sel_model.get_selection()
@@ -89,7 +89,7 @@ enamldef SpreadsheetOps(Container):
             PushButton:
                 id: shift_right_pb
                 text = 'Move Column Right'
-                icon = QtIcon().from_file(os.path.join('..','Icons','right.gif'))
+                icon = QtIcon().from_file(os.path.join('viz_widgets','Icons','right.gif'))
                 clicked ::
                     sample_model.selection_handler.current_selection = \
                         sel_model.get_selection()
@@ -99,7 +99,7 @@ enamldef SpreadsheetOps(Container):
             PushButton:
                 constraints = [width==shift_right_pb.width]
                 text = 'Move Row Up'
-                icon = QtIcon().from_file(os.path.join('..','Icons','up.png'))
+                icon = QtIcon().from_file(os.path.join('viz_widgets','Icons','up.png'))
                 clicked ::
                     sample_model.selection_handler.current_selection = \
                         sel_model.get_selection()
@@ -107,7 +107,7 @@ enamldef SpreadsheetOps(Container):
             PushButton:
                 constraints = [width==shift_right_pb.width]
                 text = 'Move Row Down'
-                icon = QtIcon().from_file(os.path.join('..','Icons','down.png'))
+                icon = QtIcon().from_file(os.path.join('viz_widgets','Icons','down.png'))
                 clicked ::
                     sample_model.selection_handler.current_selection = \
                         sel_model.get_selection()

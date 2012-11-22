@@ -1,6 +1,7 @@
 from csv_model import CsvModel
 from enaml.stdlib.radio_group import RadioGroup
 from enaml.stdlib.list_model import ListModel
+from enaml.backends.qt.noncomponents.qt_icon import QtIcon
 from workspace_handler import WorkspaceHandler
 from dialogs import ClearHistoryWarning
 import os
@@ -103,7 +104,9 @@ enamldef ScriptingTool(Container):
                 id: script_run_pb
                 constraints = [height==use_selection_script.height,
                                width==use_selection_script.width]
-                icon = data_model.icons_dict['run']
+                icon = QtIcon().from_file(
+                    os.path.join('viz_widgets','Icons','run.png')
+                )
                 clicked ::
                     data_model.script_handler.script = \
                         text_editor.get_text()
@@ -123,7 +126,9 @@ enamldef ScriptingTool(Container):
                     )
             PushButton:
                 text = 'Clear History'
-                icon = data_model.icons_dict['delete']
+                icon = QtIcon().from_file(
+                    os.path.join('viz_widgets','Icons','cross.gif')
+                )
                 clicked ::
                     dlg = ClearHistoryWarning()
                     dlg.show()
@@ -131,20 +136,26 @@ enamldef ScriptingTool(Container):
                         data_model.script_handler.clear_history()
                         command_hist_view.item_model = ListModel([])
             PushButton:
-                icon = data_model.icons_dict['indent']
+                icon = QtIcon().from_file(
+                    os.path.join('viz_widgets','Icons','indent.png')
+                )
                 clicked ::
                     indented = data_model.increase_indent(
                         text_editor.selected_text)
 
                     text_editor.insert(indented)
             PushButton:
-                icon = data_model.icons_dict['dedent']
+                icon = QtIcon().from_file(
+                    os.path.join('viz_widgets','Icons','dedent.png')
+                )
                 clicked ::
                     data_model.decrease_indent(
                         text_editor.selected_text
                     )
             PushButton:
-                icon = data_model.icons_dict['save']
+                icon = QtIcon().from_file(
+                    os.path.join('viz_widgets','Icons','save.png')
+                )
                 clicked ::
                     dlg = FileDialog(
                         mode = 'save',
@@ -159,7 +170,9 @@ enamldef ScriptingTool(Container):
                         data_model.script_handler.save_script(
                             text_editor.get_text(),dlg.path)
             PushButton:
-                icon = data_model.icons_dict['load']
+                icon = QtIcon().from_file(
+                    os.path.join('viz_widgets','Icons','load.png')
+                )
                 clicked ::
                     dlg = FileDialog(
                         mode = 'open',

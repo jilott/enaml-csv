@@ -98,7 +98,7 @@ enamldef XYPlotter(Container):
             id: remove_selected_plots
             text = 'Remove Selected Plots'
             icon = QtIcon().from_file(
-                       os.path.join('..','Icons','cross.gif')
+                       os.path.join('viz_widgets','Icons','cross.gif')
                     )
             clicked ::
                 xyplot_handler.remove_selected_plots(
