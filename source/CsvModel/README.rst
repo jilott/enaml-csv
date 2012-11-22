@@ -1,7 +1,7 @@
 THis is a preliminary look at the CSV editor.
 
 Find the repository at:
-http://www.github.com/jaidevd/enam-csv
+http://www.github.com/jaidevd/enaml-csv
 
 **Description of the UI**
 
