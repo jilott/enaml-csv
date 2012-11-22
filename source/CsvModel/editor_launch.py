@@ -1,7 +1,7 @@
-from csv_model import CsvModel
-from plot_handlers import (XYPlotHandler, ImagePlotHandler, PCPlotHandler,
+from viz_widgets.csv_model import CsvModel
+from viz_widgets.plot_handlers import (XYPlotHandler, ImagePlotHandler, PCPlotHandler,
 RegressionPlotHandler, HistogramPlotHandler, KMeansPlotHandler)
-from sklearn_tools import TextClassifier, MLEvaluator
+from viz_widgets.sklearn_tools import TextClassifier, MLEvaluator
 from pandas.io.parsers import read_csv
 import os
 import pickle

@@ -1,5 +1,5 @@
 # One of the possible layouts for the editor
-from selection_handler import ScriptSelection
+from viz_widgets.selection_handler import ScriptSelection
 from ui_layout import MainUI
 
 
