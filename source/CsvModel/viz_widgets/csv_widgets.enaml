@@ -1,6 +1,7 @@
 from enaml.backends.qt.noncomponents.qt_icon import QtIcon
 from enaml.stdlib.radio_group import RadioGroup
 from dialogs import NavigatorDialog
+from compatibility_check import CompatibilityChecker
 import os
 
 enamldef WorkspaceViewer(Container):
@@ -125,6 +126,7 @@ enamldef Loader(Container):
 enamldef ToolsPanel(Form):
     attr table_view
     attr selection_model
+    attr compatibility = CompatibilityChecker()
     Form:
         Label:
             text = 'Tools:'
@@ -171,3 +173,9 @@ enamldef ToolsPanel(Form):
                     if dlg.result == 'accepted':
                         selection = model.set_table_selection(dlg.row, dlg.col)
                         selection_model.set_selection(selection)
+            PushButton:
+                text = 'Use Selection'
+                clicked ::
+                    compatibility.selection = selection_model.get_selection()
+                    compatibility.check_histogram_compatible()
+                    print compatibility.histogram_compatible
