@@ -23,7 +23,7 @@ enamldef WorkspaceViewer(Container):
                     title = 'Save .mat file',
                     filters = ['MAT files (*.mat)'],
                     directory = os.path.dirname(
-                        os.path.join('..','..','datasets','sample.csv')
+                        os.path.join('..','datasets','sample.csv')
                 ))
                 dlg.show()
                 if dlg.result == 'accepted':
@@ -88,7 +88,7 @@ enamldef Loader(Container):
                     title = 'Load file',
                     filters = ['CSV files (*.csv)'],
                     directory = os.path.dirname(
-                        os.path.join('..','..','datasets','sample.csv'))
+                        os.path.join('..','datasets','sample.csv'))
                     
                 )
                 dlg.show()
