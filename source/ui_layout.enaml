@@ -58,6 +58,7 @@ enamldef MainUI(Container):
                 
                 Loader:
                     id: control_panel
+                
             Tab:
                 title = 'Workspace'
                 WorkspaceViewer:

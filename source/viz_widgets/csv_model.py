@@ -96,9 +96,6 @@ class CsvModel(HasTraits):
     # If the file should be imported as a Pandas dataframe
     AS_PANDAS_DATAFRAME = Bool(False)
     
-    # Dict containing icons
-    icons_dict = Dict
-    
     def _workspace_handler_default(self):
         return WorkspaceHandler({})
     
@@ -107,110 +104,6 @@ class CsvModel(HasTraits):
     
     def _selection_handler_default(self):
         return SelectionHandler()
-    
-    def _icons_dict_default(self):
-        
-        icons_dict = {}
-        
-        left_icon = QtIcon().from_file(
-            os.path.join('..','Icons','left.gif'))
-        icons_dict['left'] = left_icon
-        
-        right_icon = QtIcon().from_file(
-            os.path.join('..','Icons','right.gif'))
-        icons_dict['right'] = right_icon
-        
-        delete_icon = QtIcon().from_file(
-            os.path.join('..','Icons','cross.gif')
-        )
-        icons_dict['delete'] = delete_icon
-        
-        load_icon = QtIcon().from_file(
-            os.path.join('..','Icons','load.png')
-        )
-        icons_dict['load'] = load_icon
-        
-        save_icon = QtIcon().from_file(
-            os.path.join('..','Icons','save.png')
-        )
-        icons_dict['save'] = save_icon
-        
-        run_icon = QtIcon().from_file(
-            os.path.join('..','Icons','run.png')
-        )
-        icons_dict['run'] = run_icon
-        
-        up_icon = QtIcon().from_file(
-            os.path.join('..','Icons','up.png')
-        )
-        icons_dict['up'] = up_icon
-        
-        down_icon = QtIcon().from_file(
-            os.path.join('..','Icons','down.png')
-        )
-        icons_dict['down'] = down_icon
-        
-        bold_icon = QtIcon().from_file(
-            os.path.join('..','Icons','bold.png')
-        )
-        icons_dict['bold'] = bold_icon
-        
-        under_icon = QtIcon().from_file(
-            os.path.join('..','Icons','under.png')
-        )
-        icons_dict['under'] = under_icon
-        
-        italic_icon = QtIcon().from_file(
-            os.path.join('..','Icons','italic.png')
-        )
-        icons_dict['italic'] = italic_icon
-        
-        cut_icon = QtIcon().from_file(
-            os.path.join('..','Icons','cut.png')
-        )
-        icons_dict['cut'] = cut_icon
-        
-        copy_icon = QtIcon().from_file(
-            os.path.join('..','Icons','copy.gif')
-        )
-        icons_dict['copy'] = copy_icon
-        
-        paste_icon = QtIcon().from_file(
-            os.path.join('..','Icons','paste.png')
-        )
-        icons_dict['paste'] = paste_icon
-        
-        undo_icon = QtIcon().from_file(
-            os.path.join('..','Icons','undo.png')
-        )
-        icons_dict['undo'] = undo_icon
-        
-        redo_icon = QtIcon().from_file(
-            os.path.join('..','Icons','redo.png')
-        )
-        icons_dict['redo'] = redo_icon
-        
-        navigator_icon = QtIcon().from_file(
-            os.path.join('..','Icons','navigator.png')
-        )
-        icons_dict['navigator'] = navigator_icon
-        
-        indent_icon = QtIcon().from_file(
-            os.path.join('..','Icons','indent.png')
-        )
-        icons_dict['indent'] = indent_icon
-        
-        dedent_icon = QtIcon().from_file(
-            os.path.join('..','Icons','dedent.png')
-        )
-        icons_dict['dedent'] = dedent_icon
-        
-        title_icon = QtIcon().from_file(
-            os.path.join('..','Icons','title.png')
-        )
-        icons_dict['title'] = title_icon
-        
-        return icons_dict
     
     def _table_default(self):
         '''

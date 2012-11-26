@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Komodo Project File - DO NOT EDIT -->
+<project id="8c8364d1-5d93-4a60-8c6b-44ba3b265c30" kpf_version="5" name="csvenaml.komodoproject">
+<file id="219254aa-cac0-4447-b71d-ee2265492665" idref="8c8364d1-5d93-4a60-8c6b-44ba3b265c30" name="ui_layout.enaml" url="ui_layout.enaml">
+</file>
+<file id="258f3ade-e728-42bb-ae41-4448247c65ed" idref="8c8364d1-5d93-4a60-8c6b-44ba3b265c30" name="README.rst" url="README.rst">
+</file>
+<livefolder id="58fa8317-ff8c-4873-86a9-32b0ea33aab8" idref="8c8364d1-5d93-4a60-8c6b-44ba3b265c30" name="viz_widgets" url="viz_widgets">
+</livefolder>
+<file id="72b39309-9d23-4fbc-bebd-1ff9d8f17753" idref="8c8364d1-5d93-4a60-8c6b-44ba3b265c30" name="editor_launch.py" url="editor_launch.py">
+</file>
+<file id="b6eee619-4371-4ff3-a254-0fdac0e2d74e" idref="8c8364d1-5d93-4a60-8c6b-44ba3b265c30" name="layout.enaml" url="layout.enaml">
+</file>
+<livefolder id="cfddd413-216e-476c-acf5-a7d6b6ce6144" idref="8c8364d1-5d93-4a60-8c6b-44ba3b265c30" name="sklearn_widgets" url="sklearn_widgets">
+</livefolder>
+</project>
