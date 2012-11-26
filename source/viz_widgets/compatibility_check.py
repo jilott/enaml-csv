@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from traits.api import HasTraits, Bool, Instance, List, Any
+from traits.api import HasTraits, Bool, List, Any
 import numpy as np
 
 class CompatibilityChecker(HasTraits):

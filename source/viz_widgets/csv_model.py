@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import os
 import numpy as np
 import csv
 from traits.api import (
@@ -8,8 +7,6 @@ from traits.api import (
     String, Any
 )
 from enaml.stdlib.table_model import TableModel
-from enaml.core.item_model import AbstractItemModel
-from enaml.backends.qt.noncomponents.qt_icon import QtIcon
 from chaco.api import Plot, ArrayPlotData
 from sklearn.decomposition import PCA
 from selection_handler import SelectionHandler
@@ -17,7 +14,6 @@ from script_handler import ScriptHandler
 from workspace_handler import WorkspaceHandler
 from pandas.io.parsers import read_csv
 from enaml_item_models import DataFrameModel
-from enaml.styling.font import Font
 from pandas import DataFrame, DatetimeIndex
 from scipy.io import loadmat, savemat
 
