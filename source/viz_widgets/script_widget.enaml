@@ -3,7 +3,7 @@ from enaml.stdlib.radio_group import RadioGroup
 from enaml.stdlib.list_model import ListModel
 from enaml.backends.qt.noncomponents.qt_icon import QtIcon
 from workspace_handler import WorkspaceHandler
-from dialogs import ClearHistoryWarning
+from dialogs import ClearHistoryWarning, ConfigureSelection
 import os
 
 enamldef ScriptingTool(Container):
@@ -85,7 +85,7 @@ enamldef ScriptingTool(Container):
                 text = 'Use Selection'
                 clicked ::
                     data_model.selection_handler.current_selection = \
-                        bsm.get_selection()
+                        sel_model_table.get_selection()
                     data_model.selection_handler.create_selection()
                     script_selection.selection_list = \
                         data_model.selection_handler.selected_indices
