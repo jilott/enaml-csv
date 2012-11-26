@@ -5,7 +5,7 @@ http://www.github.com/jaidevd/enaml-csv
 
 **Description of the UI**
 
-    .. image:: https://raw.github.com/jaidevd/enaml-csv/master/source/CsvModel/viz_widgets/Icons/screenshot.png
+    .. image:: https://raw.github.com/jaidevd/enaml-csv/master/source/viz_widgets/Icons/screenshot.png
 
 Clone the repository and cd into the /source/CsvModel directory. Then run the
 editor_launch.py file. At first sight, you should be able to see a UI with a table

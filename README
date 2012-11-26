@@ -2,7 +2,7 @@ An Enaml UI for editing and analyzing delimited data.
 
 This project is currently under active development, like enaml itself, and is open to and all the feedback it can get.
 
-Find the source here - https://github.com/jaidevd/enaml-csv/tree/master/source/CsvModel
+Find the source here - https://github.com/jaidevd/enaml-csv/tree/master/source
 From the above directory, run the editor_launch.py file to launch the editor UI.
 
 Dependencies: Enaml (https://github.com/enthought/enaml.git) and the respective stack, Numpy, Pandas, scikit-learn.
