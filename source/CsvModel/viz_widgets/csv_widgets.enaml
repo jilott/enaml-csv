@@ -176,6 +176,5 @@ enamldef ToolsPanel(Form):
             PushButton:
                 text = 'Use Selection'
                 clicked ::
+                    compatibility.AS_DATAFRAME = model.AS_PANDAS_DATAFRAME
                     compatibility.selection = selection_model.get_selection()
-                    compatibility.check_histogram_compatible()
-                    print compatibility.histogram_compatible

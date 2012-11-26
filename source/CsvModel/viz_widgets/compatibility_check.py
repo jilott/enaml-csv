@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from traits.api import HasTraits, Bool, Instance, List
+from traits.api import HasTraits, Bool, Instance, List, Any
 import numpy as np
 
 class CompatibilityChecker(HasTraits):
@@ -9,6 +9,10 @@ class CompatibilityChecker(HasTraits):
     Class that checks whether the current selection is compatible with the
     data analysis and visualization widgets.
     '''
+    
+    AS_DATAFRAME = Bool
+    
+    data = Any
     
     # The current selection.
     selection = List
@@ -110,18 +114,43 @@ class CompatibilityChecker(HasTraits):
 
     
     def check_regress_compatible(self):
-        pass
+        if len(self.selection)>1:
+            self.regress_compatible = False
+        else:
+            top_left, bot_right = self.selection[0]
+            if (top_left.row, top_left.column) == (bot_right.row, bot_right.column):
+                self.regress_compatible = False
+            else:
+                if top_left.row == bot_right.row or \
+                   top_left.column == bot_right.column:
+                    self.regress_compatible = True
+
     
     def check_stats_compatible(self):
-        pass
+        if len(self.selection) == 1:
+            top_left, bot_right = self.selection[0]
+            if (top_left.row, top_left.column) == (bot_right.row, bot_right.column):
+                self.stats_compatible = False
+            else:
+                self.stats_compatible = True
+        else:
+            self.stats_compatible = True
     
     def check_spreadsheet_compatible(self):
-        pass
+        self.check_regress_compatible()
+        self.spreadsheet_compatible = self.regress_compatible
     
     def check_scripting_compatible(self):
         pass
     
     def check_tokenize_compatible(self):
+        #if self.AS_PANDAS_DATAFRAME:
+        #    if len(self.selection)>1:
+        #        self.tokenize_compatible = False
+        #    else:
+        #        top_left, bot_right = self.selection[0]
+        #        if (top_left.row, top_left.column) == (bot_right.row, bot_right.column):
+        #            self.tokenize_compatible = False
+        #        else:
+        #            if data[]
         pass
-    
-    
